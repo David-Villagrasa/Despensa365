@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Despensa365</string>
+    <string name="register">Registrarse</string>
+    <string name="welcome">Bienvenido,</string>
+    <string name="login">Iniciar sesión</string>
+    <string name="logout">Cerrar Sesión</string>
+    <string name="manWeek">Gestionar semana</string>
+    <string name="manRecipes">Gestionar recetas</string>
+    <string name="manPantry">Gestionar despensa</string>
+    <string name="manList">Gestionar lista de la compra</string>
+    <string name="imageDescription">imageLogo</string>
 </resources>
