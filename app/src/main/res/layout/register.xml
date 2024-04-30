@@ -21,6 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="100dp"
         android:layout_marginTop="16dp"
+        android:autofillHints="emailAddress"
         android:ems="10"
         android:hint="@string/mailHint"
         android:inputType="text"
@@ -33,8 +34,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="100dp"
         android:layout_marginTop="8dp"
+        android:autofillHints="password"
         android:ems="10"
-        android:inputType="text"
+        android:inputType="textPassword"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvPwdLogin" />
 
@@ -94,6 +96,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="100dp"
         android:layout_marginTop="12dp"
+        android:autofillHints="username"
         android:ems="10"
         android:hint="@string/nicknameHint"
         android:inputType="text"
@@ -104,10 +107,13 @@
         android:id="@+id/etPwdAgain"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="16dp"
+        android:autofillHints="password"
         android:ems="10"
         android:inputType="textPassword"
-        tools:layout_editor_absoluteX="102dp"
-        tools:layout_editor_absoluteY="410dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvPwdAgainTitle" />
 
     <TextView
         android:id="@+id/tvPwdAgainTitle"
