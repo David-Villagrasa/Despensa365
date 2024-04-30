@@ -1,12 +1,60 @@
 <resources>
+    <!-- App General -->
     <string name="app_name">Despensa365</string>
-    <string name="register">Registrarse</string>
     <string name="welcome">Bienvenido,</string>
+    <string name="next">Continuar</string>
+    <string name="back">Atrás</string>
+
+    <!-- Login Screen -->
     <string name="login">Iniciar sesión</string>
     <string name="logout">Cerrar Sesión</string>
+    <string name="loginTitle">Inicio de sesión</string>
+    <string name="mailTitle">Correo electrónico:</string>
+    <string name="pwdTitle">Contraseña:</string>
+    <string name="mailHint">Correo electrónico</string>
+
+    <!-- Register Screen -->
+    <string name="register">Registrarse</string>
+    <string name="registerTitle">Página de registro</string>
+    <string name="nicknameTitle">Nombre de usuario:</string>
+    <string name="nicknameHint">Nombre de usuario</string>
+    <string name="pwdAgainTitle">Repite la contraseña:</string>
+
+    <!-- Management -->
     <string name="manWeek">Gestionar semana</string>
     <string name="manRecipes">Gestionar recetas</string>
     <string name="manPantry">Gestionar despensa</string>
     <string name="manList">Gestionar lista de la compra</string>
+
+    <!-- Misc -->
     <string name="imageDescription">imageLogo</string>
+    <string name="recipeTitle">Receta</string>
+    <string name="recipeDirectionsTitle">Instrucciones</string>
+    <string name="recipeIngredientsTitle">Ingredientes</string>
+    <string name="recipeCreate">Crear</string>
+    <string name="weekManagementTitle">Gestion de la semana</string>
+
+    <!-- Array de nombres de días de la semana completos -->
+    <string-array name="days_of_week_full">
+        <item>Lunes</item>
+        <item>Martes</item>
+        <item>Miércoles</item>
+        <item>Jueves</item>
+        <item>Viernes</item>
+        <item>Sábado</item>
+        <item>Domingo</item>
+    </string-array>
+
+    <!-- Array de nombres de días de la semana abreviados -->
+    <string-array name="days_of_week_short">
+        <item>L</item>
+        <item>M</item>
+        <item>X</item>
+        <item>J</item>
+        <item>V</item>
+        <item>S</item>
+        <item>D</item>
+    </string-array>
+
+    <string name="weekAddRecipe">Haz click en la receta que deseas añadir</string>
 </resources>
