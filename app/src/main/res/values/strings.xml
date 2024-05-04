@@ -57,4 +57,18 @@
     </string-array>
 
     <string name="weekAddRecipe">Haz click en la receta que deseas añadir</string>
+    <string name="hintRecipe">Nombre de la receta</string>
+    <string name="recipeListTitle">Listado de recetas</string>
+    <string name="pantryTitle">Despensa</string>
+    <string name="pantryIngr">Ingredientes en vigor</string>
+    <string name="toExpired">Ver caducados</string>
+    <string name="addToBuy">Añadir a la lista de la compra</string>
+    <string name="cleanExpired">Limpiar caducados</string>
+    <string name="searchIngredient">Nombre del ingrediente</string>
+    <string name="listBuyTitle">Lista de compra</string>
+    <string name="addNeededIngr">Añadir ingredientes necesarios</string>
+    <string name="doneToBuy">Comprados</string>
+    <string name="expDateTitleIngr">Fecha de caducidad:</string>
+    <string name="titleWeightIngr">Peso:</string>
+    <string name="titleNumIngr">Cantidad:</string>
 </resources>
