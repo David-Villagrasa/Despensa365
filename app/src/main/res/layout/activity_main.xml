@@ -8,7 +8,7 @@
     tools:context=".MainActivity">
 
     <TextView
-        android:id="@+id/txtLoggedIn"
+        android:id="@+id/tvWelcome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="76dp"
@@ -23,6 +23,7 @@
         android:layout_width="276dp"
         android:layout_height="42dp"
         android:layout_marginTop="108dp"
+        android:onClick="clickWeek"
         android:text="@string/manWeek"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
@@ -47,6 +48,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
         android:layout_marginTop="32dp"
+        android:onClick="clickLogin"
         android:text="@string/login"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/logo" />
@@ -57,6 +59,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="36dp"
+        android:onClick="clickRegister"
         android:text="@string/register"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/logo" />
@@ -67,6 +70,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="40dp"
+        android:onClick="clickLogout"
         android:text="@string/logout"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
@@ -77,6 +81,7 @@
         android:layout_width="273dp"
         android:layout_height="45dp"
         android:layout_marginTop="169dp"
+        android:onClick="clickRecipes"
         android:text="@string/manRecipes"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -87,6 +92,7 @@
         android:layout_width="270dp"
         android:layout_height="46dp"
         android:layout_marginTop="228dp"
+        android:onClick="clickPantry"
         android:text="@string/manPantry"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -97,6 +103,7 @@
         android:layout_width="272dp"
         android:layout_height="60dp"
         android:layout_marginTop="291dp"
+        android:onClick="clickToBuy"
         android:text="@string/manList"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
