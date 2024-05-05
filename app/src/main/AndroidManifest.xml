@@ -21,6 +21,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.example.despensa365.LoginActivity" />
+        <activity android:name="com.example.despensa365.RegisterActivity" />
+        <activity android:name="com.example.despensa365.WeekActivity" />
     </application>
 
 </manifest>

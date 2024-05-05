@@ -8,6 +8,10 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -18,6 +22,8 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     Button btnLogin, btnRegister, btnLogout, btnManWeek, btnManRec, btnManPantry, btnManToBuy;
     TextView tvWelcome;
+    ActivityResultLauncher<Intent> lanzador;
+    boolean userAllowed;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,23 +43,54 @@ public class MainActivity extends AppCompatActivity {
         btnManPantry=findViewById(R.id.btnManagePantry);
         btnManToBuy=findViewById(R.id.btnManageList);
         tvWelcome=findViewById(R.id.tvWelcome);
+        defaultLayout();
+        lanzador = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult resultado) {
 
+                Intent data = resultado.getData();
+                if (data != null) {
+                    // Recuperar datos editados de la Actividadsec
+                    userAllowed = data.getBooleanExtra("allowed",false);
+                    if (userAllowed) {
+                        btnLogin.setVisibility(View.INVISIBLE);
+                        btnRegister.setVisibility(View.INVISIBLE);
+                        btnLogout.setVisibility(View.VISIBLE);
+                        tvWelcome.setVisibility(View.VISIBLE);
+                        tvWelcome.setText(getString(R.string.welcome) + " Exp User");
+                    }else{
+                        defaultLayout();
+                    }
+                }
+
+            }
+        });
+    }
+
+    private void defaultLayout() {
+        btnLogin.setVisibility(View.VISIBLE);
+        btnRegister.setVisibility(View.VISIBLE);
+        btnLogout.setVisibility(View.INVISIBLE);
+        tvWelcome.setVisibility(View.INVISIBLE);
     }
 
     public void clickLogin(View v) {
-
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        lanzador.launch(intent);
     }
 
     public void clickRegister(View v) {
-
+        Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+        lanzador.launch(intent);
     }
 
     public void clickLogout(View v) {
-
+        defaultLayout();
     }
 
     public void clickWeek(View v) {
-
+        Intent intent = new Intent(MainActivity.this, WeekActivity.class);
+        lanzador.launch(intent);
     }
 
     public void clickRecipes(View v) {
