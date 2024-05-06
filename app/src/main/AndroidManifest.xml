@@ -21,9 +21,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.example.despensa365.LoginActivity" />
-        <activity android:name="com.example.despensa365.RegisterActivity" />
-        <activity android:name="com.example.despensa365.WeekActivity" />
+        <activity android:name="com.example.despensa365.activities.LoginActivity" />
+        <activity android:name="com.example.despensa365.activities.RegisterActivity" />
+        <activity android:name="com.example.despensa365.activities.WeekActivity" />
+        <activity android:name="com.example.despensa365.activities.RecipeActivity" />
+        <activity android:name="com.example.despensa365.activities.ToBuyActivity" />
+        <activity android:name="com.example.despensa365.activities.PantryActivity" />
     </application>
 
 </manifest>

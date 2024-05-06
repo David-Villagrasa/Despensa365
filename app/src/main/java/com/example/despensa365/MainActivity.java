@@ -2,7 +2,6 @@ package com.example.despensa365;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -17,13 +16,18 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import java.util.ArrayList;
+import com.example.despensa365.activities.LoginActivity;
+import com.example.despensa365.activities.PantryActivity;
+import com.example.despensa365.activities.RecipeActivity;
+import com.example.despensa365.activities.RegisterActivity;
+import com.example.despensa365.activities.ToBuyActivity;
+import com.example.despensa365.activities.WeekActivity;
 
 public class MainActivity extends AppCompatActivity {
     Button btnLogin, btnRegister, btnLogout, btnManWeek, btnManRec, btnManPantry, btnManToBuy;
     TextView tvWelcome;
     ActivityResultLauncher<Intent> lanzador;
-    boolean userAllowed;
+    boolean userAllowed = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
                     // Recuperar datos editados de la Actividadsec
                     userAllowed = data.getBooleanExtra("allowed",false);
                     if (userAllowed) {
+                        //TODO the user should login in the app
                         btnLogin.setVisibility(View.INVISIBLE);
                         btnRegister.setVisibility(View.INVISIBLE);
                         btnLogout.setVisibility(View.VISIBLE);
@@ -85,24 +90,36 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clickLogout(View v) {
+        //TODO the user should logout
         defaultLayout();
     }
 
     public void clickWeek(View v) {
-        Intent intent = new Intent(MainActivity.this, WeekActivity.class);
-        lanzador.launch(intent);
+        if(userAllowed){
+            Intent intent = new Intent(MainActivity.this, WeekActivity.class);
+            lanzador.launch(intent);
+        }
     }
 
     public void clickRecipes(View v) {
-
+        if(userAllowed) {
+            Intent intent = new Intent(MainActivity.this, RecipeActivity.class);
+            lanzador.launch(intent);
+        }
     }
 
     public void clickPantry(View v) {
-
+        if(userAllowed) {
+            Intent intent = new Intent(MainActivity.this, PantryActivity.class);
+            lanzador.launch(intent);
+        }
     }
 
     public void clickToBuy(View v) {
-
+        if(userAllowed) {
+            Intent intent = new Intent(MainActivity.this, ToBuyActivity.class);
+            lanzador.launch(intent);
+        }
     }
 
 

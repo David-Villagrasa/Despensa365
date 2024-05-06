@@ -1,10 +1,12 @@
-package com.example.despensa365;
+package com.example.despensa365.activities;
 
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.despensa365.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class WeekActivity extends AppCompatActivity {
