@@ -1,8 +1,9 @@
 package com.example.despensa365.objects;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Ingredient {
+public class Ingredient implements Serializable {
     private int id;
     private String name;
     private IngredientType type;

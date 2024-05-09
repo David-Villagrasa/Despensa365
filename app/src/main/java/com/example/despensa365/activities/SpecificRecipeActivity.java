@@ -3,11 +3,16 @@ package com.example.despensa365.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -16,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.despensa365.MainActivity;
 import com.example.despensa365.R;
 import com.example.despensa365.adapters.IngredientsRecipeAdapter;
+import com.example.despensa365.dialogs.ChooseIngredientDialog;
 import com.example.despensa365.objects.Ingredient;
 import com.example.despensa365.objects.Recipe;
 import com.example.despensa365.objects.RecipeLine;
@@ -36,10 +42,17 @@ public class SpecificRecipeActivity extends AppCompatActivity {
     private IngredientsRecipeAdapter ingredientAdapter;
     int posItem;
 
+    private ActivityResultLauncher<Intent> customLauncher;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_item);
+
+        customLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), res -> {
+
+        });
 
         initViews();
         handleIntent();
@@ -85,9 +98,9 @@ public class SpecificRecipeActivity extends AppCompatActivity {
         rvIngreListRecipe.setAdapter(ingredientAdapter);
     }
 
-    private List<Ingredient> getIngredients() {
-        List<Ingredient> listIngredients = new ArrayList<>();
-        for (RecipeLine line:currentRecipe.getLines()) {
+    private ArrayList<Ingredient> getIngredients() {
+        ArrayList<Ingredient> listIngredients = new ArrayList<>();
+        for (RecipeLine line:recipeLines) {
             listIngredients.add(MainActivity.SearchIngredient(line.getIdIngredient()));
         }
         return listIngredients;
@@ -116,8 +129,8 @@ public class SpecificRecipeActivity extends AppCompatActivity {
     }
 
     private void addIngredient() {
-        // TODO new ingredient to the recipe
-
+        Intent intent = new Intent(SpecificRecipeActivity.this, SelectIngrActivity.class);
+        customLauncher.launch(intent);
     }
 
     @Override

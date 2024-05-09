@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
 
                 Intent data = resultado.getData();
                 if (data != null) {
-                    // Recuperar datos editados de la Actividadsec
                     userAllowed = data.getBooleanExtra("allowed",false);
                     if (userAllowed) {
                         //TODO the user should login in the app

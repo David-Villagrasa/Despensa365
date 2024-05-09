@@ -1,0 +1,60 @@
+package com.example.despensa365.dialogs;
+
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.despensa365.R;
+import com.example.despensa365.objects.Ingredient;
+
+import java.util.ArrayList;
+
+public class QuantityIngredientDialog extends DialogFragment {
+        EditText etQuantity;
+        Ingredient ingredient;
+
+    public QuantityIngredientDialog(Ingredient ingredient) {
+        this.ingredient = ingredient;
+    }
+
+        @Override
+        public void onAttach(@NonNull Context context) {
+            super.onAttach(context);
+            //datos = (Datos) getActivity();
+        }
+
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+            AlertDialog.Builder window = new AlertDialog.Builder(requireActivity());
+            LayoutInflater inflater = requireActivity().getLayoutInflater();
+            View windowView = inflater.inflate(R.layout.dialog_how_much, null);
+
+            window.setTitle(R.string.titleDialogChooseIngr);
+            window.setView(windowView);
+
+            etQuantity = windowView.findViewById(R.id.etHowMuch);
+
+            window.setNegativeButton(R.string.back, (dialog, which) -> dialog.cancel());
+            window.setPositiveButton(R.string.next, (dialog, which) -> {
+
+            });
+
+            return window.create();
+        }/*
+
+        public interface Datos {
+            public void pasarDatos(String nombre, int edad, int codigo);
+        }*/
+
+}

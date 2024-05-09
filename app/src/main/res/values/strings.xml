@@ -57,9 +57,9 @@
     </string-array>
 
     <string-array name="spinner_ingredients">
-            <item>Litros</item>
-            <item>Gramos</item>
-        </string-array>
+        <item>Litros</item>
+        <item>Gramos</item>
+    </string-array>
 
 
     <string name="weekAddRecipe">Haz click en la receta que deseas añadir</string>
@@ -80,4 +80,6 @@
     <string name="typeOfIngredient">Tipo de ingrediente:</string>
     <string name="searchBy">Buscar</string>
     <string name="hintToUseIngDialog">Toca el ingrediente que quieras añadir</string>
+    <string name="titleDialogChooseIngr">Lista de ingredientes</string>
+    <string name="howMuch">Cantidad de</string>
 </resources>
