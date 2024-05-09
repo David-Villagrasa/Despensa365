@@ -30,10 +30,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void clickConfirmLogin(View v) {
-        Intent nuevoIntent = new Intent();
-        nuevoIntent.putExtra("allowed", (mail.getText()).length()!=0);
+        Intent newIntent = new Intent();
+        newIntent.putExtra("allowed", (mail.getText()).length()!=0);
 
-        setResult(RESULT_OK, nuevoIntent);
+        setResult(RESULT_OK, newIntent);
         finish();
     }
 }

@@ -1,14 +1,14 @@
 package com.example.despensa365.objects;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Recipe {
-    private int id;
+public class Recipe implements Serializable {
+    private int id = 0;
     private String name;
     private String description;
     private int userId;
     private ArrayList<RecipeLine> lines;
-
 
     public Recipe(int id, String name, String description, int userId) {
         this.id = id;

@@ -9,7 +9,7 @@ public class Ingredient {
     private double weight;
     private Date expirationDate;
 
-    public Ingredient(int id, String name, IngredientType type, double weight, String password, Date expirationDate) {
+    public Ingredient(int id, String name, IngredientType type, double weight, Date expirationDate) {
         this.id = id;
         this.name = name;
         this.type = type;

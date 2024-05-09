@@ -1,6 +1,9 @@
 package com.example.despensa365.objects;
 
-public class RecipeLine {
+
+import java.io.Serializable;
+
+public class RecipeLine implements Serializable {
     private int idRecipe;
     private int idIngredient;
     private int quantity;

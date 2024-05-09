@@ -26,7 +26,7 @@ import com.example.despensa365.activities.WeekActivity;
 public class MainActivity extends AppCompatActivity {
     Button btnLogin, btnRegister, btnLogout, btnManWeek, btnManRec, btnManPantry, btnManToBuy;
     TextView tvWelcome;
-    ActivityResultLauncher<Intent> lanzador;
+    ActivityResultLauncher<Intent> customLauncher;
     boolean userAllowed = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         btnManToBuy=findViewById(R.id.btnManageList);
         tvWelcome=findViewById(R.id.tvWelcome);
         defaultLayout();
-        lanzador = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        customLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
             public void onActivityResult(ActivityResult resultado) {
 
@@ -81,12 +81,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void clickLogin(View v) {
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-        lanzador.launch(intent);
+        customLauncher.launch(intent);
     }
 
     public void clickRegister(View v) {
         Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
-        lanzador.launch(intent);
+        customLauncher.launch(intent);
     }
 
     public void clickLogout(View v) {
@@ -97,28 +97,28 @@ public class MainActivity extends AppCompatActivity {
     public void clickWeek(View v) {
         if(userAllowed){
             Intent intent = new Intent(MainActivity.this, WeekActivity.class);
-            lanzador.launch(intent);
+            customLauncher.launch(intent);
         }
     }
 
     public void clickRecipes(View v) {
         if(userAllowed) {
             Intent intent = new Intent(MainActivity.this, RecipeActivity.class);
-            lanzador.launch(intent);
+            customLauncher.launch(intent);
         }
     }
 
     public void clickPantry(View v) {
         if(userAllowed) {
             Intent intent = new Intent(MainActivity.this, PantryActivity.class);
-            lanzador.launch(intent);
+            customLauncher.launch(intent);
         }
     }
 
     public void clickToBuy(View v) {
         if(userAllowed) {
             Intent intent = new Intent(MainActivity.this, ToBuyActivity.class);
-            lanzador.launch(intent);
+            customLauncher.launch(intent);
         }
     }
 
