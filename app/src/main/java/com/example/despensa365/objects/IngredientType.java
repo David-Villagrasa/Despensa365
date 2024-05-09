@@ -2,7 +2,7 @@ package com.example.despensa365.objects;
 
 public enum IngredientType {
     LITERS("L"),
-    GRAMS("g");
+    GRAMS("gr");
 
     private final String unit;
 

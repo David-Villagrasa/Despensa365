@@ -56,6 +56,12 @@
         <item>D</item>
     </string-array>
 
+    <string-array name="spinner_ingredients">
+            <item>Litros</item>
+            <item>Gramos</item>
+        </string-array>
+
+
     <string name="weekAddRecipe">Haz click en la receta que deseas añadir</string>
     <string name="hintRecipe">Nombre de la receta</string>
     <string name="recipeListTitle">Listado de recetas</string>
@@ -71,4 +77,7 @@
     <string name="expDateTitleIngr">Fecha de caducidad:</string>
     <string name="titleWeightIngr">Peso:</string>
     <string name="titleNumIngr">Cantidad:</string>
+    <string name="typeOfIngredient">Tipo de ingrediente:</string>
+    <string name="searchBy">Buscar</string>
+    <string name="hintToUseIngDialog">Toca el ingrediente que quieras añadir</string>
 </resources>

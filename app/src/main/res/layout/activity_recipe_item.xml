@@ -63,20 +63,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginTop="61dp"
         android:text="@string/back"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rvIngreListRecipe" />
 
     <Button
         android:id="@+id/btnCreateRecipe"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="61dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
         android:text="@string/recipeCreate"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rvIngreListRecipe" />
 
     <EditText
         android:id="@+id/etNameRecipe"
@@ -92,23 +92,11 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/recRemoveIngr"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="136dp"
-        android:clickable="true"
-        android:contentDescription="minus button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rvIngreListRecipe"
-        app:srcCompat="@android:drawable/ic_delete" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/recAddIngr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="248dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="48dp"
         android:clickable="true"
         android:contentDescription="plus button"
         app:layout_constraintEnd_toEndOf="parent"

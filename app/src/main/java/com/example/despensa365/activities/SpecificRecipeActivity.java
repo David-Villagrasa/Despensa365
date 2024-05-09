@@ -2,26 +2,39 @@ package com.example.despensa365.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import androidx.annotation.Nullable;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.despensa365.MainActivity;
 import com.example.despensa365.R;
-import com.example.despensa365.adapters.IngredientAdapter;
+import com.example.despensa365.adapters.IngredientsRecipeAdapter;
+import com.example.despensa365.objects.Ingredient;
 import com.example.despensa365.objects.Recipe;
+import com.example.despensa365.objects.RecipeLine;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SpecificRecipeActivity extends AppCompatActivity {
-    private FloatingActionButton btnAddIngr, btnRemoveIngr;
+    final int ELIMINAR = 300;
+    private FloatingActionButton btnAddIngr;
     private Button btnBack, btnCreateRecipe;
     private EditText etNameRecipe, etDirectionsRecipe;
     private TextView tvRecipeTitle, tvRecipeDirections, tvIngredients;
     private RecyclerView rvIngreListRecipe;
     private Recipe currentRecipe;
-    private IngredientAdapter ingredientAdapter;
+    private ArrayList<RecipeLine> recipeLines;
+    private IngredientsRecipeAdapter ingredientAdapter;
+    int posItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,11 +43,11 @@ public class SpecificRecipeActivity extends AppCompatActivity {
 
         initViews();
         handleIntent();
+        setupRecyclerView();
     }
 
     private void initViews() {
         btnAddIngr = findViewById(R.id.recAddIngr);
-        btnRemoveIngr = findViewById(R.id.recRemoveIngr);
         btnBack = findViewById(R.id.btnBackRecepeItem);
         btnCreateRecipe = findViewById(R.id.btnCreateRecipe);
         etNameRecipe = findViewById(R.id.etNameRecipe);
@@ -65,6 +78,21 @@ public class SpecificRecipeActivity extends AppCompatActivity {
         }
     }
 
+    private void setupRecyclerView() {
+        recipeLines= currentRecipe.getLines();
+        ingredientAdapter = new IngredientsRecipeAdapter(this, recipeLines);
+        rvIngreListRecipe.setLayoutManager(new LinearLayoutManager(this));
+        rvIngreListRecipe.setAdapter(ingredientAdapter);
+    }
+
+    private List<Ingredient> getIngredients() {
+        List<Ingredient> listIngredients = new ArrayList<>();
+        for (RecipeLine line:currentRecipe.getLines()) {
+            listIngredients.add(MainActivity.SearchIngredient(line.getIdIngredient()));
+        }
+        return listIngredients;
+    }
+
     private void setupListeners() {
         btnBack.setOnClickListener(v -> finish());
         btnCreateRecipe.setOnClickListener(v -> {
@@ -72,9 +100,6 @@ public class SpecificRecipeActivity extends AppCompatActivity {
         });
         btnAddIngr.setOnClickListener(v -> {
             addIngredient();
-        });
-        btnRemoveIngr.setOnClickListener(v -> {
-            removeIngredient();
         });
     }
 
@@ -92,9 +117,21 @@ public class SpecificRecipeActivity extends AppCompatActivity {
 
     private void addIngredient() {
         // TODO new ingredient to the recipe
+
     }
 
-    private void removeIngredient() {
-        // TODO remove an ingredient from the recipe
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        posItem = item.getGroupId();
+        int id = item.getItemId();
+        switch (id) {
+            case ELIMINAR:
+                //TODO When it's removed an item, make sure to remove it from the currentRecipe and from de DB
+                recipeLines.remove(posItem);
+                currentRecipe.setLines(recipeLines);
+                ingredientAdapter.notifyDataSetChanged();
+                break;
+        }
+        return super.onContextItemSelected(item);
     }
 }

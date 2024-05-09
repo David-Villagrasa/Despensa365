@@ -23,11 +23,9 @@ import com.example.despensa365.objects.RecipeLine;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 public class RecipeActivity extends AppCompatActivity {
 
-    private FloatingActionButton delRecipe;
     ActivityResultLauncher<Intent> customLauncher;
     private RecyclerView rvRecipeList;
     private Button btnRecListAdd,btnRecListBack;
@@ -36,8 +34,6 @@ public class RecipeActivity extends AppCompatActivity {
     final int ELIMINAR = 300;
     private RecipeAdapter recipeAdapter;
     int posItem;
-    //TODO Delete when we can get from db
-    public ArrayList<Ingredient> ingredientArrayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,30 +122,25 @@ public class RecipeActivity extends AppCompatActivity {
     private void getListOfRecipes() {
         //TODO call to db to get all the recipes that have the id of the actual user
         // Create some example ingredients
-        Ingredient flour = new Ingredient(1, "Flour", IngredientType.GRAMS, 500, new Date());
-        Ingredient sugar = new Ingredient(2, "Sugar", IngredientType.GRAMS, 300, new Date());
-        Ingredient eggs = new Ingredient(3, "Eggs", IngredientType.LITERS, 0.2, new Date());
-        ingredientArrayList.add(flour);
-        ingredientArrayList.add(sugar);
-        ingredientArrayList.add(eggs);
+
         // Create Recipe
         Recipe cakeRecipe = new Recipe(1, "Cake", "Delicious sponge cake", 123);
 
         // Create and add Recipe Lines
         RecipeLine flourLine = new RecipeLine();
         flourLine.setIdRecipe(cakeRecipe.getId());
-        flourLine.setIdIngredient(flour.getId());
-        flourLine.setQuantity(250); // grams of flour
+        flourLine.setIdIngredient(1);
+        flourLine.setWeight(250); // grams of flour
 
         RecipeLine sugarLine = new RecipeLine();
         sugarLine.setIdRecipe(cakeRecipe.getId());
-        sugarLine.setIdIngredient(sugar.getId());
-        sugarLine.setQuantity(100); // grams of sugar
+        sugarLine.setIdIngredient(2);
+        sugarLine.setWeight(100); // grams of sugar
 
         RecipeLine eggLine = new RecipeLine();
         eggLine.setIdRecipe(cakeRecipe.getId());
-        eggLine.setIdIngredient(eggs.getId());
-        eggLine.setQuantity(3); // number of eggs, using quantity to denote count
+        eggLine.setIdIngredient(3);
+        eggLine.setWeight(3); // number of eggs, using quantity to denote count
 
         // Adding lines to the recipe
         cakeRecipe.addLine(flourLine);
@@ -161,10 +152,6 @@ public class RecipeActivity extends AppCompatActivity {
 
 
     private void setupListeners() {
-        delRecipe.setOnClickListener(v -> {
-            // TODO botón de eliminar receta
-        });
-
         btnRecListAdd.setOnClickListener(v -> {
             Intent intent = new Intent(this, SpecificRecipeActivity.class);
             customLauncher.launch(intent);

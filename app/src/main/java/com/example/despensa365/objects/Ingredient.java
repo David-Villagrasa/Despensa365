@@ -6,15 +6,11 @@ public class Ingredient {
     private int id;
     private String name;
     private IngredientType type;
-    private double weight;
-    private Date expirationDate;
 
-    public Ingredient(int id, String name, IngredientType type, double weight, Date expirationDate) {
+    public Ingredient(int id, String name, IngredientType type) {
         this.id = id;
         this.name = name;
         this.type = type;
-        this.weight = weight;
-        this.expirationDate = expirationDate;
     }
 
     // Getters and Setters
@@ -40,21 +36,5 @@ public class Ingredient {
 
     public void setType(IngredientType type) {
         this.type = type;
-    }
-
-    public double getWeight() {
-        return weight;
-    }
-
-    public void setWeight(double weight) {
-        this.weight = weight;
-    }
-
-    public Date getExpirationDate() {
-        return expirationDate;
-    }
-
-    public void setExpirationDate(Date expirationDate) {
-        this.expirationDate = expirationDate;
     }
 }

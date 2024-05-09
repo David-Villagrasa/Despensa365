@@ -22,8 +22,16 @@ import com.example.despensa365.activities.RecipeActivity;
 import com.example.despensa365.activities.RegisterActivity;
 import com.example.despensa365.activities.ToBuyActivity;
 import com.example.despensa365.activities.WeekActivity;
+import com.example.despensa365.objects.Ingredient;
+import com.example.despensa365.objects.IngredientType;
+
+import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
+
+    //TODO Delete when we can get from db
+    public static ArrayList<Ingredient> ingredientArrayList = new ArrayList<>();
     Button btnLogin, btnRegister, btnLogout, btnManWeek, btnManRec, btnManPantry, btnManToBuy;
     TextView tvWelcome;
     ActivityResultLauncher<Intent> customLauncher;
@@ -70,6 +78,22 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        defaultIngredientsTEST();
+    }
+
+    private void defaultIngredientsTEST() {
+        Ingredient flour = new Ingredient(1, "Flour", IngredientType.GRAMS);
+        Ingredient sugar = new Ingredient(2, "Sugar", IngredientType.GRAMS);
+        Ingredient eggs = new Ingredient(3, "Eggs", IngredientType.LITERS);
+        Ingredient milk = new Ingredient(4, "Milk", IngredientType.LITERS);
+        Ingredient butter = new Ingredient(5, "Butter", IngredientType.GRAMS);
+        Ingredient oil = new Ingredient(6, "Oil", IngredientType.LITERS);
+        ingredientArrayList.add(flour);
+        ingredientArrayList.add(sugar);
+        ingredientArrayList.add(eggs);
+        ingredientArrayList.add(milk);
+        ingredientArrayList.add(butter);
+        ingredientArrayList.add(oil);
     }
 
     private void defaultLayout() {
@@ -120,6 +144,16 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, ToBuyActivity.class);
             customLauncher.launch(intent);
         }
+    }
+
+
+    public static Ingredient SearchIngredient(int id){
+        for (Ingredient i: ingredientArrayList) {
+            if(i.getId() == id){
+                return i;
+            }
+        }
+        return null;
     }
 
 

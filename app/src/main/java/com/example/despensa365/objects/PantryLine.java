@@ -1,14 +1,18 @@
 package com.example.despensa365.objects;
 
+import java.util.Date;
+
 public class PantryLine {
     private int pantryId;
     private int ingredientId;
     private double ingredientQuantity;
+    private Date expirationDate;
 
-    public PantryLine(int pantryId, int ingredientId, double ingredientQuantity) {
+    public PantryLine(int pantryId, int ingredientId, double ingredientQuantity, Date expirationDate    ) {
         this.pantryId = pantryId;
         this.ingredientId = ingredientId;
         this.ingredientQuantity = ingredientQuantity;
+        this.expirationDate = expirationDate;
     }
     public PantryLine() {
     }
@@ -36,5 +40,13 @@ public class PantryLine {
 
     public void setIngredientQuantity(double ingredientQuantity) {
         this.ingredientQuantity = ingredientQuantity;
+    }
+
+    public Date getExpirationDate() {
+        return expirationDate;
+    }
+
+    public void setExpirationDate(Date expirationDate) {
+        this.expirationDate = expirationDate;
     }
 }
