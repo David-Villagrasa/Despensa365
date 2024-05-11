@@ -15,16 +15,21 @@ import com.example.despensa365.R;
 import com.example.despensa365.objects.Ingredient;
 import com.example.despensa365.objects.RecipeLine;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class IngredientsRecipeAdapter extends RecyclerView.Adapter<IngredientsRecipeAdapter.IngredientsRecipeViewHolder> {
 
-    private List<RecipeLine> recipeLineList;
+    private ArrayList<RecipeLine> recipeLineList;
     Context customContext;
 
-    public IngredientsRecipeAdapter(Context context, List<RecipeLine> recipeLineList) {
+    public IngredientsRecipeAdapter(Context context, ArrayList<RecipeLine> recipeLineList) {
         this.customContext = context;
-        this.recipeLineList = recipeLineList;
+        if (recipeLineList == null) {
+            this.recipeLineList = new ArrayList<RecipeLine>();
+        } else {
+            this.recipeLineList = recipeLineList;
+        }
     }
 
     @NonNull
@@ -40,10 +45,10 @@ public class IngredientsRecipeAdapter extends RecyclerView.Adapter<IngredientsRe
         RecipeLine recipeLine = recipeLineList.get(position);
         Ingredient ingredient = MainActivity.SearchIngredient(recipeLine.getIdIngredient());
         holder.ingredientName.setText(ingredient.getName());
-        holder.ingredientWeight.setText(recipeLine.getWeight()+"");
-        if(ingredient.getType().getUnit().equals("L")){
+        holder.ingredientWeight.setText(recipeLine.getWeight() + "");
+        if (ingredient.getType().getUnit().equals("L")) {
             holder.ingredientWeight.append("L");
-        }else{
+        } else {
             holder.ingredientWeight.append("gr");
         }
     }
@@ -53,7 +58,7 @@ public class IngredientsRecipeAdapter extends RecyclerView.Adapter<IngredientsRe
         return recipeLineList.size();
     }
 
-    public class IngredientsRecipeViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener{
+    public class IngredientsRecipeViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
         TextView ingredientName;
         TextView ingredientWeight;
 
@@ -68,7 +73,7 @@ public class IngredientsRecipeAdapter extends RecyclerView.Adapter<IngredientsRe
         @Override
         public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
             final int ELIMINAR = 300;
-            menu.add(getAdapterPosition(),ELIMINAR,0,"Eliminar");
+            menu.add(getAdapterPosition(), ELIMINAR, 0, "Eliminar");
         }
     }
 }

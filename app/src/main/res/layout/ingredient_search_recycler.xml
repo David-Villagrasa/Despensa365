@@ -26,4 +26,14 @@
         android:text="ExWeight"
         app:layout_constraintStart_toEndOf="@+id/tvNameIngredientRecycler"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/divider3"
+        android:layout_width="408dp"
+        android:layout_height="3dp"
+        android:layout_marginTop="15dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvWeightIngredientRecycler" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -12,6 +12,12 @@ public class RecipeLine implements Serializable {
 
     }
 
+    public RecipeLine(int idRecipe, int idIngredient, double weight) {
+        this.idRecipe = idRecipe;
+        this.idIngredient = idIngredient;
+        this.weight = weight;
+    }
+
     public int getIdRecipe() {
         return idRecipe;
     }

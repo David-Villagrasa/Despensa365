@@ -23,10 +23,9 @@ import com.example.despensa365.activities.RegisterActivity;
 import com.example.despensa365.activities.ToBuyActivity;
 import com.example.despensa365.activities.WeekActivity;
 import com.example.despensa365.objects.Ingredient;
-import com.example.despensa365.objects.IngredientType;
+import com.example.despensa365.enums.IngredientType;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -83,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
     private void defaultIngredientsTEST() {
         Ingredient flour = new Ingredient(1, "Flour", IngredientType.GRAMS);
         Ingredient sugar = new Ingredient(2, "Sugar", IngredientType.GRAMS);
-        Ingredient eggs = new Ingredient(3, "Eggs", IngredientType.LITERS);
+        Ingredient eggs = new Ingredient(3, "Eggs", IngredientType.UNITS);
         Ingredient milk = new Ingredient(4, "Milk", IngredientType.LITERS);
         Ingredient butter = new Ingredient(5, "Butter", IngredientType.GRAMS);
         Ingredient oil = new Ingredient(6, "Oil", IngredientType.LITERS);

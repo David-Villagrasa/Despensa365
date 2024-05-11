@@ -1,26 +1,34 @@
 package com.example.despensa365.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.despensa365.MainActivity;
 import com.example.despensa365.R;
+import com.example.despensa365.activities.SelectRecActivity;
 import com.example.despensa365.objects.Recipe;
 
 import java.util.List;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder> {
-
     private List<Recipe> recipeList;
     Context customContext;
+    public boolean editable, removable;
+    public int selectedPosition = -1;
 
-    public RecipeAdapter(Context context, List<Recipe> recipeList) {
+    public RecipeAdapter(Context context, List<Recipe> recipeList, boolean editable, boolean removable) {
         this.customContext = context;
         this.recipeList = recipeList;
+        this.editable = editable;
+        this.removable = removable;
     }
 
     @NonNull
@@ -35,6 +43,15 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     public void onBindViewHolder(@NonNull RecipeViewHolder holder, int position) {
         Recipe recipe = recipeList.get(position);
         holder.recipeName.setText(recipe.getName());
+
+        if (customContext instanceof SelectRecActivity) {
+            holder.itemView.setOnClickListener(v -> {
+                selectedPosition = holder.getAdapterPosition();
+                SelectRecActivity s = (SelectRecActivity) customContext;
+                s.recipeSelected();
+                //hay que ir a la actividad anterior. en la actividad anterior, recuperar que receta se encuentra en la posicion que se ha hecho click para que habra la nueva actividad de la receta
+            });
+        }
     }
 
     @Override
@@ -42,7 +59,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         return recipeList.size();
     }
 
-    public class RecipeViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener{
+    public class RecipeViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
         TextView recipeName;
 
         public RecipeViewHolder(@NonNull View itemView) {
@@ -54,10 +71,14 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
 
         @Override
         public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-            final int EDITAR = 200;
-            final int ELIMINAR = 300;
-            menu.add(getAdapterPosition(),EDITAR,0,"Editar");
-            menu.add(getAdapterPosition(),ELIMINAR,1,"Eliminar");
+            if (editable) {
+                final int EDITAR = 200;
+                menu.add(getAdapterPosition(), EDITAR, 0, "Editar");
+            }
+            if (removable) {
+                final int ELIMINAR = 300;
+                menu.add(getAdapterPosition(), ELIMINAR, 1, "Eliminar");
+            }
         }
     }
 }

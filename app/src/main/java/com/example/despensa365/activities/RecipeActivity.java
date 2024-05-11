@@ -16,11 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.despensa365.R;
 import com.example.despensa365.adapters.RecipeAdapter;
-import com.example.despensa365.objects.Ingredient;
-import com.example.despensa365.objects.IngredientType;
 import com.example.despensa365.objects.Recipe;
 import com.example.despensa365.objects.RecipeLine;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
@@ -114,35 +111,31 @@ public class RecipeActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        recipeAdapter = new RecipeAdapter(this, listOfRecipes);
+        recipeAdapter = new RecipeAdapter(this, listOfRecipes,true, true);
         rvRecipeList.setLayoutManager(new LinearLayoutManager(this));
         rvRecipeList.setAdapter(recipeAdapter);
     }
 
     private void getListOfRecipes() {
         //TODO call to db to get all the recipes that have the id of the actual user
-        // Create some example ingredients
 
-        // Create Recipe
         Recipe cakeRecipe = new Recipe(1, "Cake", "Delicious sponge cake", 123);
 
-        // Create and add Recipe Lines
         RecipeLine flourLine = new RecipeLine();
         flourLine.setIdRecipe(cakeRecipe.getId());
         flourLine.setIdIngredient(1);
-        flourLine.setWeight(250); // grams of flour
+        flourLine.setWeight(250);
 
         RecipeLine sugarLine = new RecipeLine();
         sugarLine.setIdRecipe(cakeRecipe.getId());
         sugarLine.setIdIngredient(2);
-        sugarLine.setWeight(100); // grams of sugar
+        sugarLine.setWeight(100);
 
         RecipeLine eggLine = new RecipeLine();
         eggLine.setIdRecipe(cakeRecipe.getId());
         eggLine.setIdIngredient(3);
-        eggLine.setWeight(3); // number of eggs, using quantity to denote count
+        eggLine.setWeight(3);
 
-        // Adding lines to the recipe
         cakeRecipe.addLine(flourLine);
         cakeRecipe.addLine(sugarLine);
         cakeRecipe.addLine(eggLine);

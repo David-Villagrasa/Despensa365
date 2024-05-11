@@ -67,6 +67,7 @@
     <string name="recipeListTitle">Listado de recetas</string>
     <string name="pantryTitle">Despensa</string>
     <string name="pantryIngr">Ingredientes en vigor</string>
+    <string name="pantryIngrExp">Ingredientes expirados</string>
     <string name="toExpired">Ver caducados</string>
     <string name="addToBuy">Añadir a la lista de la compra</string>
     <string name="cleanExpired">Limpiar caducados</string>

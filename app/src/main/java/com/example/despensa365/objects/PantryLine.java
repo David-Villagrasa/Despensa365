@@ -17,7 +17,6 @@ public class PantryLine {
     public PantryLine() {
     }
 
-    // Getters and Setters
     public int getPantryId() {
         return pantryId;
     }

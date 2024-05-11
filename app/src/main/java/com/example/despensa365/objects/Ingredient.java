@@ -1,7 +1,8 @@
 package com.example.despensa365.objects;
 
+import com.example.despensa365.enums.IngredientType;
+
 import java.io.Serializable;
-import java.util.Date;
 
 public class Ingredient implements Serializable {
     private int id;

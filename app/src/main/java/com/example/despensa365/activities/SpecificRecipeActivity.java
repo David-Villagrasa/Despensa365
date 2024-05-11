@@ -3,14 +3,10 @@ package com.example.despensa365.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -21,14 +17,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.despensa365.MainActivity;
 import com.example.despensa365.R;
 import com.example.despensa365.adapters.IngredientsRecipeAdapter;
-import com.example.despensa365.dialogs.ChooseIngredientDialog;
 import com.example.despensa365.objects.Ingredient;
+import com.example.despensa365.objects.PantryLine;
 import com.example.despensa365.objects.Recipe;
 import com.example.despensa365.objects.RecipeLine;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 
 public class SpecificRecipeActivity extends AppCompatActivity {
     final int ELIMINAR = 300;
@@ -38,7 +34,7 @@ public class SpecificRecipeActivity extends AppCompatActivity {
     private TextView tvRecipeTitle, tvRecipeDirections, tvIngredients;
     private RecyclerView rvIngreListRecipe;
     private Recipe currentRecipe;
-    private ArrayList<RecipeLine> recipeLines;
+    private ArrayList<RecipeLine> recipeLines = new ArrayList<>();
     private IngredientsRecipeAdapter ingredientAdapter;
     int posItem;
 
@@ -51,7 +47,14 @@ public class SpecificRecipeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_recipe_item);
 
         customLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), res -> {
-
+            Intent data = res.getData();
+            if (data != null) {
+                int idIngr = data.getIntExtra("ingredient",-1);
+                double quantity = data.getDoubleExtra("quantity",-1);
+                RecipeLine newLine = new RecipeLine(currentRecipe.getId(), idIngr, quantity);
+                recipeLines.add(newLine);
+                ingredientAdapter.notifyDataSetChanged();
+            }
         });
 
         initViews();
@@ -92,7 +95,9 @@ public class SpecificRecipeActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        recipeLines= currentRecipe.getLines();
+        if(currentRecipe.getLines() != null){
+            recipeLines= currentRecipe.getLines();
+        }
         ingredientAdapter = new IngredientsRecipeAdapter(this, recipeLines);
         rvIngreListRecipe.setLayoutManager(new LinearLayoutManager(this));
         rvIngreListRecipe.setAdapter(ingredientAdapter);
@@ -120,6 +125,7 @@ public class SpecificRecipeActivity extends AppCompatActivity {
         // TODO recipe to database or update it
         currentRecipe.setName(etNameRecipe.getText().toString());
         currentRecipe.setDescription(etDirectionsRecipe.getText().toString());
+        currentRecipe.setLines(recipeLines);
         // TODO update the ingredients list here currentRecipe.setLines();
         Intent newIntent = new Intent();
         newIntent.putExtra("RECIPE_DATA", currentRecipe);
