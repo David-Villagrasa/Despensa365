@@ -26,6 +26,7 @@ import com.example.despensa365.objects.Ingredient;
 import com.example.despensa365.enums.IngredientType;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -145,13 +146,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public static Ingredient SearchIngredient(int id){
+    public static Optional<Ingredient> SearchIngredient(int id){
+        Optional<Ingredient> ingredient = Optional.empty();
         for (Ingredient i: ingredientArrayList) {
             if(i.getId() == id){
-                return i;
+                ingredient = Optional.of(i);
+                return ingredient;
             }
         }
-        return null;
+        return ingredient;
     }
 
 

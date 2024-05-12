@@ -76,11 +76,13 @@
     <string name="addNeededIngr">Añadir ingredientes necesarios</string>
     <string name="doneToBuy">Comprados</string>
     <string name="expDateTitleIngr">Fecha de caducidad:</string>
-    <string name="titleWeightIngr">Peso:</string>
+    <string name="titleWeightIngr">Cantidad:</string>
     <string name="titleNumIngr">Cantidad:</string>
     <string name="typeOfIngredient">Tipo de ingrediente:</string>
     <string name="searchBy">Buscar</string>
     <string name="hintToUseIngDialog">Toca el ingrediente que quieras añadir</string>
     <string name="titleDialogChooseIngr">Lista de ingredientes</string>
     <string name="howMuch">Cantidad de</string>
+    <string name="hintWhenBought">Si no has comprado algo, no lo rellenes</string>
+    <string name="tvNameOfIngredient">Nombre del ingrediente:</string>
 </resources>

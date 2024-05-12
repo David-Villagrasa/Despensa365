@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginTop="16dp"
-        android:text="NameIngredient"
+        android:text="@string/tvNameOfIngredient"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -23,6 +23,7 @@
         android:layout_marginTop="12dp"
         android:layout_marginBottom="20dp"
         android:ems="10"
+        android:hint="dd-MM-YYYY"
         android:inputType="text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/tvTitleExpDate"
@@ -48,7 +49,7 @@
         android:layout_marginTop="29dp"
         android:text="@string/titleWeightIngr"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinner" />
+        app:layout_constraintTop_toBottomOf="@+id/spinnerTypeIng" />
 
     <EditText
         android:id="@+id/etWeightIngr"
@@ -59,10 +60,10 @@
         android:ems="10"
         android:inputType="number"
         app:layout_constraintStart_toEndOf="@+id/tvTitleWeight"
-        app:layout_constraintTop_toBottomOf="@+id/spinner" />
+        app:layout_constraintTop_toBottomOf="@+id/spinnerTypeIng" />
 
     <Spinner
-        android:id="@+id/spinner"
+        android:id="@+id/spinnerTypeIng"
         android:layout_width="179dp"
         android:layout_height="26dp"
         android:layout_marginStart="164dp"
@@ -71,22 +72,22 @@
         app:layout_constraintTop_toBottomOf="@+id/tvNameIngredient" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/tvTypeIng"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="28dp"
         android:layout_marginEnd="16dp"
         android:text="@string/typeOfIngredient"
-        app:layout_constraintEnd_toStartOf="@+id/spinner"
+        app:layout_constraintEnd_toStartOf="@+id/spinnerTypeIng"
         app:layout_constraintHorizontal_bias="0.833"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvNameIngredient" />
 
     <EditText
-        android:id="@+id/editTextText"
+        android:id="@+id/etNameIng"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
+        android:layout_marginStart="12dp"
         android:layout_marginTop="16dp"
         android:ems="10"
         android:inputType="text"

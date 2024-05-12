@@ -43,7 +43,7 @@ public class IngredientsPantryAdapter extends RecyclerView.Adapter<IngredientsPa
     @Override
     public void onBindViewHolder(@NonNull IngredientsPantryAdapter.IngredientsPantryViewHolder holder, int position) {
         PantryLine pantryLine = pantryLinesList.get(position);
-        Ingredient ingredient = MainActivity.SearchIngredient(pantryLine.getIngredientId());
+        Ingredient ingredient = MainActivity.SearchIngredient(pantryLine.getIngredientId()).get();
         holder.ingredientName.setText(ingredient.getName());
         holder.ingredientQuantity.setText(String.format("%s", pantryLine.getIngredientQuantity()));
         holder.ingredientQuantity.append(ingredient.getType().getUnit());

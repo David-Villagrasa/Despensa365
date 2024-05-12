@@ -48,8 +48,8 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvToBuy"
         android:layout_width="409dp"
-        android:layout_height="497dp"
-        android:layout_marginTop="7dp"
+        android:layout_height="450dp"
+        android:layout_marginTop="36dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvTitleToBuy" />
 
@@ -64,5 +64,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rvToBuy"
         app:srcCompat="@android:drawable/ic_input_add" />
+
+    <TextView
+        android:id="@+id/tvHintToBuy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTitleToBuy" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

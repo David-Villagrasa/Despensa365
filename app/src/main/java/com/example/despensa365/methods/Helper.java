@@ -3,7 +3,7 @@ package com.example.despensa365.methods;
 import java.util.Calendar;
 import java.util.Date;
 
-public class StaticOnes {
+public class Helper {
     public static Date getNormalizedDate(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
@@ -13,4 +13,6 @@ public class StaticOnes {
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
     }
+
+
 }

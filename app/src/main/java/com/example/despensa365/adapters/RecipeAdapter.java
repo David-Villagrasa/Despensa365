@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.despensa365.MainActivity;
 import com.example.despensa365.R;
+import com.example.despensa365.activities.RecipeViewActivity;
 import com.example.despensa365.activities.SelectRecActivity;
 import com.example.despensa365.objects.Recipe;
 
@@ -23,7 +24,6 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     Context customContext;
     public boolean editable, removable;
     public int selectedPosition = -1;
-
     public RecipeAdapter(Context context, List<Recipe> recipeList, boolean editable, boolean removable) {
         this.customContext = context;
         this.recipeList = recipeList;
@@ -49,7 +49,12 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
                 selectedPosition = holder.getAdapterPosition();
                 SelectRecActivity s = (SelectRecActivity) customContext;
                 s.recipeSelected();
-                //hay que ir a la actividad anterior. en la actividad anterior, recuperar que receta se encuentra en la posicion que se ha hecho click para que habra la nueva actividad de la receta
+            });
+        }else{
+            holder.itemView.setOnClickListener(v -> {
+                Intent intent = new Intent(customContext, RecipeViewActivity.class);
+                intent.putExtra("recipe", recipe);
+                customContext.startActivity(intent);
             });
         }
     }

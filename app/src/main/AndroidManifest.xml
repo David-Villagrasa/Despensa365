@@ -32,6 +32,7 @@
         <activity android:name=".activities.PantryActivity" />
         <activity android:name=".activities.SpecificRecipeActivity" />
         <activity android:name="com.example.despensa365.activities.SelectRecActivity" />
+        <activity android:name="com.example.despensa365.activities.RecipeViewActivity" />
     </application>
 
 </manifest>

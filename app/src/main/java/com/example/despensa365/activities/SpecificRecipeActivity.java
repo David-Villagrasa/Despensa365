@@ -23,8 +23,10 @@ import com.example.despensa365.objects.Recipe;
 import com.example.despensa365.objects.RecipeLine;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.security.cert.PKIXRevocationChecker;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Optional;
 
 public class SpecificRecipeActivity extends AppCompatActivity {
     final int ELIMINAR = 300;
@@ -106,7 +108,8 @@ public class SpecificRecipeActivity extends AppCompatActivity {
     private ArrayList<Ingredient> getIngredients() {
         ArrayList<Ingredient> listIngredients = new ArrayList<>();
         for (RecipeLine line:recipeLines) {
-            listIngredients.add(MainActivity.SearchIngredient(line.getIdIngredient()));
+            Optional<Ingredient> i = MainActivity.SearchIngredient(line.getIdIngredient());
+            i.ifPresent(listIngredients::add);
         }
         return listIngredients;
     }

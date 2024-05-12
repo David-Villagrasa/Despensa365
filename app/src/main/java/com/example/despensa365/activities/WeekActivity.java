@@ -1,6 +1,6 @@
 package com.example.despensa365.activities;
 
-import static com.example.despensa365.methods.StaticOnes.getNormalizedDate;
+import static com.example.despensa365.methods.Helper.getNormalizedDate;
 
 import android.content.Intent;
 import android.os.Bundle;

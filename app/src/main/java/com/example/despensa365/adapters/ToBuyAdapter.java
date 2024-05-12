@@ -1,6 +1,7 @@
 package com.example.despensa365.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,10 +19,11 @@ import com.example.despensa365.objects.ToBuyLine;
 
 import java.util.ArrayList;
 
-public class ToBuyAdapter extends RecyclerView.Adapter<ToBuyAdapter.ToBuyViewHolder>{
+public class ToBuyAdapter extends RecyclerView.Adapter<ToBuyAdapter.ToBuyViewHolder> {
 
 
     private ArrayList<ToBuyLine> toBuyLines;
+    public boolean[] selected;
     Context customContext;
 
     public ToBuyAdapter(Context context, ArrayList<ToBuyLine> toBuyLines) {
@@ -30,6 +32,10 @@ public class ToBuyAdapter extends RecyclerView.Adapter<ToBuyAdapter.ToBuyViewHol
             this.toBuyLines = new ArrayList<ToBuyLine>();
         } else {
             this.toBuyLines = toBuyLines;
+        }
+        selected = new boolean[toBuyLines.size()];
+        for (int i = 0; i < toBuyLines.size(); i++) {
+            selected[i] = false;
         }
     }
 
@@ -44,7 +50,14 @@ public class ToBuyAdapter extends RecyclerView.Adapter<ToBuyAdapter.ToBuyViewHol
     @Override
     public void onBindViewHolder(@NonNull ToBuyAdapter.ToBuyViewHolder holder, int position) {
         ToBuyLine toBuyLine = toBuyLines.get(position);
-        Ingredient ingredient = MainActivity.SearchIngredient(toBuyLine.getIngredientId());
+        Ingredient ingredient = MainActivity.SearchIngredient(toBuyLine.getIngredientId()).get();
+
+        holder.itemView.setOnClickListener(v -> {
+            holder.itemView.setBackgroundColor(holder.selected ? Color.LTGRAY : 0);
+            selected[position] = holder.selected;
+            holder.selected = !holder.selected;
+        });
+
         holder.ingredientName.setText(ingredient.getName());
         holder.ingredientWeight.setText(String.format("%s", toBuyLine.getQuantity()));
         if (ingredient.getType().getUnit().equals("L")) {
@@ -62,6 +75,7 @@ public class ToBuyAdapter extends RecyclerView.Adapter<ToBuyAdapter.ToBuyViewHol
     public class ToBuyViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
         TextView ingredientName;
         TextView ingredientWeight;
+        boolean selected = false;
 
         public ToBuyViewHolder(@NonNull View itemView) {
             super(itemView);

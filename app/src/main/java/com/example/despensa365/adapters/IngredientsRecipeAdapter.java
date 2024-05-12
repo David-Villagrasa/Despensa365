@@ -43,7 +43,7 @@ public class IngredientsRecipeAdapter extends RecyclerView.Adapter<IngredientsRe
     @Override
     public void onBindViewHolder(@NonNull IngredientsRecipeViewHolder holder, int position) {
         RecipeLine recipeLine = recipeLineList.get(position);
-        Ingredient ingredient = MainActivity.SearchIngredient(recipeLine.getIdIngredient());
+        Ingredient ingredient = MainActivity.SearchIngredient(recipeLine.getIdIngredient()).get();
         holder.ingredientName.setText(ingredient.getName());
         holder.ingredientWeight.setText(recipeLine.getWeight() + "");
         if (ingredient.getType().getUnit().equals("L")) {
