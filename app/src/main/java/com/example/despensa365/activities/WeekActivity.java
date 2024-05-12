@@ -169,7 +169,7 @@ public class WeekActivity extends AppCompatActivity {
 
         // Devuelve la nueva fecha
         Date sevendays = getNormalizedDate(calendar.getTime());
-        weeklyPlan=new WeeklyPlan(0, getNormalizedDate(new Date()), sevendays, 0);
+        weeklyPlan=new WeeklyPlan(0, getNormalizedDate(new Date()), sevendays, 0, new ArrayList<PlanLine>());
     }
 
     private void setupRecycler() {

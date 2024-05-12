@@ -1,5 +1,6 @@
 package com.example.despensa365.objects;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public class WeeklyPlan {
@@ -7,12 +8,14 @@ public class WeeklyPlan {
     private Date startDate;
     private Date endDate;
     private int userId;
+    private ArrayList<PlanLine> lines;
 
-    public WeeklyPlan(int id, Date startDate, Date endDate, int userId) {
+    public WeeklyPlan(int id, Date startDate, Date endDate, int userId, ArrayList<PlanLine> lines) {
         this.id = id;
         this.startDate = startDate;
         this.endDate = endDate;
         this.userId = userId;
+        this.lines = lines;
     }
 
     public WeeklyPlan() {
@@ -48,5 +51,13 @@ public class WeeklyPlan {
 
     public void setUserId(int userId) {
         this.userId = userId;
+    }
+
+    public ArrayList<PlanLine> getLines() {
+        return lines;
+    }
+
+    public void setLines(ArrayList<PlanLine> lines) {
+        this.lines = lines;
     }
 }
