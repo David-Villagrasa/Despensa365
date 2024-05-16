@@ -7,15 +7,11 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.example.despensa365.activities.LoginActivity;
 import com.example.despensa365.activities.PantryActivity;
@@ -25,28 +21,23 @@ import com.example.despensa365.activities.ToBuyActivity;
 import com.example.despensa365.activities.WeekActivity;
 import com.example.despensa365.objects.Ingredient;
 import com.example.despensa365.enums.IngredientType;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.Optional;
 
 public class MainActivity extends AppCompatActivity {
-
+    private FirebaseAuth firebaseAuth;
     //TODO Delete when we can get from db
     public static ArrayList<Ingredient> ingredientArrayList = new ArrayList<>();
     Button btnLogin, btnRegister, btnLogout, btnManWeek, btnManRec, btnManPantry, btnManToBuy;
     TextView tvWelcome;
     ActivityResultLauncher<Intent> customLauncher;
-    boolean userAllowed = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
 
         btnLogin=findViewById(R.id.btnLogIn);
         btnRegister=findViewById(R.id.btnRegister);
@@ -56,26 +47,17 @@ public class MainActivity extends AppCompatActivity {
         btnManPantry=findViewById(R.id.btnManagePantry);
         btnManToBuy=findViewById(R.id.btnManageList);
         tvWelcome=findViewById(R.id.tvWelcome);
-        defaultLayout();
-        customLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-            @Override
-            public void onActivityResult(ActivityResult resultado) {
-
-                Intent data = resultado.getData();
-                if (data != null) {
-                    userAllowed = data.getBooleanExtra("allowed",false);
-                    if (userAllowed) {
-                        //TODO the user should login in the app
-                        btnLogin.setVisibility(View.INVISIBLE);
-                        btnRegister.setVisibility(View.INVISIBLE);
-                        btnLogout.setVisibility(View.VISIBLE);
-                        tvWelcome.setVisibility(View.VISIBLE);
-                        tvWelcome.setText(getString(R.string.welcome) + " Exp User");
-                    }else{
-                        defaultLayout();
-                    }
-                }
-
+        firebaseAuth= FirebaseAuth.getInstance();
+        if(firebaseAuth.getCurrentUser()==null){
+            defaultLayout();
+        }else{
+            loggedLayout();
+        }
+        customLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if(firebaseAuth.getCurrentUser()==null){
+                defaultLayout();
+            }else{
+                loggedLayout();
             }
         });
         defaultIngredientsTEST();
@@ -103,6 +85,16 @@ public class MainActivity extends AppCompatActivity {
         tvWelcome.setVisibility(View.INVISIBLE);
     }
 
+    private void loggedLayout() {
+        btnLogin.setVisibility(View.INVISIBLE);
+        btnRegister.setVisibility(View.INVISIBLE);
+        btnLogout.setVisibility(View.VISIBLE);
+        tvWelcome.setVisibility(View.VISIBLE);
+        FirebaseUser userFirebase = firebaseAuth.getCurrentUser();
+        String username = userFirebase.getDisplayName();
+        tvWelcome.setText(String.format("%s %s", getString(R.string.welcome), username));
+    }
+
     public void clickLogin(View v) {
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         customLauncher.launch(intent);
@@ -114,12 +106,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clickLogout(View v) {
-        //TODO the user should logout
+        firebaseAuth.signOut();
         defaultLayout();
     }
 
     public void clickWeek(View v) {
-        if(userAllowed){
+        if(firebaseAuth.getCurrentUser()!=null){
             Intent intent = new Intent(MainActivity.this, WeekActivity.class);
             customLauncher.launch(intent);
         }else{
@@ -128,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clickRecipes(View v) {
-        if(userAllowed) {
+        if(firebaseAuth.getCurrentUser()!=null) {
             Intent intent = new Intent(MainActivity.this, RecipeActivity.class);
             customLauncher.launch(intent);
         }else{
@@ -137,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clickPantry(View v) {
-        if(userAllowed) {
+        if(firebaseAuth.getCurrentUser()!=null) {
             Intent intent = new Intent(MainActivity.this, PantryActivity.class);
             customLauncher.launch(intent);
         }else{
@@ -146,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clickToBuy(View v) {
-        if(userAllowed) {
+        if(firebaseAuth.getCurrentUser()!=null) {
             Intent intent = new Intent(MainActivity.this, ToBuyActivity.class);
             customLauncher.launch(intent);
         }else{

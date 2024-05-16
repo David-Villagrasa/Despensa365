@@ -89,4 +89,8 @@
     <string name="hintMainActivity">Debes iniciar sesión para acceder</string>
     <string name="save">Guardar</string>
     <string name="newIngredient">Creacion de nuevo ingrediente</string>
+    <string name="notAllowEmpty">No se permiten campos vacíos</string>
+    <string name="pwdRules">La contraseña debe tener entre 8 y 16 caracteres, con al menos una letra mayúscula, una letra minúscula y un símbolo.</string>
+    <string name="notSamePasswords">Las contraseñas no coinciden</string>
+    <string name="invalidEmail">El correo electrónico no es válido</string>
 </resources>

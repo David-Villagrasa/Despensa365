@@ -9,14 +9,17 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.despensa365.R;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class LoginActivity extends AppCompatActivity {
     TextView mail, pwd;
     Button back,confirm;
+    FirebaseAuth firebaseAuth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        firebaseAuth= FirebaseAuth.getInstance();
 
         mail = findViewById(R.id.etMailLogin);
         pwd = findViewById(R.id.etPwdLogin);
@@ -30,10 +33,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void clickConfirmLogin(View v) {
-        Intent newIntent = new Intent();
-        newIntent.putExtra("allowed", (mail.getText()).length()!=0);
-
-        setResult(RESULT_OK, newIntent);
-        finish();
+        firebaseAuth.signInWithEmailAndPassword(mail.getText().toString(), pwd.getText().toString()).addOnCompleteListener(v1 -> {
+            if(v1.isSuccessful()){
+                Intent newIntent = new Intent();
+                setResult(RESULT_OK, newIntent);
+                finish();
+            }
+        });
     }
 }
