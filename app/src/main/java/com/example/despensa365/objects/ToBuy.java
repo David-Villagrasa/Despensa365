@@ -5,13 +5,13 @@ import java.util.ArrayList;
 public class ToBuy {
     private int id;
     private int userId;
-    private String name;
+    private String title;
     private ArrayList<ToBuyLine> lines;
 
-    public ToBuy(int id, int userId, String name, ArrayList<ToBuyLine> lines) {
+    public ToBuy(int id, int userId, String title, ArrayList<ToBuyLine> lines) {
         this.id = id;
         this.userId = userId;
-        this.name = name;
+        this.title = title;
         this.lines = lines;
     }
 
@@ -31,12 +31,12 @@ public class ToBuy {
         this.userId = userId;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public ArrayList<ToBuyLine> getLines() {

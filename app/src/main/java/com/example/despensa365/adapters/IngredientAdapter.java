@@ -1,5 +1,7 @@
 package com.example.despensa365.adapters;
 
+import android.content.Context;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,12 +49,23 @@ public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.In
         return ingredientList.size();
     }
 
-    public static class IngredientViewHolder extends RecyclerView.ViewHolder {
+    public void updateList(ArrayList<Ingredient> newList) {
+        ingredientList = newList;
+        notifyDataSetChanged();
+    }
+    public static class IngredientViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener{
         TextView ingredientName;
 
         public IngredientViewHolder(View itemView) {
             super(itemView);
             ingredientName = itemView.findViewById(R.id.tvNameIngredientListIngredients);
+            itemView.setOnCreateContextMenuListener(this);
+        }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+            final int ELIMINAR = 300;
+            menu.add(getAdapterPosition(), ELIMINAR, 0, "Eliminar");
         }
     }
 }

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResult;
@@ -121,6 +122,8 @@ public class MainActivity extends AppCompatActivity {
         if(userAllowed){
             Intent intent = new Intent(MainActivity.this, WeekActivity.class);
             customLauncher.launch(intent);
+        }else{
+            Toast.makeText(this, R.string.hintMainActivity, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -128,6 +131,8 @@ public class MainActivity extends AppCompatActivity {
         if(userAllowed) {
             Intent intent = new Intent(MainActivity.this, RecipeActivity.class);
             customLauncher.launch(intent);
+        }else{
+            Toast.makeText(this, R.string.hintMainActivity, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -135,6 +140,8 @@ public class MainActivity extends AppCompatActivity {
         if(userAllowed) {
             Intent intent = new Intent(MainActivity.this, PantryActivity.class);
             customLauncher.launch(intent);
+        }else{
+            Toast.makeText(this, R.string.hintMainActivity, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -142,6 +149,8 @@ public class MainActivity extends AppCompatActivity {
         if(userAllowed) {
             Intent intent = new Intent(MainActivity.this, ToBuyActivity.class);
             customLauncher.launch(intent);
+        }else{
+            Toast.makeText(this, R.string.hintMainActivity, Toast.LENGTH_SHORT).show();
         }
     }
 

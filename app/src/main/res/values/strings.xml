@@ -80,9 +80,13 @@
     <string name="titleNumIngr">Cantidad:</string>
     <string name="typeOfIngredient">Tipo de ingrediente:</string>
     <string name="searchBy">Buscar</string>
-    <string name="hintToUseIngDialog">Toca el ingrediente que quieras añadir</string>
+    <string name="hintToUseIngDialog">Toca el ingrediente que quieras añadir, si quieres añadir un ingrediente a la base de datos abre el menú de arriba a la derecha</string>
     <string name="titleDialogChooseIngr">Lista de ingredientes</string>
     <string name="howMuch">Cantidad de</string>
     <string name="hintWhenBought">Si no has comprado algo, no lo rellenes</string>
     <string name="tvNameOfIngredient">Nombre del ingrediente:</string>
+    <string name="createIngredient">Crear ingrediente</string>
+    <string name="hintMainActivity">Debes iniciar sesión para acceder</string>
+    <string name="save">Guardar</string>
+    <string name="newIngredient">Creacion de nuevo ingrediente</string>
 </resources>

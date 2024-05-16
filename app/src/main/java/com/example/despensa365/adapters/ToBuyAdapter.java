@@ -66,6 +66,10 @@ public class ToBuyAdapter extends RecyclerView.Adapter<ToBuyAdapter.ToBuyViewHol
             holder.ingredientWeight.append("gr");
         }
     }
+    public void updateList(ArrayList<ToBuyLine> newList) {
+        toBuyLines = newList;
+        notifyDataSetChanged();
+    }
 
     @Override
     public int getItemCount() {

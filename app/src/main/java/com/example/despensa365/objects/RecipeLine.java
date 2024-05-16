@@ -6,16 +6,16 @@ import java.io.Serializable;
 public class RecipeLine implements Serializable {
     private int idRecipe;
     private int idIngredient;
-    private double weight;
+    private double quantity;
 
     public RecipeLine(){
 
     }
 
-    public RecipeLine(int idRecipe, int idIngredient, double weight) {
+    public RecipeLine(int idRecipe, int idIngredient, double quantity) {
         this.idRecipe = idRecipe;
         this.idIngredient = idIngredient;
-        this.weight = weight;
+        this.quantity = quantity;
     }
 
     public int getIdRecipe() {
@@ -34,11 +34,11 @@ public class RecipeLine implements Serializable {
         this.idIngredient = idIngredient;
     }
 
-    public double getWeight() {
-        return weight;
+    public double getQuantity() {
+        return quantity;
     }
 
-    public void setWeight(double weight) {
-        this.weight = weight;
+    public void setQuantity(double quantity) {
+        this.quantity = quantity;
     }
 }

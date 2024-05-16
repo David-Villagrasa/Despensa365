@@ -124,17 +124,17 @@ public class RecipeActivity extends AppCompatActivity {
         RecipeLine flourLine = new RecipeLine();
         flourLine.setIdRecipe(cakeRecipe.getId());
         flourLine.setIdIngredient(1);
-        flourLine.setWeight(250);
+        flourLine.setQuantity(250);
 
         RecipeLine sugarLine = new RecipeLine();
         sugarLine.setIdRecipe(cakeRecipe.getId());
         sugarLine.setIdIngredient(2);
-        sugarLine.setWeight(100);
+        sugarLine.setQuantity(100);
 
         RecipeLine eggLine = new RecipeLine();
         eggLine.setIdRecipe(cakeRecipe.getId());
         eggLine.setIdIngredient(3);
-        eggLine.setWeight(3);
+        eggLine.setQuantity(3);
 
         cakeRecipe.addLine(flourLine);
         cakeRecipe.addLine(sugarLine);

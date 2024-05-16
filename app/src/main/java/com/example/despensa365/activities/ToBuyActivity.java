@@ -1,10 +1,15 @@
 package com.example.despensa365.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,13 +19,16 @@ import com.example.despensa365.R;
 import com.example.despensa365.adapters.BoughtAdapter;
 import com.example.despensa365.adapters.ToBuyAdapter;
 import com.example.despensa365.objects.Ingredient;
+import com.example.despensa365.objects.PantryLine;
 import com.example.despensa365.objects.ToBuy;
 import com.example.despensa365.objects.ToBuyLine;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class ToBuyActivity extends AppCompatActivity {
+    ActivityResultLauncher<Intent> customLauncher;
     private ToBuyAdapter toBuyAdapter;
     private BoughtAdapter boughtAdapter;
     private ArrayList<ToBuyLine> toBuyLines;
@@ -30,6 +38,8 @@ public class ToBuyActivity extends AppCompatActivity {
     private Button btnBackToBuy, btnDone, btnAddNeededIngr;
     private ToBuy currentToBuy;
     private boolean isBought=false;
+    private int posItem;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +53,19 @@ public class ToBuyActivity extends AppCompatActivity {
         btnDone = findViewById(R.id.btnDone);
         btnAddNeededIngr = findViewById(R.id.btnAddNeededIngr);
         tvHint = findViewById(R.id.tvHintToBuy);
+        customLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), resultado -> {
 
+            Intent data = resultado.getData();
+            if (data != null) {
+                int idIngr = data.getIntExtra("ingredient",-1);
+                double quantity = data.getDoubleExtra("quantity",-1);
+                ToBuyLine newLine = new ToBuyLine(currentToBuy.getId(), idIngr, quantity);
+                toBuyLines.add(newLine);
+                toBuyAdapter.updateList(toBuyLines);
+                toBuyAdapter.notifyDataSetChanged();
+            }
+
+        });
         getToBuy();
         setupListeners();
         setupRecyclerView();
@@ -71,6 +93,7 @@ public class ToBuyActivity extends AppCompatActivity {
             if (isBought) {
                 isBought=false;
                 btnDone.setVisibility(View.VISIBLE);
+                btnAddNeededIngr.setVisibility(View.VISIBLE);
                 setupRecyclerView();
                 tvHint.setText("");
             }else{
@@ -87,13 +110,15 @@ public class ToBuyActivity extends AppCompatActivity {
         });
 
         toBuyIngAdd.setOnClickListener(v -> {
-            //same as user can add an ingredient in a recipe
+            Intent intent = new Intent(this, SelectIngrActivity.class);
+            customLauncher.launch(intent);
         });
     }
 
     private void setupAsBought() {
         isBought=true;
         btnDone.setVisibility(View.INVISIBLE);
+        btnAddNeededIngr.setVisibility(View.INVISIBLE);
         ArrayList<ToBuyLine> lines = new ArrayList<>();
         for (int i = 0; i < toBuyLines.size(); i++) {
             if(toBuyAdapter.selected[i]){
@@ -121,5 +146,22 @@ public class ToBuyActivity extends AppCompatActivity {
 
         rvToBuy.setLayoutManager(new LinearLayoutManager(this));
         rvToBuy.setAdapter(boughtAdapter);
+    }
+    private final int ELIMINAR = 300;
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        posItem = item.getGroupId();
+        int id = item.getItemId();
+        switch (id) {
+            case ELIMINAR:
+                ToBuyLine ingredientToRemove = toBuyLines.get(posItem);
+                toBuyLines.remove(ingredientToRemove);
+                toBuyAdapter.updateList(toBuyLines);
+
+                // TODO: Also remove the toBuyLine from the database
+                break;
+        }
+        return super.onContextItemSelected(item);
     }
 }

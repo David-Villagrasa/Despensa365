@@ -16,7 +16,6 @@ import com.example.despensa365.objects.Ingredient;
 import com.example.despensa365.objects.RecipeLine;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class IngredientsRecipeAdapter extends RecyclerView.Adapter<IngredientsRecipeAdapter.IngredientsRecipeViewHolder> {
 
@@ -45,7 +44,7 @@ public class IngredientsRecipeAdapter extends RecyclerView.Adapter<IngredientsRe
         RecipeLine recipeLine = recipeLineList.get(position);
         Ingredient ingredient = MainActivity.SearchIngredient(recipeLine.getIdIngredient()).get();
         holder.ingredientName.setText(ingredient.getName());
-        holder.ingredientWeight.setText(recipeLine.getWeight() + "");
+        holder.ingredientWeight.setText(recipeLine.getQuantity() + "");
         if (ingredient.getType().getUnit().equals("L")) {
             holder.ingredientWeight.append("L");
         } else {
