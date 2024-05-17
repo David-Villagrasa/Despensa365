@@ -6,11 +6,12 @@ import java.util.Date;
 public class Pantry {
     private int id;
     private int userId;
-    private ArrayList<PantryLine> lines;
     private int postalCode;
     private String city;
     private String street;
     private int streetNumber;
+    private ArrayList<PantryLine> lines;
+
 
     public Pantry(int id, int userId, ArrayList<PantryLine> lines, int postalCode, String city, String street, int streetNumber) {
         this.id = id;

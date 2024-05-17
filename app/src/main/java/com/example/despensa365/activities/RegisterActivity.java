@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Patterns;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -13,6 +12,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.despensa365.R;
+import com.example.despensa365.db.DB;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -26,10 +26,13 @@ public class RegisterActivity extends AppCompatActivity {
     TextView tvTitleRegister, tvMailTitleRegister, tvPwdRegister, tvPwdAgainTitle;
     Button btnBackRegister, btnNextRegister;
     private static final String EMAIL_REGEX = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$";
+    private DB db; // DB instance
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        db = new DB();
 
         tvTitleRegister = findViewById(R.id.tvTitleRegister);
         etMailRegister = findViewById(R.id.etMailRegister);
@@ -113,6 +116,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                         user.updateProfile(profileUpdates).addOnCompleteListener(updateTask -> {
                             if (updateTask.isSuccessful()) {
+                                db.addUser(user.getUid(), email);
 
                                 Intent newIntent = new Intent();
                                 newIntent.putExtra("allowed", (etMailRegister.getText()).length() != 0);
@@ -124,7 +128,7 @@ public class RegisterActivity extends AppCompatActivity {
                             }
                         });
                     } else {
-                        Toast.makeText(this, it.getException().toString(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, it.getException().getMessage(), Toast.LENGTH_LONG).show();
                     }
                 });
             }
