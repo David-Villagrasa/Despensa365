@@ -37,7 +37,7 @@ public class PantryActivity extends AppCompatActivity {
     private ArrayList<PantryLine> currentPantryLines = new ArrayList<>();
     final int ELIMINAR = 300;
     int posItem;
-    private int idPantry=1;
+    private String idPantry="";
     private boolean isSeeingExpired = false;
 
     @Override
@@ -65,7 +65,7 @@ public class PantryActivity extends AppCompatActivity {
 
             Intent data = resultado.getData();
             if (data != null) {
-                int idIngr = data.getIntExtra("ingredient",-1);
+                String idIngr = data.getStringExtra("ingredient");
                 double quantity = data.getDoubleExtra("quantity",-1);
                 Date d = new Date();
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
@@ -84,25 +84,26 @@ public class PantryActivity extends AppCompatActivity {
     }
 
     private void getPantryLines() {
-        // Normalized today's date
-        Date today = getNormalizedDate(new Date());
-
-        // Create some example pantry lines with normalized dates
-        allPantryLines.add(new PantryLine(1, 1, 1000, today)); // 1000 grams of Flour
-        allPantryLines.add(new PantryLine(1, 2, 500, today)); // 500 grams of Sugar
-        allPantryLines.add(new PantryLine(1, 3, 1, today)); // 1 liter of Eggs
-        allPantryLines.add(new PantryLine(1, 4, 2, today)); // 2 liters of Milk
-        allPantryLines.add(new PantryLine(1, 5, 200, today)); // 200 grams of Butter
-        allPantryLines.add(new PantryLine(1, 6, 1.5, today)); // 1.5 liters of Oil
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, -3);
-        Date threeDaysAgo = getNormalizedDate(calendar.getTime());
-
-        allPantryLines.add(new PantryLine(1, 1, 750, threeDaysAgo));
-        allPantryLines.add(new PantryLine(1, 2, 250, threeDaysAgo));
-        allPantryLines.add(new PantryLine(1, 3, 0.5, threeDaysAgo));
-        allPantryLines.add(new PantryLine(1, 4, 1, threeDaysAgo));
+        //TODO get pantry lines from database
+//        // Normalized today's date
+//        Date today = getNormalizedDate(new Date());
+//
+//        // Create some example pantry lines with normalized dates
+//        allPantryLines.add(new PantryLine(1, 1, 1000, today)); // 1000 grams of Flour
+//        allPantryLines.add(new PantryLine(1, 2, 500, today)); // 500 grams of Sugar
+//        allPantryLines.add(new PantryLine(1, 3, 1, today)); // 1 liter of Eggs
+//        allPantryLines.add(new PantryLine(1, 4, 2, today)); // 2 liters of Milk
+//        allPantryLines.add(new PantryLine(1, 5, 200, today)); // 200 grams of Butter
+//        allPantryLines.add(new PantryLine(1, 6, 1.5, today)); // 1.5 liters of Oil
+//
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.add(Calendar.DAY_OF_YEAR, -3);
+//        Date threeDaysAgo = getNormalizedDate(calendar.getTime());
+//
+//        allPantryLines.add(new PantryLine(1, 1, 750, threeDaysAgo));
+//        allPantryLines.add(new PantryLine(1, 2, 250, threeDaysAgo));
+//        allPantryLines.add(new PantryLine(1, 3, 0.5, threeDaysAgo));
+//        allPantryLines.add(new PantryLine(1, 4, 1, threeDaysAgo));
     }
 
     private void filterNonExpiredLines() {

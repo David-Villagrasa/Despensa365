@@ -51,7 +51,7 @@ public class SpecificRecipeActivity extends AppCompatActivity {
         customLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), res -> {
             Intent data = res.getData();
             if (data != null) {
-                int idIngr = data.getIntExtra("ingredient",-1);
+                String idIngr = data.getStringExtra("ingredient");
                 double quantity = data.getDoubleExtra("quantity",-1);
                 RecipeLine newLine = new RecipeLine(currentRecipe.getId(), idIngr, quantity);
                 recipeLines.add(newLine);
@@ -104,15 +104,16 @@ public class SpecificRecipeActivity extends AppCompatActivity {
         rvIngreListRecipe.setLayoutManager(new LinearLayoutManager(this));
         rvIngreListRecipe.setAdapter(ingredientAdapter);
     }
+// TODO what is this?
 
-    private ArrayList<Ingredient> getIngredients() {
-        ArrayList<Ingredient> listIngredients = new ArrayList<>();
-        for (RecipeLine line:recipeLines) {
-            Optional<Ingredient> i = MainActivity.SearchIngredient(line.getIdIngredient());
-            i.ifPresent(listIngredients::add);
-        }
-        return listIngredients;
-    }
+//    private ArrayList<Ingredient> getIngredients() {
+//        ArrayList<Ingredient> listIngredients = new ArrayList<>();
+//        for (RecipeLine line:recipeLines) {
+//            Optional<Ingredient> i = MainActivity.SearchIngredient(line.getIdIngredient());
+//            i.ifPresent(listIngredients::add);
+//        }
+//        return listIngredients;
+//    }
 
     private void setupListeners() {
         btnBack.setOnClickListener(v -> finish());

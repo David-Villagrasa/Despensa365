@@ -50,7 +50,9 @@ public class SelectIngrActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btnBackSelectIngr);
         btnSearchSelectIngr = findViewById(R.id.btnSearchSelectIngr);
 
-        list = MainActivity.ingredientArrayList;
+//        list = MainActivity.ingredientArrayList;
+        getIngredients();
+
         ingredientAdapter = new IngredientAdapter(list, this::openQuantityDialog);
         recycler.setLayoutManager(new LinearLayoutManager(this));
         recycler.setAdapter(ingredientAdapter);
@@ -60,7 +62,11 @@ public class SelectIngrActivity extends AppCompatActivity {
         btnSearchSelectIngr.setOnClickListener(v -> searchIngredients());
 
         needDate = this.getIntent().hasExtra("needDate");
+    }
 
+    private void getIngredients() {
+        //TODO: Get ingredients from database
+        list= new ArrayList<>();
     }
 
     @Override
@@ -95,7 +101,7 @@ public class SelectIngrActivity extends AppCompatActivity {
 
                 Intent it = new Intent();
                 Bundle bd = new Bundle();
-                bd.putInt("ingredient", ing.getId());
+                bd.putString("ingredient", ing.getId());
                 bd.putDouble("quantity", quantity);
                 it.putExtra("date", date);
                 it.putExtras(bd);
@@ -109,7 +115,7 @@ public class SelectIngrActivity extends AppCompatActivity {
 
                 Intent it = new Intent();
                 Bundle bd = new Bundle();
-                bd.putInt("ingredient", ing.getId());
+                bd.putString("ingredient", ing.getId());
                 bd.putDouble("quantity", quantity);
                 it.putExtras(bd);
                 setResult(RESULT_OK, it);

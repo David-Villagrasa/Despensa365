@@ -14,10 +14,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.despensa365.MainActivity;
 import com.example.despensa365.R;
 import com.example.despensa365.adapters.RecipeAdapter;
+import com.example.despensa365.db.DB;
 import com.example.despensa365.objects.Recipe;
 import com.example.despensa365.objects.RecipeLine;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 
@@ -53,16 +56,18 @@ public class RecipeActivity extends AppCompatActivity {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                     Recipe returnedRecipe = (Recipe) result.getData().getSerializableExtra("RECIPE_DATA");
                     if (returnedRecipe != null) {
-                        if (returnedRecipe.getId() == 0) {
+                        if (returnedRecipe.getId().isEmpty()) {
                             // New Recipe, assign a new ID
-                            int newId = getNextRecipeId();
+                            String newId = DB.getNewIngredientId(DB.getCurrentUser());
                             returnedRecipe.setId(newId);
+                            //TODO add recipe to db
                             listOfRecipes.add(returnedRecipe);
                         } else {
                             // Existing Recipe, update it
                             for (int i = 0; i < listOfRecipes.size(); i++) {
-                                if (listOfRecipes.get(i).getId() == returnedRecipe.getId()) {
+                                if (listOfRecipes.get(i).getId().equals(returnedRecipe.getId())) {
                                     listOfRecipes.set(i, returnedRecipe);
+                                    //TODO update recipe in db
                                     break;
                                 }
                             }
@@ -100,16 +105,6 @@ public class RecipeActivity extends AppCompatActivity {
         return super.onContextItemSelected(item);
     }
 
-    private int getNextRecipeId() {
-        int highestId = 0;
-        for (Recipe recipe : listOfRecipes) {
-            if (recipe.getId() > highestId) {
-                highestId = recipe.getId();
-            }
-        }
-        return highestId + 1; // Return one more than the highest ID found
-    }
-
     private void setupRecyclerView() {
         recipeAdapter = new RecipeAdapter(this, listOfRecipes,true, true);
         rvRecipeList.setLayoutManager(new LinearLayoutManager(this));
@@ -119,28 +114,28 @@ public class RecipeActivity extends AppCompatActivity {
     private void getListOfRecipes() {
         //TODO call to db to get all the recipes that have the id of the actual user
 
-        Recipe cakeRecipe = new Recipe(1, "Cake", "Delicious sponge cake", 123);
-
-        RecipeLine flourLine = new RecipeLine();
-        flourLine.setIdRecipe(cakeRecipe.getId());
-        flourLine.setIdIngredient(1);
-        flourLine.setQuantity(250);
-
-        RecipeLine sugarLine = new RecipeLine();
-        sugarLine.setIdRecipe(cakeRecipe.getId());
-        sugarLine.setIdIngredient(2);
-        sugarLine.setQuantity(100);
-
-        RecipeLine eggLine = new RecipeLine();
-        eggLine.setIdRecipe(cakeRecipe.getId());
-        eggLine.setIdIngredient(3);
-        eggLine.setQuantity(3);
-
-        cakeRecipe.addLine(flourLine);
-        cakeRecipe.addLine(sugarLine);
-        cakeRecipe.addLine(eggLine);
-
-        listOfRecipes.add(cakeRecipe);
+//        Recipe cakeRecipe = new Recipe(1, "Cake", "Delicious sponge cake", 123);
+//
+//        RecipeLine flourLine = new RecipeLine();
+//        flourLine.setIdRecipe(cakeRecipe.getId());
+//        flourLine.setIdIngredient(1);
+//        flourLine.setQuantity(250);
+//
+//        RecipeLine sugarLine = new RecipeLine();
+//        sugarLine.setIdRecipe(cakeRecipe.getId());
+//        sugarLine.setIdIngredient(2);
+//        sugarLine.setQuantity(100);
+//
+//        RecipeLine eggLine = new RecipeLine();
+//        eggLine.setIdRecipe(cakeRecipe.getId());
+//        eggLine.setIdIngredient(3);
+//        eggLine.setQuantity(3);
+//
+//        cakeRecipe.addLine(flourLine);
+//        cakeRecipe.addLine(sugarLine);
+//        cakeRecipe.addLine(eggLine);
+//
+//        listOfRecipes.add(cakeRecipe);
     }
 
 

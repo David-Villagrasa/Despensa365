@@ -49,28 +49,28 @@ public class SelectRecActivity extends AppCompatActivity {
 
     private void setupList() {
         //TODO get data from database
-        Recipe cakeRecipe = new Recipe(1, "Cake", "Delicious sponge cake", 123);
-
-        RecipeLine flourLine = new RecipeLine();
-        flourLine.setIdRecipe(cakeRecipe.getId());
-        flourLine.setIdIngredient(1);
-        flourLine.setQuantity(250);
-
-        RecipeLine sugarLine = new RecipeLine();
-        sugarLine.setIdRecipe(cakeRecipe.getId());
-        sugarLine.setIdIngredient(2);
-        sugarLine.setQuantity(100);
-
-        RecipeLine eggLine = new RecipeLine();
-        eggLine.setIdRecipe(cakeRecipe.getId());
-        eggLine.setIdIngredient(3);
-        eggLine.setQuantity(3);
-
-        cakeRecipe.addLine(flourLine);
-        cakeRecipe.addLine(sugarLine);
-        cakeRecipe.addLine(eggLine);
-
-        listRecipes.add(cakeRecipe);
+//        Recipe cakeRecipe = new Recipe(1, "Cake", "Delicious sponge cake", 123);
+//
+//        RecipeLine flourLine = new RecipeLine();
+//        flourLine.setIdRecipe(cakeRecipe.getId());
+//        flourLine.setIdIngredient(1);
+//        flourLine.setQuantity(250);
+//
+//        RecipeLine sugarLine = new RecipeLine();
+//        sugarLine.setIdRecipe(cakeRecipe.getId());
+//        sugarLine.setIdIngredient(2);
+//        sugarLine.setQuantity(100);
+//
+//        RecipeLine eggLine = new RecipeLine();
+//        eggLine.setIdRecipe(cakeRecipe.getId());
+//        eggLine.setIdIngredient(3);
+//        eggLine.setQuantity(3);
+//
+//        cakeRecipe.addLine(flourLine);
+//        cakeRecipe.addLine(sugarLine);
+//        cakeRecipe.addLine(eggLine);
+//
+//        listRecipes.add(cakeRecipe);
     }
 
     public void recipeSelected() {

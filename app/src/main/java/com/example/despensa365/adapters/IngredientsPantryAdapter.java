@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.despensa365.MainActivity;
 import com.example.despensa365.R;
+import com.example.despensa365.db.DB;
 import com.example.despensa365.objects.Ingredient;
 import com.example.despensa365.objects.PantryLine;
 import com.example.despensa365.objects.RecipeLine;
@@ -43,7 +44,7 @@ public class IngredientsPantryAdapter extends RecyclerView.Adapter<IngredientsPa
     @Override
     public void onBindViewHolder(@NonNull IngredientsPantryAdapter.IngredientsPantryViewHolder holder, int position) {
         PantryLine pantryLine = pantryLinesList.get(position);
-        Ingredient ingredient = MainActivity.SearchIngredient(pantryLine.getIngredientId()).get();
+        Ingredient ingredient = DB.getIngredientById(pantryLine.getIngredientId());
         holder.ingredientName.setText(ingredient.getName());
         holder.ingredientQuantity.setText(String.format("%s", pantryLine.getIngredientQuantity()));
         holder.ingredientQuantity.append(ingredient.getType().getUnit());

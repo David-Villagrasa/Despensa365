@@ -41,16 +41,16 @@ public class RecipeViewActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         currentRecipe = (Recipe) intent.getSerializableExtra("recipe");
-        customLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), res -> {
-            Intent data = res.getData();
-            if (data != null) {
-                int idIngr = data.getIntExtra("ingredient",-1);
-                double quantity = data.getDoubleExtra("quantity",-1);
-                RecipeLine newLine = new RecipeLine(currentRecipe.getId(), idIngr, quantity);
-                recipeLines.add(newLine);
-                ingredientAdapter.notifyDataSetChanged();
-            }
-        });
+//        customLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), res -> {
+//            Intent data = res.getData();
+//            if (data != null) {
+//                int idIngr = data.getIntExtra("ingredient",-1);
+//                double quantity = data.getDoubleExtra("quantity",-1);
+//                RecipeLine newLine = new RecipeLine(currentRecipe.getId(), idIngr, quantity);
+//                recipeLines.add(newLine);
+//                ingredientAdapter.notifyDataSetChanged();
+//            }
+//        });
 
         initViews();
 

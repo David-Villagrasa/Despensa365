@@ -3,6 +3,8 @@ package com.example.despensa365.db;
 import static com.example.despensa365.methods.DateUtils.getNextMonday;
 import static com.example.despensa365.methods.DateUtils.getNextSunday;
 
+import com.example.despensa365.enums.IngredientType;
+import com.example.despensa365.objects.Ingredient;
 import com.example.despensa365.objects.Pantry;
 import com.example.despensa365.objects.Recipe;
 import com.example.despensa365.objects.ToBuy;
@@ -18,19 +20,43 @@ import com.google.firebase.firestore.SetOptions;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class DB {
 
     private static final String TAG = "DB";
-    private FirebaseFirestore db;
+    private static FirebaseFirestore db;
+    public static ArrayList<Ingredient> ingredientArrayList = new ArrayList<>();
 
-    public DB() {
+    public static void init(){
         db = FirebaseFirestore.getInstance();
     }
+    public static FirebaseUser getCurrentUser(){
+        return FirebaseAuth.getInstance().getCurrentUser();
+    }
 
-    public void setupDateWeekPlan(FirebaseUser user) {
+    @Nullable
+    public static Ingredient getIngredientById(String id) {
+        for (Ingredient ingredient : ingredientArrayList) {
+            if (ingredient.getId().equals(id)) {
+                return ingredient;
+            }
+        }
+        return null;
+    }
+
+    public static String getNewIngredientId(FirebaseUser user){
+        CollectionReference ingredientsCollection = db.collection("users").document(user.getUid()).collection("ingredients");
+        return ingredientsCollection.getId();
+    }
+
+
+    public static void setupDateWeekPlan(@NonNull FirebaseUser user) {
         CollectionReference weekPlanCollection = db.collection("users").document(user.getUid()).collection("weekPlan");
 
         weekPlanCollection.get().addOnCompleteListener(task -> {
@@ -42,7 +68,7 @@ public class DB {
                     weekPlanData.put("endDate", getNextSunday());
 
                     weekPlanCollection.document("week1").set(weekPlanData)
-                            .addOnSuccessListener(aVoid -> Log.d(TAG, "WeekPlan week1 created successfully!"))
+                            .addOnSuccessListener(aVoid -> Log.d(TAG, "WeekPlan week1 created successfully."))
                             .addOnFailureListener(e -> Log.w(TAG, "Error creating WeekPlan week1", e));
                 } else {
                     // Update the existing document
@@ -54,7 +80,7 @@ public class DB {
                         updates.put("endDate", getNextSunday());
 
                         weekPlanRef.update(updates)
-                                .addOnSuccessListener(aVoid -> Log.d(TAG, "WeekPlan " + document.getId() + " updated successfully"))
+                                .addOnSuccessListener(aVoid -> Log.d(TAG, "WeekPlan " + document.getId() + " updated successfully."))
                                 .addOnFailureListener(e -> Log.w(TAG, "Error updating WeekPlan " + document.getId(), e));
                     }
                 }
@@ -64,8 +90,6 @@ public class DB {
         });
     }
 
-
-    // Method to add a User to Firestore
     public void addUser(String userId, String email) {
         Map<String, Object> userData = new HashMap<>();
         userData.put("email", email);
@@ -75,15 +99,40 @@ public class DB {
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "User added successfully to Firestore!"))
                 .addOnFailureListener(e -> Log.w(TAG, "Error adding user to Firestore", e));
     }
+    public static void getIngredients(@NonNull FirebaseUser user){
+        CollectionReference ingredientsCollection = db.collection("users").document(user.getUid()).collection("ingredients");
 
-    // Method to add a User
-    public void addUser(String userId, Map<String, Object> userData) {
-        db.collection("users").document(userId)
-                .set(userData, SetOptions.merge())
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "User added successfully!"))
-                .addOnFailureListener(e -> Log.w(TAG, "Error adding user", e));
+        ingredientsCollection.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                if (task.getResult().isEmpty()) {
+                    // No documents in the collection
+                    ingredientArrayList = new ArrayList<>();
+                    Log.d(TAG, "No ingredients found.");
+                } else {
+                    // Get the documents and add them to the ArrayList
+                    ingredientArrayList.clear();
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        String id = document.getId();
+                        String name = document.getString("name");
+                        String typeString = document.getString("type");
+                        IngredientType type;
+                        if(typeString.equals("L")){
+                            type = IngredientType.LITERS;
+                        } else if (typeString.equals("gr")) {
+                            type = IngredientType.GRAMS;
+                        }else {
+                            type = IngredientType.UNITS;
+                        }
+                        Ingredient ingredient = new Ingredient(id, name, type);
+                        ingredientArrayList.add(ingredient);
+                    }
+                    Log.d(TAG, "Ingredients loaded successfully.");
+                }
+            } else {
+                Log.w(TAG, "Error getting ingredients collection.", task.getException());
+            }
+        });
     }
-
     // Method to add Pantry to a User
     public void addPantry(String userId, Pantry pantry) {
         db.collection("users").document(userId)

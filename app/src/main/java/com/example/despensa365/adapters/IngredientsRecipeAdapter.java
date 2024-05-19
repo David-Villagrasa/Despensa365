@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.despensa365.MainActivity;
 import com.example.despensa365.R;
+import com.example.despensa365.db.DB;
 import com.example.despensa365.objects.Ingredient;
 import com.example.despensa365.objects.RecipeLine;
 
@@ -42,7 +43,7 @@ public class IngredientsRecipeAdapter extends RecyclerView.Adapter<IngredientsRe
     @Override
     public void onBindViewHolder(@NonNull IngredientsRecipeViewHolder holder, int position) {
         RecipeLine recipeLine = recipeLineList.get(position);
-        Ingredient ingredient = MainActivity.SearchIngredient(recipeLine.getIdIngredient()).get();
+        Ingredient ingredient = DB.getIngredientById(recipeLine.getIdIngredient());
         holder.ingredientName.setText(ingredient.getName());
         holder.ingredientWeight.setText(recipeLine.getQuantity() + "");
         if (ingredient.getType().getUnit().equals("L")) {

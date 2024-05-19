@@ -14,18 +14,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.despensa365.MainActivity;
 import com.example.despensa365.R;
 import com.example.despensa365.adapters.BoughtAdapter;
 import com.example.despensa365.adapters.ToBuyAdapter;
-import com.example.despensa365.objects.Ingredient;
-import com.example.despensa365.objects.PantryLine;
 import com.example.despensa365.objects.ToBuy;
 import com.example.despensa365.objects.ToBuyLine;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 public class ToBuyActivity extends AppCompatActivity {
     ActivityResultLauncher<Intent> customLauncher;
@@ -57,7 +53,7 @@ public class ToBuyActivity extends AppCompatActivity {
 
             Intent data = resultado.getData();
             if (data != null) {
-                int idIngr = data.getIntExtra("ingredient",-1);
+                String idIngr = data.getStringExtra("ingredient");
                 double quantity = data.getDoubleExtra("quantity",-1);
                 ToBuyLine newLine = new ToBuyLine(currentToBuy.getId(), idIngr, quantity);
                 toBuyLines.add(newLine);
@@ -66,26 +62,27 @@ public class ToBuyActivity extends AppCompatActivity {
             }
 
         });
-        getToBuy();
+        getToBuyLines();
         setupListeners();
         setupRecyclerView();
     }
 
-    private void getToBuy() {
+    private void getToBuyLines() {
         //TODO get it from db
-        currentToBuy = new ToBuy(1, 0, "Weekly Shopping", new ArrayList<>());
-        ArrayList<Ingredient> ingredientArrayList = MainActivity.ingredientArrayList;
-
-        if (ingredientArrayList != null && !ingredientArrayList.isEmpty()) {
-            currentToBuy.getLines().add(new ToBuyLine(currentToBuy.getId(), ingredientArrayList.get(0).getId(), 1.0));
-            currentToBuy.getLines().add(new ToBuyLine(currentToBuy.getId(), ingredientArrayList.get(1).getId(), 0.5));
-            currentToBuy.getLines().add(new ToBuyLine(currentToBuy.getId(), ingredientArrayList.get(2).getId(), 6));
-            currentToBuy.getLines().add(new ToBuyLine(currentToBuy.getId(), ingredientArrayList.get(3).getId(), 2.0));
-            currentToBuy.getLines().add(new ToBuyLine(currentToBuy.getId(), ingredientArrayList.get(4).getId(), 0.25));
-            currentToBuy.getLines().add(new ToBuyLine(currentToBuy.getId(), ingredientArrayList.get(5).getId(), 1.5));
-        }
-
-        toBuyLines = currentToBuy.getLines();
+        toBuyLines=new ArrayList<ToBuyLine>();
+//        currentToBuy = new ToBuy(1, 0, "Weekly Shopping", new ArrayList<>());
+//        ArrayList<Ingredient> ingredientArrayList = MainActivity.ingredientArrayList;
+//
+//        if (ingredientArrayList != null && !ingredientArrayList.isEmpty()) {
+//            currentToBuy.getLines().add(new ToBuyLine(currentToBuy.getId(), ingredientArrayList.get(0).getId(), 1.0));
+//            currentToBuy.getLines().add(new ToBuyLine(currentToBuy.getId(), ingredientArrayList.get(1).getId(), 0.5));
+//            currentToBuy.getLines().add(new ToBuyLine(currentToBuy.getId(), ingredientArrayList.get(2).getId(), 6));
+//            currentToBuy.getLines().add(new ToBuyLine(currentToBuy.getId(), ingredientArrayList.get(3).getId(), 2.0));
+//            currentToBuy.getLines().add(new ToBuyLine(currentToBuy.getId(), ingredientArrayList.get(4).getId(), 0.25));
+//            currentToBuy.getLines().add(new ToBuyLine(currentToBuy.getId(), ingredientArrayList.get(5).getId(), 1.5));
+//        }
+//
+//        toBuyLines = currentToBuy.getLines();
     }
 
     private void setupListeners() {
@@ -130,20 +127,13 @@ public class ToBuyActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        if (currentToBuy.getLines() != null) {
-            toBuyLines = currentToBuy.getLines();
-        }
         toBuyAdapter = new ToBuyAdapter(this, toBuyLines);
         rvToBuy.setLayoutManager(new LinearLayoutManager(this));
         rvToBuy.setAdapter(toBuyAdapter);
     }
 
     private void setupRecyclerViewBought(ArrayList<ToBuyLine> lines) {
-        if (currentToBuy.getLines() != null) {
-            toBuyLines = currentToBuy.getLines();
-        }
         boughtAdapter = new BoughtAdapter(this, lines);
-
         rvToBuy.setLayoutManager(new LinearLayoutManager(this));
         rvToBuy.setAdapter(boughtAdapter);
     }

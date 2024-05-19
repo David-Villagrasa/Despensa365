@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class Pantry {
-    private int id;
-    private int userId;
+    private String id;
+    private String userId;
     private int postalCode;
     private String city;
     private String street;
@@ -13,7 +13,7 @@ public class Pantry {
     private ArrayList<PantryLine> lines;
 
 
-    public Pantry(int id, int userId, ArrayList<PantryLine> lines, int postalCode, String city, String street, int streetNumber) {
+    public Pantry(String id, String userId, ArrayList<PantryLine> lines, int postalCode, String city, String street, int streetNumber) {
         this.id = id;
         this.userId = userId;
         this.lines = lines;
@@ -26,19 +26,19 @@ public class Pantry {
     public Pantry() {
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public int getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

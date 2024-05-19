@@ -3,12 +3,12 @@ package com.example.despensa365.objects;
 import java.util.Date;
 
 public class PantryLine {
-    private int pantryId;
-    private int ingredientId;
+    private String pantryId;
+    private String ingredientId;
     private double ingredientQuantity;
     private Date expirationDate;
 
-    public PantryLine(int pantryId, int ingredientId, double ingredientQuantity, Date expirationDate    ) {
+    public PantryLine(String pantryId, String ingredientId, double ingredientQuantity, Date expirationDate    ) {
         this.pantryId = pantryId;
         this.ingredientId = ingredientId;
         this.ingredientQuantity = ingredientQuantity;
@@ -17,19 +17,19 @@ public class PantryLine {
     public PantryLine() {
     }
 
-    public int getPantryId() {
+    public String getPantryId() {
         return pantryId;
     }
 
-    public void setPantryId(int pantryId) {
+    public void setPantryId(String pantryId) {
         this.pantryId = pantryId;
     }
 
-    public int getIngredientId() {
+    public String getIngredientId() {
         return ingredientId;
     }
 
-    public void setIngredientId(int ingredientId) {
+    public void setIngredientId(String ingredientId) {
         this.ingredientId = ingredientId;
     }
 

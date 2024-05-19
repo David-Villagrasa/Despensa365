@@ -5,22 +5,23 @@ import com.example.despensa365.enums.IngredientType;
 import java.io.Serializable;
 
 public class Ingredient implements Serializable {
-    private int id;
+    private String id;
     private String name;
     private IngredientType type;
 
-    public Ingredient(int id, String name, IngredientType type) {
+    public Ingredient(String id, String name, IngredientType type) {
         this.id = id;
         this.name = name;
         this.type = type;
     }
+    public Ingredient() {
+    }
 
-    // Getters and Setters
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

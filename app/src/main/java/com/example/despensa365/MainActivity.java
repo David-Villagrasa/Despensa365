@@ -30,9 +30,8 @@ import java.util.Optional;
 
 public class MainActivity extends AppCompatActivity {
     public FirebaseAuth firebaseAuth;
-    private DB db;
     //TODO Delete when we can get from db
-    public static ArrayList<Ingredient> ingredientArrayList = new ArrayList<>();
+    //public static ArrayList<Ingredient> ingredientArrayList = new ArrayList<>();
     Button btnLogin, btnRegister, btnLogout, btnManWeek, btnManRec, btnManPantry, btnManToBuy;
     TextView tvWelcome;
     ActivityResultLauncher<Intent> customLauncher;
@@ -40,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        DB.init();
 
         btnLogin=findViewById(R.id.btnLogIn);
         btnRegister=findViewById(R.id.btnRegister);
@@ -63,24 +63,23 @@ public class MainActivity extends AppCompatActivity {
                 loggedLayout();
             }
         });
-        db = new DB();
-        defaultIngredientsTEST();
+       // defaultIngredientsTEST();
     }
 
-    private void defaultIngredientsTEST() {
-        Ingredient flour = new Ingredient(1, "Flour", IngredientType.GRAMS);
-        Ingredient sugar = new Ingredient(2, "Sugar", IngredientType.GRAMS);
-        Ingredient eggs = new Ingredient(3, "Eggs", IngredientType.UNITS);
-        Ingredient milk = new Ingredient(4, "Milk", IngredientType.LITERS);
-        Ingredient butter = new Ingredient(5, "Butter", IngredientType.GRAMS);
-        Ingredient oil = new Ingredient(6, "Oil", IngredientType.LITERS);
-        ingredientArrayList.add(flour);
-        ingredientArrayList.add(sugar);
-        ingredientArrayList.add(eggs);
-        ingredientArrayList.add(milk);
-        ingredientArrayList.add(butter);
-        ingredientArrayList.add(oil);
-    }
+//    private void defaultIngredientsTEST() {
+//        Ingredient flour = new Ingredient(1, "Flour", IngredientType.GRAMS);
+//        Ingredient sugar = new Ingredient(2, "Sugar", IngredientType.GRAMS);
+//        Ingredient eggs = new Ingredient(3, "Eggs", IngredientType.UNITS);
+//        Ingredient milk = new Ingredient(4, "Milk", IngredientType.LITERS);
+//        Ingredient butter = new Ingredient(5, "Butter", IngredientType.GRAMS);
+//        Ingredient oil = new Ingredient(6, "Oil", IngredientType.LITERS);
+//        ingredientArrayList.add(flour);
+//        ingredientArrayList.add(sugar);
+//        ingredientArrayList.add(eggs);
+//        ingredientArrayList.add(milk);
+//        ingredientArrayList.add(butter);
+//        ingredientArrayList.add(oil);
+//    }
 
     private void defaultLayout() {
         btnLogin.setVisibility(View.VISIBLE);
@@ -97,7 +96,8 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser userFirebase = firebaseAuth.getCurrentUser();
         String username = userFirebase.getDisplayName();
         tvWelcome.setText(String.format("%s %s", getString(R.string.welcome), username));
-        db.setupDateWeekPlan(firebaseAuth.getCurrentUser());
+        DB.setupDateWeekPlan(firebaseAuth.getCurrentUser());
+        DB.getIngredients(firebaseAuth.getCurrentUser());
     }
 
     public void clickLogin(View v) {
@@ -152,16 +152,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public static Optional<Ingredient> SearchIngredient(int id){
-        Optional<Ingredient> ingredient = Optional.empty();
-        for (Ingredient i: ingredientArrayList) {
-            if(i.getId() == id){
-                ingredient = Optional.of(i);
-                return ingredient;
-            }
-        }
-        return ingredient;
-    }
+//    public static Optional<Ingredient> SearchIngredient(int id){
+//        Optional<Ingredient> ingredient = Optional.empty();
+//        for (Ingredient i: ingredientArrayList) {
+//            if(i.getId() == id){
+//                ingredient = Optional.of(i);
+//                return ingredient;
+//            }
+//        }
+//        return ingredient;
+//    }
 
 
 }

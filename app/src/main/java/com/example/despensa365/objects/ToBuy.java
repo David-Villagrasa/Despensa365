@@ -3,31 +3,31 @@ package com.example.despensa365.objects;
 import java.util.ArrayList;
 
 public class ToBuy {
-    private int id;
-    private int userId;
+    private String id;
+    private String userId;
     private String title;
     private ArrayList<ToBuyLine> lines;
 
-    public ToBuy(int id, int userId, String title, ArrayList<ToBuyLine> lines) {
+    public ToBuy(String id, String userId, String title, ArrayList<ToBuyLine> lines) {
         this.id = id;
         this.userId = userId;
         this.title = title;
         this.lines = lines;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public int getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class WeeklyPlan {
-    private int id;
+    private String id;
     private Date startDate;
     private Date endDate;
-    private int userId;
+    private String userId;
     private ArrayList<PlanLine> lines;
 
-    public WeeklyPlan(int id, Date startDate, Date endDate, int userId, ArrayList<PlanLine> lines) {
+    public WeeklyPlan(String id, Date startDate, Date endDate, String userId, ArrayList<PlanLine> lines) {
         this.id = id;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -21,11 +21,11 @@ public class WeeklyPlan {
     public WeeklyPlan() {
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -45,11 +45,11 @@ public class WeeklyPlan {
         this.endDate = endDate;
     }
 
-    public int getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.despensa365.MainActivity;
 import com.example.despensa365.R;
+import com.example.despensa365.db.DB;
 import com.example.despensa365.objects.Ingredient;
 import com.example.despensa365.objects.ToBuyLine;
 
@@ -46,7 +47,7 @@ public class BoughtAdapter extends RecyclerView.Adapter<BoughtAdapter.BoughtView
     @Override
     public void onBindViewHolder(@NonNull BoughtViewHolder holder, int position) {
         ToBuyLine toBuyLine = toBuyLines.get(position);
-        Ingredient ingredient = MainActivity.SearchIngredient(toBuyLine.getIngredientId()).get();
+        Ingredient ingredient = DB.getIngredientById(toBuyLine.getIngredientId());
         holder.tvNameIngredient.setText("");
         holder.etNameIng.setText(ingredient.getName());
         holder.etNameIng.setEnabled(false);

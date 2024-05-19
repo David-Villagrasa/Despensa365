@@ -4,13 +4,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class Recipe implements Serializable {
-    private int id = 0;
+    private String id = "";
     private String name;
     private String description;
-    private int userId;
+    private String userId;
     private ArrayList<RecipeLine> lines;
 
-    public Recipe(int id, String name, String description, int userId) {
+    public Recipe(String id, String name, String description, String userId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -20,11 +20,11 @@ public class Recipe implements Serializable {
     public Recipe() {
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -44,11 +44,11 @@ public class Recipe implements Serializable {
         this.description = description;
     }
 
-    public int getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

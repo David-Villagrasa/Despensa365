@@ -47,8 +47,8 @@ public class IngredientActivity extends AppCompatActivity {
             if (!name.isEmpty()) {
                 try {
                     // TODO Call the db to get which is the next id to use
-                    Ingredient ingredient = new Ingredient(0, name, type);
-                    // TODO Save ingredient to the list or database
+                    Ingredient ingredient = new Ingredient("", name, type);
+                    // TODO Save ingredient to the list & database
 
                     Intent resultIntent = new Intent();
                     setResult(RESULT_OK, resultIntent);

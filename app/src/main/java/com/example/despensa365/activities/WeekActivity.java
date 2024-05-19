@@ -95,7 +95,7 @@ public class WeekActivity extends AppCompatActivity {
                     selectedRecipe = (Recipe) data.getSerializableExtra("selectedRecipe");
                     //TODO create a new line of PlanLine on db
                     allRecipeList.add(selectedRecipe);
-                    planLines.add(new PlanLine(0, selectedRecipe.getId(), day));
+                    planLines.add(new PlanLine("", selectedRecipe.getId(), day));
                     loadRecipesForDay(day);
                 }
 
@@ -110,54 +110,55 @@ public class WeekActivity extends AppCompatActivity {
     }
 
     private void getPlanLines() {
-        Recipe recipe1 = new Recipe(2, "Spaghetti Bolognese", "Classic Italian pasta dish", 0);
-        Recipe recipe2 = new Recipe(3, "Chicken Curry", "Spicy Indian chicken curry", 0);
-        Recipe recipe3 = new Recipe(4, "Beef Tacos", "Delicious Mexican beef tacos", 0);
-        Recipe recipe4 = new Recipe(5, "Vegetable Stir Fry", "Healthy vegetable stir fry", 0);
-        Recipe recipe5 = new Recipe(6, "Pancakes", "Fluffy American pancakes", 0);
-        Recipe recipe6 = new Recipe(7, "Caesar Salad", "Fresh Caesar salad with chicken", 0);
-        Recipe recipe7 = new Recipe(8, "BBQ Ribs", "Tender BBQ pork ribs", 0);
-
-        recipe1.addLine(new RecipeLine(recipe1.getId(), 1, 200));
-        recipe1.addLine(new RecipeLine(recipe1.getId(), 2, 150));
-
-        recipe2.addLine(new RecipeLine(recipe2.getId(), 3, 250));
-        recipe2.addLine(new RecipeLine(recipe2.getId(), 4, 100));
-
-        recipe3.addLine(new RecipeLine(recipe3.getId(), 2, 300));
-        recipe3.addLine(new RecipeLine(recipe3.getId(), 5, 50));
-
-        recipe4.addLine(new RecipeLine(recipe4.getId(), 6, 200));
-        recipe4.addLine(new RecipeLine(recipe4.getId(), 7, 50));
-
-        recipe5.addLine(new RecipeLine(recipe5.getId(), 8, 100));
-        recipe5.addLine(new RecipeLine(recipe5.getId(), 9, 200));
-
-        recipe6.addLine(new RecipeLine(recipe6.getId(), 10, 100));
-        recipe6.addLine(new RecipeLine(recipe6.getId(), 11, 150));
-
-        recipe7.addLine(new RecipeLine(recipe7.getId(), 12, 500));
-        recipe7.addLine(new RecipeLine(recipe7.getId(), 13, 100));
-
-        allRecipeList.add(recipe1);
-        allRecipeList.add(recipe2);
-        allRecipeList.add(recipe3);
-        allRecipeList.add(recipe4);
-        allRecipeList.add(recipe5);
-        allRecipeList.add(recipe6);
-        allRecipeList.add(recipe7);
-
-        planLines.add(new PlanLine(0, recipe1.getId(), Day.MONDAY));
-        planLines.add(new PlanLine(0, recipe2.getId(), Day.MONDAY));
-        planLines.add(new PlanLine(0, recipe3.getId(), Day.MONDAY));
-
-        planLines.add(new PlanLine(0, recipe4.getId(), Day.WEDNESDAY));
-        planLines.add(new PlanLine(0, recipe5.getId(), Day.WEDNESDAY));
-        planLines.add(new PlanLine(0, recipe6.getId(), Day.WEDNESDAY));
-
-        planLines.add(new PlanLine(0, recipe7.getId(), Day.FRIDAY));
-        planLines.add(new PlanLine(0, recipe1.getId(), Day.FRIDAY));
-        planLines.add(new PlanLine(0, recipe2.getId(), Day.FRIDAY));
+        //TODO get the plan from de database
+//        Recipe recipe1 = new Recipe(2, "Spaghetti Bolognese", "Classic Italian pasta dish", 0);
+//        Recipe recipe2 = new Recipe(3, "Chicken Curry", "Spicy Indian chicken curry", 0);
+//        Recipe recipe3 = new Recipe(4, "Beef Tacos", "Delicious Mexican beef tacos", 0);
+//        Recipe recipe4 = new Recipe(5, "Vegetable Stir Fry", "Healthy vegetable stir fry", 0);
+//        Recipe recipe5 = new Recipe(6, "Pancakes", "Fluffy American pancakes", 0);
+//        Recipe recipe6 = new Recipe(7, "Caesar Salad", "Fresh Caesar salad with chicken", 0);
+//        Recipe recipe7 = new Recipe(8, "BBQ Ribs", "Tender BBQ pork ribs", 0);
+//
+//        recipe1.addLine(new RecipeLine(recipe1.getId(), 1, 200));
+//        recipe1.addLine(new RecipeLine(recipe1.getId(), 2, 150));
+//
+//        recipe2.addLine(new RecipeLine(recipe2.getId(), 3, 250));
+//        recipe2.addLine(new RecipeLine(recipe2.getId(), 4, 100));
+//
+//        recipe3.addLine(new RecipeLine(recipe3.getId(), 2, 300));
+//        recipe3.addLine(new RecipeLine(recipe3.getId(), 5, 50));
+//
+//        recipe4.addLine(new RecipeLine(recipe4.getId(), 6, 200));
+//        recipe4.addLine(new RecipeLine(recipe4.getId(), 7, 50));
+//
+//        recipe5.addLine(new RecipeLine(recipe5.getId(), 8, 100));
+//        recipe5.addLine(new RecipeLine(recipe5.getId(), 9, 200));
+//
+//        recipe6.addLine(new RecipeLine(recipe6.getId(), 10, 100));
+//        recipe6.addLine(new RecipeLine(recipe6.getId(), 11, 150));
+//
+//        recipe7.addLine(new RecipeLine(recipe7.getId(), 12, 500));
+//        recipe7.addLine(new RecipeLine(recipe7.getId(), 13, 100));
+//
+//        allRecipeList.add(recipe1);
+//        allRecipeList.add(recipe2);
+//        allRecipeList.add(recipe3);
+//        allRecipeList.add(recipe4);
+//        allRecipeList.add(recipe5);
+//        allRecipeList.add(recipe6);
+//        allRecipeList.add(recipe7);
+//
+//        planLines.add(new PlanLine(0, recipe1.getId(), Day.MONDAY));
+//        planLines.add(new PlanLine(0, recipe2.getId(), Day.MONDAY));
+//        planLines.add(new PlanLine(0, recipe3.getId(), Day.MONDAY));
+//
+//        planLines.add(new PlanLine(0, recipe4.getId(), Day.WEDNESDAY));
+//        planLines.add(new PlanLine(0, recipe5.getId(), Day.WEDNESDAY));
+//        planLines.add(new PlanLine(0, recipe6.getId(), Day.WEDNESDAY));
+//
+//        planLines.add(new PlanLine(0, recipe7.getId(), Day.FRIDAY));
+//        planLines.add(new PlanLine(0, recipe1.getId(), Day.FRIDAY));
+//        planLines.add(new PlanLine(0, recipe2.getId(), Day.FRIDAY));
     }
 
     private void loadWeeklyPlan() {
@@ -169,7 +170,7 @@ public class WeekActivity extends AppCompatActivity {
 
         // Devuelve la nueva fecha
         Date sevendays = getNormalizedDate(calendar.getTime());
-        weeklyPlan=new WeeklyPlan(0, getNormalizedDate(new Date()), sevendays, 0, new ArrayList<PlanLine>());
+        weeklyPlan=new WeeklyPlan("", getNormalizedDate(new Date()), sevendays, "", new ArrayList<PlanLine>());
     }
 
     private void setupRecycler() {
@@ -181,14 +182,14 @@ public class WeekActivity extends AppCompatActivity {
     private void loadRecipesForDay(Day selectedDay) {
         day = selectedDay;
         currentDayRecipeList.clear();
-        List<Integer> recipeIdsForDay = planLines.stream()
+        List<String> recipeIdsForDay = planLines.stream()
                 .filter(line -> line.getDay() == selectedDay)
                 .map(PlanLine::getRecipeId)
                 .collect(Collectors.toList());
 
-        for (int recipeId : recipeIdsForDay) {
+        for (String recipeId : recipeIdsForDay) {
             for (Recipe recipe : allRecipeList) {
-                if (recipe.getId() == recipeId) {
+                if (recipe.getId().equals(recipeId)) {
                     currentDayRecipeList.add(recipe);
                     break;
                 }
