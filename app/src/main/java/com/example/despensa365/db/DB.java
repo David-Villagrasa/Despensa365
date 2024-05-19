@@ -1,14 +1,23 @@
 package com.example.despensa365.db;
 
+import static com.example.despensa365.methods.DateUtils.getNextMonday;
+import static com.example.despensa365.methods.DateUtils.getNextSunday;
+
 import com.example.despensa365.objects.Pantry;
 import com.example.despensa365.objects.Recipe;
 import com.example.despensa365.objects.ToBuy;
 import com.example.despensa365.objects.WeeklyPlan;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.SetOptions;
+
 import android.util.Log;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +29,41 @@ public class DB {
     public DB() {
         db = FirebaseFirestore.getInstance();
     }
+
+    public void setupDateWeekPlan(FirebaseUser user) {
+        CollectionReference weekPlanCollection = db.collection("users").document(user.getUid()).collection("weekPlan");
+
+        weekPlanCollection.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                if (task.getResult().isEmpty()) {
+                    // No documents in the collection, create "week1"
+                    Map<String, Object> weekPlanData = new HashMap<>();
+                    weekPlanData.put("startDate", getNextMonday());
+                    weekPlanData.put("endDate", getNextSunday());
+
+                    weekPlanCollection.document("week1").set(weekPlanData)
+                            .addOnSuccessListener(aVoid -> Log.d(TAG, "WeekPlan week1 created successfully!"))
+                            .addOnFailureListener(e -> Log.w(TAG, "Error creating WeekPlan week1", e));
+                } else {
+                    // Update the existing document
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        DocumentReference weekPlanRef = weekPlanCollection.document(document.getId());
+
+                        Map<String, Object> updates = new HashMap<>();
+                        updates.put("startDate", getNextMonday());
+                        updates.put("endDate", getNextSunday());
+
+                        weekPlanRef.update(updates)
+                                .addOnSuccessListener(aVoid -> Log.d(TAG, "WeekPlan " + document.getId() + " updated successfully"))
+                                .addOnFailureListener(e -> Log.w(TAG, "Error updating WeekPlan " + document.getId(), e));
+                    }
+                }
+            } else {
+                Log.w(TAG, "Error getting WeekPlan collection.", task.getException());
+            }
+        });
+    }
+
 
     // Method to add a User to Firestore
     public void addUser(String userId, String email) {

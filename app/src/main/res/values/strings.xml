@@ -94,4 +94,9 @@
     <string name="notSamePasswords">Las contraseñas no coinciden</string>
     <string name="invalidEmail">El correo electrónico no es válido</string>
     <string name="emailAlrExists">El correo electrónico ya existe</string>
+
+    <string name="auth_invalid_credentials">Correo electrónico o contraseña inválidos</string>
+    <string name="auth_invalid_user">No se encontró ninguna cuenta con este correo electrónico</string>
+    <string name="auth_general_error">La autenticación falló. Por favor, inténtelo de nuevo.</string>
+
 </resources>

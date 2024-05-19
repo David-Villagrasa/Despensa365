@@ -19,6 +19,7 @@ import com.example.despensa365.activities.RecipeActivity;
 import com.example.despensa365.activities.RegisterActivity;
 import com.example.despensa365.activities.ToBuyActivity;
 import com.example.despensa365.activities.WeekActivity;
+import com.example.despensa365.db.DB;
 import com.example.despensa365.objects.Ingredient;
 import com.example.despensa365.enums.IngredientType;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,7 +29,8 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 public class MainActivity extends AppCompatActivity {
-    private FirebaseAuth firebaseAuth;
+    public FirebaseAuth firebaseAuth;
+    private DB db;
     //TODO Delete when we can get from db
     public static ArrayList<Ingredient> ingredientArrayList = new ArrayList<>();
     Button btnLogin, btnRegister, btnLogout, btnManWeek, btnManRec, btnManPantry, btnManToBuy;
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         btnManToBuy=findViewById(R.id.btnManageList);
         tvWelcome=findViewById(R.id.tvWelcome);
         firebaseAuth= FirebaseAuth.getInstance();
+
         if(firebaseAuth.getCurrentUser()==null){
             defaultLayout();
         }else{
@@ -60,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
                 loggedLayout();
             }
         });
+        db = new DB();
         defaultIngredientsTEST();
     }
 
@@ -93,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser userFirebase = firebaseAuth.getCurrentUser();
         String username = userFirebase.getDisplayName();
         tvWelcome.setText(String.format("%s %s", getString(R.string.welcome), username));
+        db.setupDateWeekPlan(firebaseAuth.getCurrentUser());
     }
 
     public void clickLogin(View v) {
