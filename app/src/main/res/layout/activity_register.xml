@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -8,8 +9,8 @@
         android:id="@+id/tvTitleRegister"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
         android:text="@string/registerTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -24,6 +25,7 @@
         android:ems="10"
         android:hint="@string/mailHint"
         android:inputType="text"
+        android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvMailTitleRegister" />
 
@@ -36,6 +38,7 @@
         android:autofillHints="password"
         android:ems="10"
         android:inputType="textPassword"
+        android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvPwdRegister" />
 
@@ -63,8 +66,8 @@
         android:id="@+id/btnBackRegister"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="64dp"
-        android:layout_marginTop="156dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="232dp"
         android:text="@string/back"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etPwdAgainRegister" />
@@ -73,8 +76,8 @@
         android:id="@+id/btnNextRegister"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="156dp"
-        android:layout_marginEnd="44dp"
+        android:layout_marginTop="232dp"
+        android:layout_marginEnd="24dp"
         android:text="@string/next"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etPwdAgainRegister" />
@@ -83,8 +86,8 @@
         android:id="@+id/tvNicknameReg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="64dp"
-        android:layout_marginTop="52dp"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="56dp"
         android:text="@string/nicknameTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvTitleRegister" />
@@ -99,6 +102,7 @@
         android:ems="10"
         android:hint="@string/nicknameHint"
         android:inputType="text"
+        android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvNicknameReg" />
 
@@ -111,6 +115,7 @@
         android:autofillHints="password"
         android:ems="10"
         android:inputType="textPassword"
+        android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvPwdAgainTitle" />
 
@@ -123,4 +128,5 @@
         android:text="@string/pwdAgainTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etPwdRegister" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

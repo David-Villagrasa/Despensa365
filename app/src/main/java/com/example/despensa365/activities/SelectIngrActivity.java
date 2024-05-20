@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.despensa365.MainActivity;
 import com.example.despensa365.R;
 import com.example.despensa365.adapters.IngredientAdapter;
+import com.example.despensa365.db.DB;
 import com.example.despensa365.dialogs.QuantityDateIngredientDialog;
 import com.example.despensa365.dialogs.QuantityIngredientDialog;
 import com.example.despensa365.objects.Ingredient;
@@ -35,7 +36,6 @@ public class SelectIngrActivity extends AppCompatActivity {
     private IngredientAdapter ingredientAdapter;
     private boolean needDate = false;
     private Button btnBack, btnSearchSelectIngr;
-    private ArrayList<Ingredient> list;
     private int selectedPosition;
     private int posItem;
     private final int ELIMINAR = 300;
@@ -50,10 +50,8 @@ public class SelectIngrActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btnBackSelectIngr);
         btnSearchSelectIngr = findViewById(R.id.btnSearchSelectIngr);
 
-//        list = MainActivity.ingredientArrayList;
-        getIngredients();
 
-        ingredientAdapter = new IngredientAdapter(list, this::openQuantityDialog);
+        ingredientAdapter = new IngredientAdapter(DB.ingredientArrayList, this::openQuantityDialog);
         recycler.setLayoutManager(new LinearLayoutManager(this));
         recycler.setAdapter(ingredientAdapter);
 
@@ -64,10 +62,6 @@ public class SelectIngrActivity extends AppCompatActivity {
         needDate = this.getIntent().hasExtra("needDate");
     }
 
-    private void getIngredients() {
-        //TODO: Get ingredients from database
-        list= new ArrayList<>();
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -130,9 +124,9 @@ public class SelectIngrActivity extends AppCompatActivity {
     private void searchIngredients() {
         String query = etSearch.getText().toString().trim().toLowerCase();
         if (query.isEmpty()) {
-            ingredientAdapter.updateList(list);
+            ingredientAdapter.updateList(DB.ingredientArrayList);
         } else {
-            ArrayList<Ingredient> filteredList = (ArrayList<Ingredient>) list.stream()
+            ArrayList<Ingredient> filteredList = (ArrayList<Ingredient>) DB.ingredientArrayList.stream()
                     .filter(ingredient -> ingredient.getName().toLowerCase().contains(query))
                     .collect(Collectors.toList());
             ingredientAdapter.updateList(filteredList);
@@ -145,9 +139,9 @@ public class SelectIngrActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case ELIMINAR:
-                Ingredient ingredientToRemove = list.get(posItem);
-                list.remove(ingredientToRemove);
-                ingredientAdapter.updateList(list);
+                Ingredient ingredientToRemove = DB.ingredientArrayList.get(posItem);
+                DB.ingredientArrayList.remove(ingredientToRemove);
+                ingredientAdapter.updateList(DB.ingredientArrayList);
 
                 // TODO: Also remove the ingredient from the database
                 break;

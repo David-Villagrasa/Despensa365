@@ -4,6 +4,7 @@ import static com.example.despensa365.methods.Helper.getNormalizedDate;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -22,9 +23,10 @@ import com.example.despensa365.objects.PantryLine;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.stream.Collectors;
+
+import com.example.despensa365.db.DB;
 
 public class PantryActivity extends AppCompatActivity {
     ActivityResultLauncher<Intent> customLauncher;
@@ -37,14 +39,13 @@ public class PantryActivity extends AppCompatActivity {
     private ArrayList<PantryLine> currentPantryLines = new ArrayList<>();
     final int ELIMINAR = 300;
     int posItem;
-    private String idPantry="";
+    private String pantryId ="";
     private boolean isSeeingExpired = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pantry);
-        //TODO Get the id of this pantry
 
         tvPantryTitle = findViewById(R.id.tvPantryTitle);
         tvIngre = findViewById(R.id.tvIngre);
@@ -56,11 +57,18 @@ public class PantryActivity extends AppCompatActivity {
         btnAddToBuy = findViewById(R.id.btnAddToBuy);
         btnCleanExpired = findViewById(R.id.btnCleanExpired);
 
-        getPantryLines();
         setupRecycler();
-        filterNonExpiredLines();
         setupListeners();
-
+        //Get the id of this pantry
+        DB.getPantryId(DB.currentUser, pantryId -> {
+            if (pantryId != null) {
+                Log.d("PantryActivity", "Pantry ID: " + pantryId);
+                this.pantryId=pantryId;
+                getPantryLines();
+            } else {
+                Log.d("PantryActivity", "No pantry found for the user.");
+            }
+        });
         customLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), resultado -> {
 
             Intent data = resultado.getData();
@@ -71,7 +79,16 @@ public class PantryActivity extends AppCompatActivity {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
                     d = data.getSerializableExtra("date", Date.class);
                 }
-                PantryLine newLine = new PantryLine(idPantry, idIngr, quantity,d);
+                PantryLine newLine = new PantryLine(pantryId, idIngr, quantity,d);
+                DB.addPantryLine(DB.currentUser, newLine, success -> {
+                    if (success) {
+                        Log.d("PantryActivity", "PantryLine added successfully.");
+                        // Realiza las acciones necesarias después de añadir la línea de despensa
+                    } else {
+                        Log.d("PantryActivity", "Failed to add PantryLine.");
+                        // Maneja el error de añadir la línea de despensa
+                    }
+                });
                 allPantryLines.add(newLine);
                 if (isSeeingExpired) {
                     filterExpiredLines();
@@ -85,25 +102,18 @@ public class PantryActivity extends AppCompatActivity {
 
     private void getPantryLines() {
         //TODO get pantry lines from database
-//        // Normalized today's date
-//        Date today = getNormalizedDate(new Date());
-//
-//        // Create some example pantry lines with normalized dates
-//        allPantryLines.add(new PantryLine(1, 1, 1000, today)); // 1000 grams of Flour
-//        allPantryLines.add(new PantryLine(1, 2, 500, today)); // 500 grams of Sugar
-//        allPantryLines.add(new PantryLine(1, 3, 1, today)); // 1 liter of Eggs
-//        allPantryLines.add(new PantryLine(1, 4, 2, today)); // 2 liters of Milk
-//        allPantryLines.add(new PantryLine(1, 5, 200, today)); // 200 grams of Butter
-//        allPantryLines.add(new PantryLine(1, 6, 1.5, today)); // 1.5 liters of Oil
-//
-//        Calendar calendar = Calendar.getInstance();
-//        calendar.add(Calendar.DAY_OF_YEAR, -3);
-//        Date threeDaysAgo = getNormalizedDate(calendar.getTime());
-//
-//        allPantryLines.add(new PantryLine(1, 1, 750, threeDaysAgo));
-//        allPantryLines.add(new PantryLine(1, 2, 250, threeDaysAgo));
-//        allPantryLines.add(new PantryLine(1, 3, 0.5, threeDaysAgo));
-//        allPantryLines.add(new PantryLine(1, 4, 1, threeDaysAgo));
+        DB.getAllPantryLines(DB.currentUser, pantryId, pantryLines -> {
+            if (!pantryLines.isEmpty()) {
+                allPantryLines = pantryLines;
+                if (isSeeingExpired) {
+                    filterExpiredLines();
+                } else {
+                    filterNonExpiredLines();
+                }
+            } else {
+                Log.d("PantryActivity", "No pantry lines found.");
+            }
+        });
     }
 
     private void filterNonExpiredLines() {

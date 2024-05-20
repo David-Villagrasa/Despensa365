@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,7 +35,6 @@ public class QuantityDateIngredientDialog extends DialogFragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        //datos = (Datos) getActivity();
     }
 
     @NonNull
@@ -52,19 +52,20 @@ public class QuantityDateIngredientDialog extends DialogFragment {
 
         window.setNegativeButton(R.string.back, (dialog, which) -> dialog.cancel());
         window.setPositiveButton(R.string.next, (dialog, which) -> {
-            SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
-            Date d =new Date();
-            try {
-                d = df.parse(etDate.getText().toString());
-            } catch (ParseException e) {}
-            callback.dialogOK(this.ingredient, Double.parseDouble(etQuantity.getText().toString()), d);
+            if (!etQuantity.getText().toString().isEmpty() && !etDate.getText().toString().isEmpty()) {
+                SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+                df.setLenient(false);
+                Date d;
+                try {
+                    d = df.parse(etDate.getText().toString());
+                    callback.dialogOK(this.ingredient, Double.parseDouble(etQuantity.getText().toString()), d);
+                } catch (ParseException e) {
+                    Toast.makeText(getContext(), R.string.invalidDate, Toast.LENGTH_SHORT).show();
+                }
+            }
         });
 
         return window.create();
-    }/*
-
-        public interface Datos {
-            public void pasarDatos(String nombre, int edad, int codigo);
-        }*/
+    }
 
 }

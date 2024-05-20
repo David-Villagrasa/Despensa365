@@ -26,13 +26,11 @@ public class RegisterActivity extends AppCompatActivity {
     TextView tvTitleRegister, tvMailTitleRegister, tvPwdRegister, tvPwdAgainTitle;
     Button btnBackRegister, btnNextRegister;
     private static final String EMAIL_REGEX = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$";
-    private DB db; // DB instance
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        db = new DB();
 
         tvTitleRegister = findViewById(R.id.tvTitleRegister);
         etMailRegister = findViewById(R.id.etMailRegister);
@@ -116,7 +114,8 @@ public class RegisterActivity extends AppCompatActivity {
 
                         user.updateProfile(profileUpdates).addOnCompleteListener(updateTask -> {
                             if (updateTask.isSuccessful()) {
-                                db.addUser(user.getUid(), email);
+                                DB.addUser(user.getUid(), email);
+                                DB.currentUser = user;
 
                                 Intent newIntent = new Intent();
                                 newIntent.putExtra("allowed", (etMailRegister.getText()).length() != 0);

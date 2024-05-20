@@ -5,17 +5,14 @@ import static com.example.despensa365.methods.DateUtils.getNextSunday;
 
 import com.example.despensa365.enums.IngredientType;
 import com.example.despensa365.objects.Ingredient;
-import com.example.despensa365.objects.Pantry;
-import com.example.despensa365.objects.Recipe;
-import com.example.despensa365.objects.ToBuy;
-import com.example.despensa365.objects.WeeklyPlan;
+import com.example.despensa365.objects.PantryLine;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
 import android.util.Log;
@@ -24,19 +21,22 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class DB {
 
+    public static ArrayList<Ingredient> ingredientArrayList = new ArrayList<>();
+    public static FirebaseUser currentUser;
     private static final String TAG = "DB";
     private static FirebaseFirestore db;
-    public static ArrayList<Ingredient> ingredientArrayList = new ArrayList<>();
 
-    public static void init(){
+    public static void init() {
         db = FirebaseFirestore.getInstance();
     }
-    public static FirebaseUser getCurrentUser(){
+
+    public static FirebaseUser getCurrentUser() {
         return FirebaseAuth.getInstance().getCurrentUser();
     }
 
@@ -50,7 +50,7 @@ public class DB {
         return null;
     }
 
-    public static String getNewIngredientId(FirebaseUser user){
+    public static String getNewIngredientId(FirebaseUser user) {
         CollectionReference ingredientsCollection = db.collection("users").document(user.getUid()).collection("ingredients");
         return ingredientsCollection.getId();
     }
@@ -62,12 +62,12 @@ public class DB {
         weekPlanCollection.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 if (task.getResult().isEmpty()) {
-                    // No documents in the collection, create "week1"
+                    // No documents in the collection
                     Map<String, Object> weekPlanData = new HashMap<>();
                     weekPlanData.put("startDate", getNextMonday());
                     weekPlanData.put("endDate", getNextSunday());
 
-                    weekPlanCollection.document("week1").set(weekPlanData)
+                    weekPlanCollection.document().set(weekPlanData)
                             .addOnSuccessListener(aVoid -> Log.d(TAG, "WeekPlan week1 created successfully."))
                             .addOnFailureListener(e -> Log.w(TAG, "Error creating WeekPlan week1", e));
                 } else {
@@ -90,7 +90,51 @@ public class DB {
         });
     }
 
-    public void addUser(String userId, String email) {
+    public static void savePantry(FirebaseUser currentUser, String postalCode, String city, String street, String streetNumber) {
+        if (currentUser != null) {
+            // Crear una referencia a un nuevo documento en la colección `pantries` del usuario actual
+            DocumentReference newPantryRef = db.collection("users")
+                    .document(currentUser.getUid())
+                    .collection("pantries")
+                    .document();
+
+            // Crear un mapa con la información de la despensa
+            Map<String, Object> pantryData = new HashMap<>();
+            pantryData.put("postalCode", postalCode);
+            pantryData.put("city", city);
+            pantryData.put("street", street);
+            pantryData.put("streetNumber", streetNumber);
+
+            // Guardar la información de la despensa en Firestore
+            newPantryRef.set(pantryData)
+                    .addOnSuccessListener(aVoid -> Log.d(TAG, "Pantry saved successfully with ID: " + newPantryRef.getId()))
+                    .addOnFailureListener(e -> Log.w(TAG, "Error saving pantry", e));
+        } else {
+            Log.w(TAG, "User is not authenticated.");
+        }
+    }
+
+    public static void checkPantryExists(@NonNull FirebaseUser currentUser, BooleanCallback callback) {
+        CollectionReference pantryCollection = db.collection("users")
+                .document(currentUser.getUid())
+                .collection("pantries");
+
+        pantryCollection.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                QuerySnapshot querySnapshot = task.getResult();
+                if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                    callback.onCallback(true); // Existe al menos una despensa
+                } else {
+                    callback.onCallback(false); // No hay despensas
+                }
+            } else {
+                Log.w(TAG, "Error checking pantry existence", task.getException());
+                callback.onCallback(false); // Asumimos que no existe si hay un error
+            }
+        });
+    }
+
+    public static void addUser(String userId, String email) {
         Map<String, Object> userData = new HashMap<>();
         userData.put("email", email);
 
@@ -99,7 +143,8 @@ public class DB {
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "User added successfully to Firestore!"))
                 .addOnFailureListener(e -> Log.w(TAG, "Error adding user to Firestore", e));
     }
-    public static void getIngredients(@NonNull FirebaseUser user){
+
+    public static void getIngredients(@NonNull FirebaseUser user) {
         CollectionReference ingredientsCollection = db.collection("users").document(user.getUid()).collection("ingredients");
 
         ingredientsCollection.get().addOnCompleteListener(task -> {
@@ -116,11 +161,11 @@ public class DB {
                         String name = document.getString("name");
                         String typeString = document.getString("type");
                         IngredientType type;
-                        if(typeString.equals("L")){
+                        if (typeString.equals("L")) {
                             type = IngredientType.LITERS;
                         } else if (typeString.equals("gr")) {
                             type = IngredientType.GRAMS;
-                        }else {
+                        } else {
                             type = IngredientType.UNITS;
                         }
                         Ingredient ingredient = new Ingredient(id, name, type);
@@ -133,41 +178,121 @@ public class DB {
             }
         });
     }
-    // Method to add Pantry to a User
-    public void addPantry(String userId, Pantry pantry) {
-        db.collection("users").document(userId)
-                .collection("pantry").document(String.valueOf(pantry.getId()))
-                .set(pantry)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "Pantry added successfully!"))
-                .addOnFailureListener(e -> Log.w(TAG, "Error adding pantry", e));
+
+    public static void addPantryLine(@NonNull FirebaseUser currentUser, @NonNull PantryLine pantryLine, BooleanCallback callback) {
+        CollectionReference pantryLinesCollection = db.collection("users")
+                .document(currentUser.getUid())
+                .collection("pantries")
+                .document(pantryLine.getPantryId())
+                .collection("pantryLines");
+
+        DocumentReference newPantryLineRef = pantryLinesCollection.document();
+
+        Map<String, Object> pantryLineData = new HashMap<>();
+        pantryLineData.put("ingredient", db.collection("users")
+                .document(currentUser.getUid())
+                .collection("ingredients")
+                .document(pantryLine.getIngredientId()));
+        pantryLineData.put("ingredientQuantity", pantryLine.getIngredientQuantity());
+        pantryLineData.put("expirationDate", pantryLine.getExpirationDate());
+
+        newPantryLineRef.set(pantryLineData, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "PantryLine added successfully with ID: " + newPantryLineRef.getId());
+                    callback.onCallback(true);
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error adding PantryLine", e);
+                    callback.onCallback(false);
+                });
     }
 
-    // Method to add ToBuy to a User
-    public void addToBuy(String userId, ToBuy toBuy) {
-        db.collection("users").document(userId)
-                .collection("toBuy").document(String.valueOf(toBuy.getId()))
-                .set(toBuy)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "ToBuy added successfully!"))
-                .addOnFailureListener(e -> Log.w(TAG, "Error adding toBuy", e));
+    public static void getPantryId(@NonNull FirebaseUser currentUser, StringCallback callback) {
+        CollectionReference pantryCollection = db.collection("users")
+                .document(currentUser.getUid())
+                .collection("pantries");
+
+        pantryCollection.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                QuerySnapshot querySnapshot = task.getResult();
+                if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                    // Obtener el primer documento de la colección
+                    QueryDocumentSnapshot document = (QueryDocumentSnapshot) querySnapshot.getDocuments().get(0);
+                    String pantryId = document.getId();
+                    callback.onCallback(pantryId);
+                } else {
+                    Log.d(TAG, "No pantry found for user: " + currentUser.getUid());
+                    callback.onCallback(null); // No hay despensas
+                }
+            } else {
+                Log.w(TAG, "Error getting pantry collection", task.getException());
+                callback.onCallback(null); // Asumimos que no existe si hay un error
+            }
+        });
     }
 
-    // Method to add Recipe to a User
-    public void addRecipe(String userId, Recipe recipe) {
-        db.collection("users").document(userId)
-                .collection("recipes").document(String.valueOf(recipe.getId()))
-                .set(recipe)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "Recipe added successfully!"))
-                .addOnFailureListener(e -> Log.w(TAG, "Error adding recipe", e));
+    public static void getAllPantryLines(@NonNull FirebaseUser currentUser, @NonNull String pantryId, PantryLinesCallback callback) {
+
+        CollectionReference pantryLinesCollection = db.collection("users")
+                .document(currentUser.getUid())
+                .collection("pantries")
+                .document(pantryId)
+                .collection("pantryLines");
+
+        pantryLinesCollection.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                ArrayList<PantryLine> pantryLines = new ArrayList<>();
+                QuerySnapshot querySnapshot = task.getResult();
+
+                if (querySnapshot != null) {
+                    for (QueryDocumentSnapshot document : querySnapshot) {
+                        PantryLine pantryLine = new PantryLine();
+                        pantryLine.setPantryId(pantryId);
+
+                        // Obtener la referencia del ingrediente
+                        DocumentReference ingredientRef = document.getDocumentReference("ingredient");
+                        if (ingredientRef != null) {
+                            pantryLine.setIngredientId(ingredientRef.getId());
+                        }
+
+                        // Verificar y obtener la cantidad del ingrediente
+                        Double ingredientQuantity = document.getDouble("ingredientQuantity");
+                        if (ingredientQuantity != null) {
+                            pantryLine.setIngredientQuantity(ingredientQuantity);
+                        } else {
+                            pantryLine.setIngredientQuantity(0); // O algún valor por defecto
+                        }
+
+                        // Verificar y obtener la fecha de expiración
+                        Date expirationDate = document.getDate("expirationDate");
+                        if (expirationDate != null) {
+                            pantryLine.setExpirationDate(expirationDate);
+                        } else {
+                            pantryLine.setExpirationDate(new Date()); // O algún valor por defecto
+                        }
+
+                        pantryLines.add(pantryLine);
+                    }
+                }
+
+                callback.onCallback(pantryLines);
+            } else {
+                Log.w(TAG, "Error getting pantry lines collection", task.getException());
+                callback.onCallback(new ArrayList<>()); // Devolver una lista vacía en caso de error
+            }
+        });
     }
 
-    // Method to add WeeklyPlan to a User
-    public void addWeeklyPlan(String userId, WeeklyPlan weeklyPlan) {
-        db.collection("users").document(userId)
-                .collection("weeklyPlans").document(String.valueOf(weeklyPlan.getId()))
-                .set(weeklyPlan)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "WeeklyPlan added successfully!"))
-                .addOnFailureListener(e -> Log.w(TAG, "Error adding weeklyPlan", e));
+    public interface StringCallback {
+        void onCallback(String str);
     }
 
-    // Additional methods to get, update, delete documents can be added here
+    public interface BooleanCallback {
+        void onCallback(boolean success);
+    }
+
+    public interface PantryLinesCallback {
+        void onCallback(ArrayList<PantryLine> pantryLines);
+    }
+
 }

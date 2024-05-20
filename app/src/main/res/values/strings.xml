@@ -99,4 +99,15 @@
     <string name="auth_invalid_user">No se encontró ninguna cuenta con este correo electrónico</string>
     <string name="auth_general_error">La autenticación falló. Por favor, inténtelo de nuevo.</string>
 
+    <string name="registerPantryTitle">Registrar Despensa</string>
+    <string name="postalCodeTitle">Código Postal</string>
+    <string name="postalCodeHint">Introduce el código postal</string>
+    <string name="cityTitle">Ciudad</string>
+    <string name="cityHint">Introduce la ciudad</string>
+    <string name="streetTitle">Calle</string>
+    <string name="streetHint">Introduce la calle</string>
+    <string name="streetNumberTitle">Número de la Calle</string>
+    <string name="streetNumberHint">Introduce el número de la calle</string>
+
+    <string name="invalidDate">Fecha incorrecta. El formato debe ser dd-MM-yyyy.</string>
 </resources>
