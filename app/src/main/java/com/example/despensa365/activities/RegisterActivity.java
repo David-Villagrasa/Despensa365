@@ -133,8 +133,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
     }
-
-
+    
     private boolean isValidPassword(String password) {
         if (password.length() < 8 || password.length() > 16) {
             return false;

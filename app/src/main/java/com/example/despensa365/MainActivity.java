@@ -82,9 +82,9 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser userFirebase = firebaseAuth.getCurrentUser();
         String username = userFirebase.getDisplayName();
         tvWelcome.setText(String.format("%s %s", getString(R.string.welcome), username));
-        DB.setupDateWeekPlan(firebaseAuth.getCurrentUser());
-        DB.getIngredients(firebaseAuth.getCurrentUser());
         DB.currentUser=firebaseAuth.getCurrentUser();
+        DB.setupDateWeekPlan(DB.currentUser);
+        DB.getAllIngredients(DB.currentUser);
     }
 
     public void clickLogin(View v) {

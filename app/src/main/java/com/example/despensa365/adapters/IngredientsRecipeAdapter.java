@@ -45,12 +45,7 @@ public class IngredientsRecipeAdapter extends RecyclerView.Adapter<IngredientsRe
         RecipeLine recipeLine = recipeLineList.get(position);
         Ingredient ingredient = DB.getIngredientById(recipeLine.getIdIngredient());
         holder.ingredientName.setText(ingredient.getName());
-        holder.ingredientWeight.setText(recipeLine.getQuantity() + "");
-        if (ingredient.getType().getUnit().equals("L")) {
-            holder.ingredientWeight.append("L");
-        } else {
-            holder.ingredientWeight.append("gr");
-        }
+        holder.ingredientWeight.setText(recipeLine.getQuantity() + ingredient.getType().getUnit());
     }
 
     @Override

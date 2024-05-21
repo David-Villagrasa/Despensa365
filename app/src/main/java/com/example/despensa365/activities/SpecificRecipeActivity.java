@@ -14,19 +14,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.despensa365.MainActivity;
 import com.example.despensa365.R;
 import com.example.despensa365.adapters.IngredientsRecipeAdapter;
-import com.example.despensa365.objects.Ingredient;
-import com.example.despensa365.objects.PantryLine;
+import com.example.despensa365.db.DB;
 import com.example.despensa365.objects.Recipe;
 import com.example.despensa365.objects.RecipeLine;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.security.cert.PKIXRevocationChecker;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Optional;
 
 public class SpecificRecipeActivity extends AppCompatActivity {
     final int ELIMINAR = 300;
@@ -42,7 +37,6 @@ public class SpecificRecipeActivity extends AppCompatActivity {
 
     private ActivityResultLauncher<Intent> customLauncher;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,8 +46,8 @@ public class SpecificRecipeActivity extends AppCompatActivity {
             Intent data = res.getData();
             if (data != null) {
                 String idIngr = data.getStringExtra("ingredient");
-                double quantity = data.getDoubleExtra("quantity",-1);
-                RecipeLine newLine = new RecipeLine("0",currentRecipe.getId(), idIngr, quantity);
+                double quantity = data.getDoubleExtra("quantity", -1);
+                RecipeLine newLine = new RecipeLine("0", currentRecipe.getId(), idIngr, quantity);
                 recipeLines.add(newLine);
                 ingredientAdapter.notifyDataSetChanged();
             }
@@ -83,59 +77,78 @@ public class SpecificRecipeActivity extends AppCompatActivity {
         if (intent != null && intent.hasExtra("RECIPE_DATA")) {
             currentRecipe = (Recipe) intent.getSerializableExtra("RECIPE_DATA");
             populateViews();
+
+            // Load the recipe lines from the database
+            DB.getAllRecipeLines(DB.getCurrentUser(), currentRecipe.getId(), new DB.RecipeLinesCallback() {
+                @Override
+                public void onCallback(ArrayList<RecipeLine> recipeLinesFromDb) {
+                    recipeLines = recipeLinesFromDb;
+                    setupRecyclerView();
+                }
+            });
         } else {
             currentRecipe = new Recipe();  // Create a new empty recipe if no data is passed
         }
     }
 
+
     private void populateViews() {
         if (currentRecipe != null) {
             etNameRecipe.setText(currentRecipe.getName());
             etDirectionsRecipe.setText(currentRecipe.getDescription());
-            // TODO setup the RecyclerView with the ingredients here
         }
     }
 
+    private void loadRecipeLines() {
+        DB.getAllRecipeLines(DB.getCurrentUser(), currentRecipe.getId(), recipeLines -> {
+            this.recipeLines = recipeLines;
+            setupRecyclerView();
+        });
+    }
+
     private void setupRecyclerView() {
-        if(currentRecipe.getLines() != null){
-            recipeLines= currentRecipe.getLines();
-        }
         ingredientAdapter = new IngredientsRecipeAdapter(this, recipeLines);
         rvIngreListRecipe.setLayoutManager(new LinearLayoutManager(this));
         rvIngreListRecipe.setAdapter(ingredientAdapter);
     }
-// TODO what is this?
-
-//    private ArrayList<Ingredient> getIngredients() {
-//        ArrayList<Ingredient> listIngredients = new ArrayList<>();
-//        for (RecipeLine line:recipeLines) {
-//            Optional<Ingredient> i = MainActivity.SearchIngredient(line.getIdIngredient());
-//            i.ifPresent(listIngredients::add);
-//        }
-//        return listIngredients;
-//    }
 
     private void setupListeners() {
         btnBack.setOnClickListener(v -> finish());
-        btnCreateRecipe.setOnClickListener(v -> {
-            saveRecipe();
-        });
-        btnAddIngr.setOnClickListener(v -> {
-            addIngredient();
-        });
+        btnCreateRecipe.setOnClickListener(v -> saveRecipe());
+        btnAddIngr.setOnClickListener(v -> addIngredient());
     }
 
     private void saveRecipe() {
-        // TODO recipe to database or update it
         currentRecipe.setName(etNameRecipe.getText().toString());
         currentRecipe.setDescription(etDirectionsRecipe.getText().toString());
         currentRecipe.setLines(recipeLines);
-        // TODO update the ingredients list here currentRecipe.setLines();
-        Intent newIntent = new Intent();
-        newIntent.putExtra("RECIPE_DATA", currentRecipe);
 
-        setResult(RESULT_OK, newIntent);
-        finish();
+        if (currentRecipe.getId() == null || currentRecipe.getId().isEmpty()) {
+            // Add new recipe
+            DB.addRecipe(DB.getCurrentUser(), currentRecipe, success -> {
+                if (success) {
+                    for (RecipeLine line : recipeLines) {
+                        DB.addRecipeLine(DB.getCurrentUser(), line, lineSuccess -> {
+                            // Handle line success if needed
+                        });
+                    }
+                    Intent newIntent = new Intent();
+                    newIntent.putExtra("RECIPE_DATA", currentRecipe);
+                    setResult(RESULT_OK, newIntent);
+                    finish();
+                }
+            });
+        } else {
+            // Update existing recipe
+            DB.updateRecipe(DB.getCurrentUser(), currentRecipe, success -> {
+                if (success) {
+                    Intent newIntent = new Intent();
+                    newIntent.putExtra("RECIPE_DATA", currentRecipe);
+                    setResult(RESULT_OK, newIntent);
+                    finish();
+                }
+            });
+        }
     }
 
     private void addIngredient() {
@@ -149,10 +162,14 @@ public class SpecificRecipeActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case ELIMINAR:
-                //TODO When it's removed an item, make sure to remove it from the currentRecipe and from de DB
-                recipeLines.remove(posItem);
-                currentRecipe.setLines(recipeLines);
-                ingredientAdapter.notifyDataSetChanged();
+                RecipeLine lineToRemove = recipeLines.get(posItem);
+                DB.deleteRecipeLine(DB.getCurrentUser(), lineToRemove, success -> {
+                    if (success) {
+                        recipeLines.remove(posItem);
+                        currentRecipe.setLines(recipeLines);
+                        ingredientAdapter.notifyDataSetChanged();
+                    }
+                });
                 break;
         }
         return super.onContextItemSelected(item);

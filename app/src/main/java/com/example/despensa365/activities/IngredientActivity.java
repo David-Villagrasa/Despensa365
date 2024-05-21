@@ -2,28 +2,28 @@ package com.example.despensa365.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.despensa365.R;
-import com.example.despensa365.objects.Ingredient;
+import com.example.despensa365.db.DB;
 import com.example.despensa365.enums.IngredientType;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.example.despensa365.objects.Ingredient;
 
 public class IngredientActivity extends AppCompatActivity {
 
     private Spinner spinnerTypeIngAdd;
     private EditText etNameIngAdd;
     private Button btnBackAddIngredient, btnSaveAddIngredient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,19 +46,23 @@ public class IngredientActivity extends AppCompatActivity {
 
             if (!name.isEmpty()) {
                 try {
-                    // TODO Call the db to get which is the next id to use
                     Ingredient ingredient = new Ingredient("", name, type);
-                    // TODO Save ingredient to the list & database
-
-                    Intent resultIntent = new Intent();
-                    setResult(RESULT_OK, resultIntent);
-                    finish();
+                    DB.addIngredient(DB.currentUser, ingredient, success -> {
+                        if (success) {
+                            Intent resultIntent = new Intent();
+                            setResult(RESULT_OK, resultIntent);
+                            finish();
+                        } else {
+                            Toast.makeText(this, "Failed to add ingredient.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }else{
+            } else {
                 Toast.makeText(this, "Please enter a name and a type", Toast.LENGTH_SHORT).show();
             }
         });
+
     }
 }

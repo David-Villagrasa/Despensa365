@@ -50,7 +50,7 @@ public class SelectIngrActivity extends AppCompatActivity {
         etSearch = findViewById(R.id.etSearchByIng);
         btnBack = findViewById(R.id.btnBackSelectIngr);
         btnSearchSelectIngr = findViewById(R.id.btnSearchSelectIngr);
-
+        //TODO: reload like DB.reloadIngredients(DB.currentUser); but the adapter is not updated bcs has to wait to the reload
 
         ingredientAdapter = new IngredientAdapter(DB.ingredientArrayList, this::openQuantityDialog);
         recycler.setLayoutManager(new LinearLayoutManager(this));

@@ -28,12 +28,11 @@ public class RecipeActivity extends AppCompatActivity {
 
     ActivityResultLauncher<Intent> customLauncher;
     private RecyclerView rvRecipeList;
-    private Button btnRecListAdd,btnRecListBack;
-    private ArrayList<Recipe> listOfRecipes = new ArrayList<Recipe>();
-    final int EDITAR = 200;
-    final int ELIMINAR = 300;
+    private Button btnRecListAdd, btnRecListBack;
     private RecipeAdapter recipeAdapter;
     int posItem;
+    final int EDITAR = 200;
+    final int ELIMINAR = 300;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,38 +43,27 @@ public class RecipeActivity extends AppCompatActivity {
         btnRecListAdd = findViewById(R.id.btnRecListAdd);
         btnRecListBack = findViewById(R.id.btnRecListBack);
 
-        btnRecListAdd.setOnClickListener(v -> {
-            Intent intent = new Intent(this, SpecificRecipeActivity.class);
-            customLauncher.launch(intent);
-        });
-
-        customLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-            @Override
-            public void onActivityResult(ActivityResult result) {
-
-                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                    Recipe returnedRecipe = (Recipe) result.getData().getSerializableExtra("RECIPE_DATA");
-                    if (returnedRecipe != null) {
+        customLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                Recipe returnedRecipe = (Recipe) result.getData().getSerializableExtra("RECIPE_DATA");
+                if (returnedRecipe != null) {
                         if (returnedRecipe.getId().isEmpty()) {
-                            // New Recipe, assign a new ID
-                            String newId = DB.getNewIngredientId(DB.getCurrentUser());
-                            returnedRecipe.setId(newId);
-                            //TODO add recipe to db
-                            listOfRecipes.add(returnedRecipe);
-                        } else {
-                            // Existing Recipe, update it
-                            for (int i = 0; i < listOfRecipes.size(); i++) {
-                                if (listOfRecipes.get(i).getId().equals(returnedRecipe.getId())) {
-                                    listOfRecipes.set(i, returnedRecipe);
-                                    //TODO update recipe in db
-                                    break;
+                            // New Recipe
+                            DB.addRecipe(DB.currentUser, returnedRecipe, success -> {
+                                if (success) {
+                                    setupRecyclerView(); // Refresh RecyclerView
                                 }
-                            }
+                            });
+                        } else {
+                            // Existing Recipe
+                            DB.updateRecipe(DB.currentUser, returnedRecipe, success -> {
+                                if (success) {
+                                    setupRecyclerView(); // Refresh RecyclerView
+                                }
+                            });
                         }
-                        setupRecyclerView(); // Refresh RecyclerView
-                    }
-                }
 
+                }
             }
         });
 
@@ -90,15 +78,19 @@ public class RecipeActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case EDITAR:
-                Recipe recipe = listOfRecipes.get(posItem);
+                Recipe recipe = DB.recipesArrayList.get(posItem);
                 Intent intent = new Intent(this, SpecificRecipeActivity.class);
                 intent.putExtra("RECIPE_DATA", recipe);
                 customLauncher.launch(intent);
                 recipeAdapter.notifyDataSetChanged();
                 break;
             case ELIMINAR:
-                listOfRecipes.remove(posItem);
-                recipeAdapter.notifyDataSetChanged();
+                Recipe recipeToDelete = DB.recipesArrayList.get(posItem);
+                DB.deleteRecipe(DB.getCurrentUser(), recipeToDelete, success -> {
+                    if (success) {
+                        recipeAdapter.notifyDataSetChanged();
+                    }
+                });
                 break;
         }
 
@@ -106,38 +98,17 @@ public class RecipeActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        recipeAdapter = new RecipeAdapter(this, listOfRecipes,true, true);
+        recipeAdapter = new RecipeAdapter(this, DB.recipesArrayList, true, true);
         rvRecipeList.setLayoutManager(new LinearLayoutManager(this));
         rvRecipeList.setAdapter(recipeAdapter);
     }
 
     private void getListOfRecipes() {
-        //TODO call to db to get all the recipes that have the id of the actual user
-
-//        Recipe cakeRecipe = new Recipe(1, "Cake", "Delicious sponge cake", 123);
-//
-//        RecipeLine flourLine = new RecipeLine();
-//        flourLine.setIdRecipe(cakeRecipe.getId());
-//        flourLine.setIdIngredient(1);
-//        flourLine.setQuantity(250);
-//
-//        RecipeLine sugarLine = new RecipeLine();
-//        sugarLine.setIdRecipe(cakeRecipe.getId());
-//        sugarLine.setIdIngredient(2);
-//        sugarLine.setQuantity(100);
-//
-//        RecipeLine eggLine = new RecipeLine();
-//        eggLine.setIdRecipe(cakeRecipe.getId());
-//        eggLine.setIdIngredient(3);
-//        eggLine.setQuantity(3);
-//
-//        cakeRecipe.addLine(flourLine);
-//        cakeRecipe.addLine(sugarLine);
-//        cakeRecipe.addLine(eggLine);
-//
-//        listOfRecipes.add(cakeRecipe);
+        DB.getAllRecipes(DB.getCurrentUser(), recipes -> {
+            DB.recipesArrayList = recipes;
+            setupRecyclerView();
+        });
     }
-
 
     private void setupListeners() {
         btnRecListAdd.setOnClickListener(v -> {
@@ -145,13 +116,6 @@ public class RecipeActivity extends AppCompatActivity {
             customLauncher.launch(intent);
         });
 
-        btnRecListBack.setOnClickListener(v -> {
-            finish();
-        });
-    }
-
-    private void updateRecipeList(Recipe updatedRecipe) {
-        listOfRecipes.add(updatedRecipe);
-        setupRecyclerView();
+        btnRecListBack.setOnClickListener(v -> finish());
     }
 }
