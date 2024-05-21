@@ -35,11 +35,10 @@ public class PantryActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private Button btnBackPantry, btnExpired, btnAddToBuy, btnCleanExpired;
     private IngredientsPantryAdapter ingredientsPantryAdapter;
-    private ArrayList<PantryLine> allPantryLines = new ArrayList<>();
     private ArrayList<PantryLine> currentPantryLines = new ArrayList<>();
     final int ELIMINAR = 300;
     int posItem;
-    private String pantryId ="";
+    private String pantryId = "";
     private boolean isSeeingExpired = false;
 
     @Override
@@ -59,57 +58,53 @@ public class PantryActivity extends AppCompatActivity {
 
         setupRecycler();
         setupListeners();
-        //Get the id of this pantry
+
         DB.getPantryId(DB.currentUser, pantryId -> {
             if (pantryId != null) {
                 Log.d("PantryActivity", "Pantry ID: " + pantryId);
-                this.pantryId=pantryId;
+                this.pantryId = pantryId;
                 getPantryLines();
             } else {
                 Log.d("PantryActivity", "No pantry found for the user.");
             }
         });
-        customLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), resultado -> {
 
+        customLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), resultado -> {
             Intent data = resultado.getData();
             if (data != null) {
                 String idIngr = data.getStringExtra("ingredient");
-                double quantity = data.getDoubleExtra("quantity",-1);
+                double quantity = data.getDoubleExtra("quantity", -1);
                 Date d = new Date();
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
                     d = data.getSerializableExtra("date", Date.class);
                 }
-                PantryLine newLine = new PantryLine(pantryId, idIngr, quantity,d);
+                PantryLine newLine = new PantryLine(null, pantryId, idIngr, quantity, d);  // ID will be set after addition
                 DB.addPantryLine(DB.currentUser, newLine, success -> {
                     if (success) {
                         Log.d("PantryActivity", "PantryLine added successfully.");
-                        // Realiza las acciones necesarias después de añadir la línea de despensa
+                        if (isSeeingExpired) {
+                            filterExpiredLines();
+                        } else {
+                            filterNonExpiredLines();
+                        }
+                        ingredientsPantryAdapter.notifyDataSetChanged();
                     } else {
                         Log.d("PantryActivity", "Failed to add PantryLine.");
-                        // Maneja el error de añadir la línea de despensa
                     }
                 });
-                allPantryLines.add(newLine);
-                if (isSeeingExpired) {
-                    filterExpiredLines();
-                } else {
-                    filterNonExpiredLines();
-                }
             }
-
         });
     }
 
     private void getPantryLines() {
-        //TODO get pantry lines from database
         DB.getAllPantryLines(DB.currentUser, pantryId, pantryLines -> {
             if (!pantryLines.isEmpty()) {
-                allPantryLines = pantryLines;
                 if (isSeeingExpired) {
                     filterExpiredLines();
                 } else {
                     filterNonExpiredLines();
                 }
+                ingredientsPantryAdapter.notifyDataSetChanged();
             } else {
                 Log.d("PantryActivity", "No pantry lines found.");
             }
@@ -118,7 +113,7 @@ public class PantryActivity extends AppCompatActivity {
 
     private void filterNonExpiredLines() {
         Date today = getNormalizedDate(new Date());
-        currentPantryLines = (ArrayList<PantryLine>) allPantryLines.stream()
+        currentPantryLines = (ArrayList<PantryLine>) DB.pantryLinesArrayList.stream()
                 .filter(line -> !line.getExpirationDate().before(today))
                 .collect(Collectors.toList());
 
@@ -128,7 +123,7 @@ public class PantryActivity extends AppCompatActivity {
 
     private void filterExpiredLines() {
         Date today = getNormalizedDate(new Date());
-        currentPantryLines = (ArrayList<PantryLine>) allPantryLines.stream()
+        currentPantryLines = (ArrayList<PantryLine>) DB.pantryLinesArrayList.stream()
                 .filter(line -> line.getExpirationDate().before(today))
                 .collect(Collectors.toList());
 
@@ -145,7 +140,7 @@ public class PantryActivity extends AppCompatActivity {
     private void setupListeners() {
         pantryAdd.setOnClickListener(v -> {
             Intent intent = new Intent(this, SelectIngrActivity.class);
-            intent.putExtra("needDate",true);
+            intent.putExtra("needDate", true);
             customLauncher.launch(intent);
         });
 
@@ -153,7 +148,6 @@ public class PantryActivity extends AppCompatActivity {
             if (isSeeingExpired) {
                 isSeeingExpired = false;
                 filterNonExpiredLines();
-                setupRecycler();
                 toggleButtonVisibility();
             } else {
                 finish();
@@ -163,7 +157,6 @@ public class PantryActivity extends AppCompatActivity {
         btnExpired.setOnClickListener(v -> {
             isSeeingExpired = true;
             filterExpiredLines();
-            setupRecycler();
             toggleButtonVisibility();
         });
 
@@ -176,14 +169,20 @@ public class PantryActivity extends AppCompatActivity {
     }
 
     private void cleanExpiredItems() {
-        Date today = getNormalizedDate(new Date());
-        allPantryLines.removeIf(line -> line.getExpirationDate().before(today));
-        if (isSeeingExpired) {
-            filterExpiredLines();
-        } else {
-            filterNonExpiredLines();
-        }
-        ingredientsPantryAdapter.notifyDataSetChanged();
+        DB.deleteExpiredPantryLines(DB.currentUser, pantryId, success -> {
+            if (success) {
+                Log.d("PantryActivity", "Expired pantry lines deleted successfully.");
+                DB.pantryLinesArrayList.removeIf(line -> line.getExpirationDate().before(new Date()));
+                if (isSeeingExpired) {
+                    filterExpiredLines();
+                } else {
+                    filterNonExpiredLines();
+                }
+                ingredientsPantryAdapter.notifyDataSetChanged();
+            } else {
+                Log.d("PantryActivity", "Failed to delete expired pantry lines.");
+            }
+        });
     }
 
     private void toggleButtonVisibility() {
@@ -209,16 +208,22 @@ public class PantryActivity extends AppCompatActivity {
         switch (id) {
             case ELIMINAR:
                 PantryLine selectedLine = currentPantryLines.get(posItem);
-                allPantryLines.removeIf(line -> line.getIngredientId() == selectedLine.getIngredientId() &&
-                        line.getPantryId() == selectedLine.getPantryId() &&
-                        line.getExpirationDate().equals(selectedLine.getExpirationDate()));
+                DB.deletePantryLine(DB.currentUser, selectedLine, success -> {
+                    if (success) {
+                        runOnUiThread(() -> {
+                            DB.pantryLinesArrayList.removeIf(line -> line.getId().equals(selectedLine.getId()));
 
-                if (isSeeingExpired) {
-                    filterExpiredLines();
-                } else {
-                    filterNonExpiredLines();
-                }
-                ingredientsPantryAdapter.notifyDataSetChanged();
+                            if (isSeeingExpired) {
+                                filterExpiredLines();
+                            } else {
+                                filterNonExpiredLines();
+                            }
+                            ingredientsPantryAdapter.notifyDataSetChanged();
+                        });
+                    } else {
+                        Log.d("PantryActivity", "Failed to delete pantry line.");
+                    }
+                });
                 break;
         }
         return super.onContextItemSelected(item);

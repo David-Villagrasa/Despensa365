@@ -53,7 +53,7 @@ public class SpecificRecipeActivity extends AppCompatActivity {
             if (data != null) {
                 String idIngr = data.getStringExtra("ingredient");
                 double quantity = data.getDoubleExtra("quantity",-1);
-                RecipeLine newLine = new RecipeLine(currentRecipe.getId(), idIngr, quantity);
+                RecipeLine newLine = new RecipeLine("0",currentRecipe.getId(), idIngr, quantity);
                 recipeLines.add(newLine);
                 ingredientAdapter.notifyDataSetChanged();
             }

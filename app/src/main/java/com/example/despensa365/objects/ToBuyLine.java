@@ -1,14 +1,26 @@
 package com.example.despensa365.objects;
 
 public class ToBuyLine {
+    private String id;
     private String toBuyId;
     private String ingredientId;
     private double quantity;
 
-    public ToBuyLine(String toBuyId, String ingredientId, double quantity) {
+    public ToBuyLine(String id, String toBuyId, String ingredientId, double quantity) {
+        this.id = id;
         this.toBuyId = toBuyId;
         this.ingredientId = ingredientId;
         this.quantity = quantity;
+    }
+
+    public ToBuyLine() {}
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getToBuyId() {

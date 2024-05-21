@@ -3,22 +3,28 @@ package com.example.despensa365.objects;
 import com.example.despensa365.enums.Day;
 
 public class PlanLine {
+    private String id;
     private String planId;
     private String recipeId;
     private Day day;
 
-    // Constructor with all fields
-    public PlanLine(String planId, String recipeId, Day day) {
+    public PlanLine(String id, String planId, String recipeId, Day day) {
+        this.id = id;
         this.planId = planId;
         this.recipeId = recipeId;
         this.day = day;
     }
 
-    // Default constructor
-    public PlanLine() {
+    public PlanLine() {}
+
+    public String getId() {
+        return id;
     }
 
-    // Getter and setter for planId
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getPlanId() {
         return planId;
     }
@@ -27,7 +33,6 @@ public class PlanLine {
         this.planId = planId;
     }
 
-    // Getter and setter for recipeId
     public String getRecipeId() {
         return recipeId;
     }
@@ -36,7 +41,6 @@ public class PlanLine {
         this.recipeId = recipeId;
     }
 
-    // Getter and setter for day
     public Day getDay() {
         return day;
     }

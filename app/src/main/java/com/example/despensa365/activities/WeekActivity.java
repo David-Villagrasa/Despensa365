@@ -95,7 +95,7 @@ public class WeekActivity extends AppCompatActivity {
                     selectedRecipe = (Recipe) data.getSerializableExtra("selectedRecipe");
                     //TODO create a new line of PlanLine on db
                     allRecipeList.add(selectedRecipe);
-                    planLines.add(new PlanLine("", selectedRecipe.getId(), day));
+                    planLines.add(new PlanLine("0","0", selectedRecipe.getId(), day));
                     loadRecipesForDay(day);
                 }
 

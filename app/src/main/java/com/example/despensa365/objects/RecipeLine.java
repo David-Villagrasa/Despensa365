@@ -1,21 +1,28 @@
 package com.example.despensa365.objects;
 
-
 import java.io.Serializable;
 
 public class RecipeLine implements Serializable {
+    private String id;
     private String idRecipe;
     private String idIngredient;
     private double quantity;
 
-    public RecipeLine(){
-
-    }
-
-    public RecipeLine(String idRecipe, String idIngredient, double quantity) {
+    public RecipeLine(String id, String idRecipe, String idIngredient, double quantity) {
+        this.id = id;
         this.idRecipe = idRecipe;
         this.idIngredient = idIngredient;
         this.quantity = quantity;
+    }
+
+    public RecipeLine() {}
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getIdRecipe() {

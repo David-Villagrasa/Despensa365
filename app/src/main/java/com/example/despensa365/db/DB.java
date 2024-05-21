@@ -3,9 +3,11 @@ package com.example.despensa365.db;
 import static com.example.despensa365.methods.DateUtils.getNextMonday;
 import static com.example.despensa365.methods.DateUtils.getNextSunday;
 
+import com.example.despensa365.enums.Day;
 import com.example.despensa365.enums.IngredientType;
 import com.example.despensa365.objects.Ingredient;
 import com.example.despensa365.objects.PantryLine;
+import com.example.despensa365.objects.PlanLine;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -14,6 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.WriteBatch;
 
 import android.util.Log;
 
@@ -28,6 +31,7 @@ import java.util.Map;
 public class DB {
 
     public static ArrayList<Ingredient> ingredientArrayList = new ArrayList<>();
+    public static ArrayList<PantryLine> pantryLinesArrayList = new ArrayList<>();
     public static FirebaseUser currentUser;
     private static final String TAG = "DB";
     private static FirebaseFirestore db;
@@ -92,20 +96,17 @@ public class DB {
 
     public static void savePantry(FirebaseUser currentUser, String postalCode, String city, String street, String streetNumber) {
         if (currentUser != null) {
-            // Crear una referencia a un nuevo documento en la colección `pantries` del usuario actual
             DocumentReference newPantryRef = db.collection("users")
                     .document(currentUser.getUid())
                     .collection("pantries")
                     .document();
 
-            // Crear un mapa con la información de la despensa
             Map<String, Object> pantryData = new HashMap<>();
             pantryData.put("postalCode", postalCode);
             pantryData.put("city", city);
             pantryData.put("street", street);
             pantryData.put("streetNumber", streetNumber);
 
-            // Guardar la información de la despensa en Firestore
             newPantryRef.set(pantryData)
                     .addOnSuccessListener(aVoid -> Log.d(TAG, "Pantry saved successfully with ID: " + newPantryRef.getId()))
                     .addOnFailureListener(e -> Log.w(TAG, "Error saving pantry", e));
@@ -123,13 +124,13 @@ public class DB {
             if (task.isSuccessful()) {
                 QuerySnapshot querySnapshot = task.getResult();
                 if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                    callback.onCallback(true); // Existe al menos una despensa
+                    callback.onCallback(true);
                 } else {
-                    callback.onCallback(false); // No hay despensas
+                    callback.onCallback(false);
                 }
             } else {
                 Log.w(TAG, "Error checking pantry existence", task.getException());
-                callback.onCallback(false); // Asumimos que no existe si hay un error
+                callback.onCallback(false);
             }
         });
     }
@@ -199,6 +200,8 @@ public class DB {
         newPantryLineRef.set(pantryLineData, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "PantryLine added successfully with ID: " + newPantryLineRef.getId());
+                    pantryLine.setId(newPantryLineRef.getId());  // Set the ID of the pantry line
+                    pantryLinesArrayList.add(pantryLine);  // Add the pantry line to the array list
                     callback.onCallback(true);
                 })
                 .addOnFailureListener(e -> {
@@ -216,23 +219,21 @@ public class DB {
             if (task.isSuccessful()) {
                 QuerySnapshot querySnapshot = task.getResult();
                 if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                    // Obtener el primer documento de la colección
                     QueryDocumentSnapshot document = (QueryDocumentSnapshot) querySnapshot.getDocuments().get(0);
                     String pantryId = document.getId();
                     callback.onCallback(pantryId);
                 } else {
                     Log.d(TAG, "No pantry found for user: " + currentUser.getUid());
-                    callback.onCallback(null); // No hay despensas
+                    callback.onCallback(null);
                 }
             } else {
                 Log.w(TAG, "Error getting pantry collection", task.getException());
-                callback.onCallback(null); // Asumimos que no existe si hay un error
+                callback.onCallback(null);
             }
         });
     }
 
     public static void getAllPantryLines(@NonNull FirebaseUser currentUser, @NonNull String pantryId, PantryLinesCallback callback) {
-
         CollectionReference pantryLinesCollection = db.collection("users")
                 .document(currentUser.getUid())
                 .collection("pantries")
@@ -241,46 +242,229 @@ public class DB {
 
         pantryLinesCollection.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                ArrayList<PantryLine> pantryLines = new ArrayList<>();
+                pantryLinesArrayList.clear();  // Clear the existing list before adding new data
                 QuerySnapshot querySnapshot = task.getResult();
 
                 if (querySnapshot != null) {
                     for (QueryDocumentSnapshot document : querySnapshot) {
                         PantryLine pantryLine = new PantryLine();
+                        pantryLine.setId(document.getId());  // Set the document ID
                         pantryLine.setPantryId(pantryId);
 
-                        // Obtener la referencia del ingrediente
                         DocumentReference ingredientRef = document.getDocumentReference("ingredient");
                         if (ingredientRef != null) {
                             pantryLine.setIngredientId(ingredientRef.getId());
                         }
 
-                        // Verificar y obtener la cantidad del ingrediente
                         Double ingredientQuantity = document.getDouble("ingredientQuantity");
                         if (ingredientQuantity != null) {
                             pantryLine.setIngredientQuantity(ingredientQuantity);
                         } else {
-                            pantryLine.setIngredientQuantity(0); // O algún valor por defecto
+                            pantryLine.setIngredientQuantity(0);
                         }
 
-                        // Verificar y obtener la fecha de expiración
                         Date expirationDate = document.getDate("expirationDate");
                         if (expirationDate != null) {
                             pantryLine.setExpirationDate(expirationDate);
                         } else {
-                            pantryLine.setExpirationDate(new Date()); // O algún valor por defecto
+                            pantryLine.setExpirationDate(new Date());
                         }
 
-                        pantryLines.add(pantryLine);
+                        pantryLinesArrayList.add(pantryLine);
                     }
                 }
 
-                callback.onCallback(pantryLines);
+                callback.onCallback(pantryLinesArrayList);
             } else {
                 Log.w(TAG, "Error getting pantry lines collection", task.getException());
-                callback.onCallback(new ArrayList<>()); // Devolver una lista vacía en caso de error
+                callback.onCallback(new ArrayList<>());  // Return an empty list in case of error
             }
         });
+    }
+
+    public static void deleteIngredient(@NonNull FirebaseUser currentUser, @NonNull Ingredient ingredient, BooleanCallback callback) {
+        DocumentReference ingredientRef = db.collection("users")
+                .document(currentUser.getUid())
+                .collection("ingredients")
+                .document(ingredient.getId());
+
+        ingredientRef.delete()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Ingredient deleted successfully: " + ingredient.getId());
+
+                    ingredientArrayList.removeIf(ing -> ing.getId().equals(ingredient.getId()));
+
+                    callback.onCallback(true);
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error deleting ingredient", e);
+                    callback.onCallback(false);
+                });
+
+    }
+
+    public static void deletePantryLine(@NonNull FirebaseUser currentUser, @NonNull PantryLine pantryLine, BooleanCallback callback) {
+        if (currentUser != null) {
+            DocumentReference pantryLineRef = db.collection("users")
+                    .document(currentUser.getUid())
+                    .collection("pantries")
+                    .document(pantryLine.getPantryId())
+                    .collection("pantryLines")
+                    .document(pantryLine.getId());
+
+            pantryLineRef.delete()
+                    .addOnSuccessListener(aVoid -> {
+                        Log.d(TAG, "PantryLine deleted successfully: " + pantryLine.getId());
+
+                        pantryLinesArrayList.removeIf(line -> line.getId().equals(pantryLine.getId()));
+
+                        callback.onCallback(true);
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.w(TAG, "Error deleting PantryLine", e);
+                        callback.onCallback(false);
+                    });
+        } else {
+            Log.w(TAG, "User is not authenticated.");
+            callback.onCallback(false);
+        }
+    }
+    public static void deleteExpiredPantryLines(@NonNull FirebaseUser currentUser, @NonNull String pantryId, BooleanCallback callback) {
+        CollectionReference pantryLinesCollection = db.collection("users")
+                .document(currentUser.getUid())
+                .collection("pantries")
+                .document(pantryId)
+                .collection("pantryLines");
+
+        pantryLinesCollection.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                WriteBatch batch = db.batch();
+                Date today = new Date();
+
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    Date expirationDate = document.getDate("expirationDate");
+                    if (expirationDate != null && expirationDate.before(today)) {
+                        batch.delete(document.getReference());
+                        pantryLinesArrayList.removeIf(line -> line.getId().equals(document.getId()));
+                    }
+                }
+
+                batch.commit().addOnCompleteListener(batchTask -> {
+                    if (batchTask.isSuccessful()) {
+                        Log.d(TAG, "Expired pantry lines deleted successfully.");
+                        callback.onCallback(true);
+                    } else {
+                        Log.w(TAG, "Error deleting expired pantry lines", batchTask.getException());
+                        callback.onCallback(false);
+                    }
+                });
+            } else {
+                Log.w(TAG, "Error getting pantry lines collection", task.getException());
+                callback.onCallback(false);
+            }
+        });
+    }
+
+
+
+    public static void addPlanLine(@NonNull FirebaseUser currentUser, @NonNull PlanLine planLine, BooleanCallback callback) {
+        CollectionReference planLinesCollection = db.collection("users")
+                .document(currentUser.getUid())
+                .collection("weekPlan")
+                .document(planLine.getPlanId())
+                .collection("planLines");
+
+        DocumentReference newPlanLineRef = planLinesCollection.document();
+
+        Map<String, Object> planLineData = new HashMap<>();
+        planLineData.put("recipeId", planLine.getRecipeId());
+        planLineData.put("day", planLine.getDay().getValue()); // Guardar el valor del enum como entero
+
+        newPlanLineRef.set(planLineData, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "PlanLine added successfully with ID: " + newPlanLineRef.getId());
+                    planLine.setId(newPlanLineRef.getId()); // Set the ID of the plan line
+                    callback.onCallback(true);
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error adding PlanLine", e);
+                    callback.onCallback(false);
+                });
+    }
+
+    public static void getAllPlanLines(@NonNull FirebaseUser currentUser, @NonNull String planId, PlanLinesCallback callback) {
+        CollectionReference planLinesCollection = db.collection("users")
+                .document(currentUser.getUid())
+                .collection("weekPlan")
+                .document(planId)
+                .collection("planLines");
+
+        planLinesCollection.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                ArrayList<PlanLine> planLines = new ArrayList<>();
+                QuerySnapshot querySnapshot = task.getResult();
+
+                if (querySnapshot != null) {
+                    for (QueryDocumentSnapshot document : querySnapshot) {
+                        PlanLine planLine = new PlanLine();
+                        planLine.setId(document.getId());
+                        planLine.setPlanId(planId);
+                        planLine.setRecipeId(document.getString("recipeId"));
+
+                        int dayValue = document.getLong("day").intValue();
+                        planLine.setDay(convertIntToDay(dayValue));
+
+                        planLines.add(planLine);
+                    }
+                }
+
+                callback.onCallback(planLines);
+            } else {
+                Log.w(TAG, "Error getting plan lines collection", task.getException());
+                callback.onCallback(new ArrayList<>());
+            }
+        });
+    }
+
+    public static void deletePlanLine(@NonNull FirebaseUser currentUser, @NonNull PlanLine planLine, BooleanCallback callback) {
+        DocumentReference planLineRef = db.collection("users")
+                .document(currentUser.getUid())
+                .collection("weekPlan")
+                .document(planLine.getPlanId())
+                .collection("planLines")
+                .document(planLine.getId()); // Use planLine ID for deletion
+
+        planLineRef.delete()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "PlanLine deleted successfully: " + planLine.getId());
+                    callback.onCallback(true);
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error deleting PlanLine", e);
+                    callback.onCallback(false);
+                });
+    }
+
+
+    private static Day convertIntToDay(int value) {
+        switch (value) {
+            case 1:
+                return Day.MONDAY;
+            case 2:
+                return Day.TUESDAY;
+            case 3:
+                return Day.WEDNESDAY;
+            case 4:
+                return Day.THURSDAY;
+            case 5:
+                return Day.FRIDAY;
+            case 6:
+                return Day.SATURDAY;
+            case 7:
+                return Day.SUNDAY;
+            default:
+                throw new IllegalArgumentException("Invalid day value: " + value);
+        }
     }
 
     public interface StringCallback {
@@ -293,6 +477,10 @@ public class DB {
 
     public interface PantryLinesCallback {
         void onCallback(ArrayList<PantryLine> pantryLines);
+    }
+
+    public interface PlanLinesCallback {
+        void onCallback(ArrayList<PlanLine> planLines);
     }
 
 }

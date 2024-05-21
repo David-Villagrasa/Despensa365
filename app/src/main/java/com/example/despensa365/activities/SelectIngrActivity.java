@@ -2,6 +2,7 @@ package com.example.despensa365.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -140,14 +141,22 @@ public class SelectIngrActivity extends AppCompatActivity {
         switch (id) {
             case ELIMINAR:
                 Ingredient ingredientToRemove = DB.ingredientArrayList.get(posItem);
-                DB.ingredientArrayList.remove(ingredientToRemove);
-                ingredientAdapter.updateList(DB.ingredientArrayList);
-
-                // TODO: Also remove the ingredient from the database
+                DB.deleteIngredient(DB.currentUser, ingredientToRemove, success -> {
+                    if (success) {
+                        // To update list and adapter
+                        runOnUiThread(() -> {
+                            ingredientAdapter.updateList(DB.ingredientArrayList);
+                            ingredientAdapter.notifyDataSetChanged();
+                        });
+                    } else {
+                        Log.d("SelectIngrActivity", "Failed to delete ingredient.");
+                    }
+                });
                 break;
         }
         return super.onContextItemSelected(item);
     }
+
 
     public interface Callback {
         void dialogOK(Ingredient ing, double quantity, Date date);

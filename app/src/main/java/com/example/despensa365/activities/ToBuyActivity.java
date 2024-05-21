@@ -55,7 +55,7 @@ public class ToBuyActivity extends AppCompatActivity {
             if (data != null) {
                 String idIngr = data.getStringExtra("ingredient");
                 double quantity = data.getDoubleExtra("quantity",-1);
-                ToBuyLine newLine = new ToBuyLine(currentToBuy.getId(), idIngr, quantity);
+                ToBuyLine newLine = new ToBuyLine("0",currentToBuy.getId(), idIngr, quantity);
                 toBuyLines.add(newLine);
                 toBuyAdapter.updateList(toBuyLines);
                 toBuyAdapter.notifyDataSetChanged();
