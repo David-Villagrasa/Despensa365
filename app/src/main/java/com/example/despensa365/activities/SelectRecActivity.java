@@ -11,17 +11,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.despensa365.R;
 import com.example.despensa365.adapters.RecipeAdapter;
+import com.example.despensa365.db.DB;
+import com.example.despensa365.objects.Ingredient;
 import com.example.despensa365.objects.Recipe;
 import com.example.despensa365.objects.RecipeLine;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class SelectRecActivity extends AppCompatActivity {
     private RecyclerView recycler;
     private EditText etSearch;
     private RecipeAdapter recipeAdapter;
-    private ArrayList<Recipe> listRecipes= new ArrayList<>();
-    private Button btnBack;
+    private ArrayList<Recipe> listRecipes = new ArrayList<>();
+    private Button btnBack, btnSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,46 +34,18 @@ public class SelectRecActivity extends AppCompatActivity {
         recycler = findViewById(R.id.rvIngrList);
         etSearch = findViewById(R.id.etSearchByIng);
         btnBack = findViewById(R.id.btnBackSelectIngr);
+        btnSearch = findViewById(R.id.btnSearchSelectIngr);
 
         btnBack.setOnClickListener(v -> finish());
+        btnSearch.setOnClickListener(v -> searchRecipes());
 
-
-
-        setupList();
         setupRecycler();
-
     }
 
     private void setupRecycler() {
-        recipeAdapter = new RecipeAdapter(this, listRecipes, false, false);
+        recipeAdapter = new RecipeAdapter(this, DB.recipesArrayList, false, false);
         recycler.setLayoutManager(new LinearLayoutManager(this));
         recycler.setAdapter(recipeAdapter);
-    }
-
-    private void setupList() {
-        //TODO get data from database
-//        Recipe cakeRecipe = new Recipe(1, "Cake", "Delicious sponge cake", 123);
-//
-//        RecipeLine flourLine = new RecipeLine();
-//        flourLine.setIdRecipe(cakeRecipe.getId());
-//        flourLine.setIdIngredient(1);
-//        flourLine.setQuantity(250);
-//
-//        RecipeLine sugarLine = new RecipeLine();
-//        sugarLine.setIdRecipe(cakeRecipe.getId());
-//        sugarLine.setIdIngredient(2);
-//        sugarLine.setQuantity(100);
-//
-//        RecipeLine eggLine = new RecipeLine();
-//        eggLine.setIdRecipe(cakeRecipe.getId());
-//        eggLine.setIdIngredient(3);
-//        eggLine.setQuantity(3);
-//
-//        cakeRecipe.addLine(flourLine);
-//        cakeRecipe.addLine(sugarLine);
-//        cakeRecipe.addLine(eggLine);
-//
-//        listRecipes.add(cakeRecipe);
     }
 
     public void recipeSelected() {
@@ -79,7 +54,19 @@ public class SelectRecActivity extends AppCompatActivity {
 
         Intent intent = new Intent();
         intent.putExtra("selectedRecipe", recipe);
-        setResult(RESULT_OK,intent);
+        setResult(RESULT_OK, intent);
         finish();
+    }
+
+    private void searchRecipes() {
+        String query = etSearch.getText().toString().trim().toLowerCase();
+        if (query.isEmpty()) {
+            recipeAdapter.updateList(DB.recipesArrayList);
+        } else {
+            ArrayList<Recipe> filteredList = (ArrayList<Recipe>) DB.recipesArrayList.stream()
+                    .filter(ingredient -> ingredient.getName().toLowerCase().contains(query))
+                    .collect(Collectors.toList());
+            recipeAdapter.updateList(filteredList);
+        }
     }
 }

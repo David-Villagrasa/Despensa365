@@ -1,10 +1,9 @@
 package com.example.despensa365.db;
 
-import static com.example.despensa365.methods.DateUtils.getNextMonday;
-import static com.example.despensa365.methods.DateUtils.getNextSunday;
-import static com.example.despensa365.methods.Helper.getNormalizedDate;
+import static com.example.despensa365.methods.DateUtils.getNextWeekMonday;
+import static com.example.despensa365.methods.DateUtils.getNextWeekSunday;
+import static com.example.despensa365.methods.DateUtils.*;
 
-import com.example.despensa365.enums.Day;
 import com.example.despensa365.enums.IngredientType;
 import com.example.despensa365.objects.Ingredient;
 import com.example.despensa365.objects.PantryLine;
@@ -79,8 +78,8 @@ public class DB {
                 if (task.getResult().isEmpty()) {
                     // No documents in the collection
                     Map<String, Object> weekPlanData = new HashMap<>();
-                    weekPlanData.put("startDate", getNextMonday());
-                    weekPlanData.put("endDate", getNextSunday());
+                    weekPlanData.put("startDate", getNextWeekMonday());
+                    weekPlanData.put("endDate", getNextWeekSunday());
 
                     weekPlanCollection.document().set(weekPlanData)
                             .addOnSuccessListener(aVoid -> Log.d(TAG, "WeekPlan week1 created successfully."))
@@ -91,8 +90,8 @@ public class DB {
                         DocumentReference weekPlanRef = weekPlanCollection.document(document.getId());
 
                         Map<String, Object> updates = new HashMap<>();
-                        updates.put("startDate", getNextMonday());
-                        updates.put("endDate", getNextSunday());
+                        updates.put("startDate", getNextWeekMonday());
+                        updates.put("endDate", getNextWeekSunday());
 
                         weekPlanRef.update(updates)
                                 .addOnSuccessListener(aVoid -> Log.d(TAG, "WeekPlan " + document.getId() + " updated successfully."))
@@ -544,7 +543,7 @@ public class DB {
                 .collection("recipes");
 
         DocumentReference newRecipeRef = recipesCollection.document();
-        recipe.setId(newRecipeRef.getId()); // Set the ID for the recipe object
+        recipe.setId(newRecipeRef.getId());
 
         Map<String, Object> recipeData = new HashMap<>();
         recipeData.put("name", recipe.getName());
@@ -776,9 +775,9 @@ public class DB {
                     QueryDocumentSnapshot document = (QueryDocumentSnapshot) querySnapshot.getDocuments().get(0);
                     String weeklyPlanId = document.getId();
                     Timestamp startTimestamp = document.getTimestamp("startDate");
-                    Date startDate = getNormalizedDate(startTimestamp.toDate());
+                    Date startDate = normalizeDate(startTimestamp.toDate());
                     Timestamp endTimestamp = document.getTimestamp("endDate");
-                    Date endDate = getNormalizedDate(endTimestamp.toDate());
+                    Date endDate = normalizeDate(endTimestamp.toDate());
                     callback.onCallback(new WeeklyPlan(weeklyPlanId,startDate,endDate,DB.currentUser.getUid()));
                 } else {
                     Log.d(TAG, "No weekly plan found for user: " + currentUser.getUid());
@@ -863,7 +862,7 @@ public class DB {
         planLineRef.delete()
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "PlanLine deleted successfully: " + planLine.getId());
-                    reloadWeekLines(DB.currentUser, planLine.getPlanId());
+                    reloadWeekLines(DB.currentUser, planLine.getPlanId(),()->{});
                     callback.onCallback(true);
                 })
                 .addOnFailureListener(e -> {
@@ -873,37 +872,20 @@ public class DB {
     }
 
 
-    private static Day convertIntToDay(int value) {
-        switch (value) {
-            case 1:
-                return Day.MONDAY;
-            case 2:
-                return Day.TUESDAY;
-            case 3:
-                return Day.WEDNESDAY;
-            case 4:
-                return Day.THURSDAY;
-            case 5:
-                return Day.FRIDAY;
-            case 6:
-                return Day.SATURDAY;
-            case 7:
-                return Day.SUNDAY;
-            default:
-                throw new IllegalArgumentException("Invalid day value: " + value);
-        }
-    }
-
     public static void reloadRecipes(@NonNull FirebaseUser user) {
-        CollectionReference recipesCollection = db.collection("users").document(user.getUid()).collection("recipes");
+        CollectionReference recipesCollection = db.collection("users")
+                .document(user.getUid())
+                .collection("recipes");
 
         recipesCollection.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 recipesArrayList.clear();
                 for (QueryDocumentSnapshot document : task.getResult()) {
-                    Recipe recipe = document.toObject(Recipe.class);
-                    recipe.setId(document.getId());
+                    String name = document.getString("name");
+                    String description = document.getString("description");
+                    Recipe recipe = new Recipe(document.getId(),name, description,DB.currentUser.getUid());
                     recipesArrayList.add(recipe);
+                    ;
                 }
                 Log.d(TAG, "Recipes reloaded successfully.");
             } else {
@@ -911,8 +893,8 @@ public class DB {
             }
         });
     }
-    public static void reloadWeekLines(@NonNull FirebaseUser user, @NonNull String weekPlanId) {
-        CollectionReference weekLinesCollection = db.collection("users").document(user.getUid()).collection("weekPlan").document(weekPlanId).collection("weekLines");
+    public static void reloadWeekLines(@NonNull FirebaseUser user, @NonNull String weekPlanId, Runnable callback) {
+        CollectionReference weekLinesCollection = db.collection("users").document(user.getUid()).collection("weekPlan").document(weekPlanId).collection("weekPlanLines");
 
         weekLinesCollection.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -932,6 +914,8 @@ public class DB {
                     planLinesArrayList.add(planLine);
                 }
                 Log.d(TAG, "Recipes reloaded successfully.");
+
+                callback.run();
             } else {
                 Log.w(TAG, "Error reloading recipes collection.", task.getException());
             }

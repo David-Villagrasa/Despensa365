@@ -1,15 +1,13 @@
 package com.example.despensa365.activities;
 
-import static com.example.despensa365.methods.Helper.getNormalizedDate;
+import static com.example.despensa365.methods.DateUtils.convertIntToDay;
+import static com.example.despensa365.methods.DateUtils.getDateOfWeekToday;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -23,13 +21,11 @@ import com.example.despensa365.R;
 import com.example.despensa365.adapters.RecipeAdapter;
 import com.example.despensa365.objects.PlanLine;
 import com.example.despensa365.objects.Recipe;
-import com.example.despensa365.objects.RecipeLine;
 import com.example.despensa365.objects.WeeklyPlan;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,51 +65,52 @@ public class WeekActivity extends AppCompatActivity {
         for (int i = 0; i < btnDays.length; i++) {
             btnDays[i].setText(days[i]);
             final Day day = Day.values()[i];
-            btnDays[i].setOnClickListener(v -> loadRecipesForDay(day));
+            btnDays[i].setOnClickListener(v -> {
+                onClick(day);
+            });
         }
 
         fabAdd = findViewById(R.id.fabAdd);
 
         btnBackMangWeek.setOnClickListener(v -> finish());
 
-
-        fabAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(WeekActivity.this, SelectRecActivity.class);
-                customLauncher.launch(intent);
-            }
+        fabAdd.setOnClickListener(v -> {
+            Intent intent = new Intent(WeekActivity.this, SelectRecActivity.class);
+            customLauncher.launch(intent);
         });
 
-        customLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-            @Override
-            public void onActivityResult(ActivityResult resultado) {
+        customLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), resultado -> {
 
-                Intent data = resultado.getData();
-                if (data != null) {
-                    selectedRecipe = (Recipe) data.getSerializableExtra("selectedRecipe");
-                    //TODO create a new line of PlanLine on db
+            Intent data = resultado.getData();
+            if (data != null) {
+                selectedRecipe = (Recipe) data.getSerializableExtra("selectedRecipe");
+                //TODO create a new line of PlanLine on db
 //                    allRecipeList.add(selectedRecipe);
 //                    planLines.add(new PlanLine("0","0", selectedRecipe.getId(), day));
-                    loadRecipesForDay(day);
-                }
+                loadRecipesForDay(day);
+            }
 
+        });
+        loadWeeklyPlan(()->{});
+        loadRecipesForDay(convertIntToDay(getDateOfWeekToday()));
+        setupRecycler();
+
+    }
+
+    private void onClick(Day day) {
+        DB.reloadWeekLines(DB.currentUser, weeklyPlan.getId(), () -> {
+            loadRecipesForDay(day);
+            recipeAdapter.notifyDataSetChanged();
+        });
+    }
+
+    private void loadWeeklyPlan(Runnable onLoadedCallback) {
+        DB.getWeeklyPlan(DB.currentUser, plan -> {
+            weeklyPlan = plan;
+            if (onLoadedCallback != null) {
+                onLoadedCallback.run();
             }
         });
-
-        loadWeeklyPlan();
-        getPlanLines();
-        setupRecycler();
-        loadRecipesForDay(Day.MONDAY); // TODO: get the actual day to load it
-
-    }
-
-    private void getPlanLines() {
-        DB.reloadWeekLines(DB.currentUser,weeklyPlan.getId());
-    }
-
-    private void loadWeeklyPlan() {
-        DB.getWeeklyPlan(DB.currentUser,(plan -> weeklyPlan = plan));
     }
 
     private void setupRecycler() {
@@ -139,8 +136,6 @@ public class WeekActivity extends AppCompatActivity {
                 }
             }
         }
-
-        recipeAdapter.notifyDataSetChanged();
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.example.despensa365.activities;
 
-import static com.example.despensa365.methods.Helper.getNormalizedDate;
+import static com.example.despensa365.methods.DateUtils.normalizeDate;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -112,7 +112,7 @@ public class PantryActivity extends AppCompatActivity {
     }
 
     private void filterNonExpiredLines() {
-        Date today = getNormalizedDate(new Date());
+        Date today = normalizeDate(new Date());
         currentPantryLines = (ArrayList<PantryLine>) DB.pantryLinesArrayList.stream()
                 .filter(line -> !line.getExpirationDate().before(today))
                 .collect(Collectors.toList());
@@ -122,7 +122,7 @@ public class PantryActivity extends AppCompatActivity {
     }
 
     private void filterExpiredLines() {
-        Date today = getNormalizedDate(new Date());
+        Date today = normalizeDate(new Date());
         currentPantryLines = (ArrayList<PantryLine>) DB.pantryLinesArrayList.stream()
                 .filter(line -> line.getExpirationDate().before(today))
                 .collect(Collectors.toList());

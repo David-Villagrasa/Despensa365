@@ -79,12 +79,13 @@ public class MainActivity extends AppCompatActivity {
         btnRegister.setVisibility(View.INVISIBLE);
         btnLogout.setVisibility(View.VISIBLE);
         tvWelcome.setVisibility(View.VISIBLE);
-        FirebaseUser userFirebase = firebaseAuth.getCurrentUser();
-        String username = userFirebase.getDisplayName();
-        tvWelcome.setText(String.format("%s %s", getString(R.string.welcome), username));
         DB.currentUser=firebaseAuth.getCurrentUser();
+        String username = DB.currentUser.getDisplayName();
+        tvWelcome.setText(String.format("%s %s", getString(R.string.welcome), username));
         DB.setupDateWeekPlan(DB.currentUser);
         DB.getAllIngredients(DB.currentUser);
+        DB.reloadRecipes(DB.currentUser);
+        DB.reloadIngredients(DB.currentUser);
     }
 
     public void clickLogin(View v) {

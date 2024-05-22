@@ -15,8 +15,10 @@ import com.example.despensa365.MainActivity;
 import com.example.despensa365.R;
 import com.example.despensa365.activities.RecipeViewActivity;
 import com.example.despensa365.activities.SelectRecActivity;
+import com.example.despensa365.objects.Ingredient;
 import com.example.despensa365.objects.Recipe;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder> {
@@ -62,6 +64,10 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     @Override
     public int getItemCount() {
         return recipeList.size();
+    }
+    public void updateList(ArrayList<Recipe> newList) {
+        recipeList = newList;
+        notifyDataSetChanged();
     }
 
     public class RecipeViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
