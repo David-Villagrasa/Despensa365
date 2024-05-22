@@ -32,7 +32,6 @@ public class QuantityIngredientDialog extends DialogFragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        //datos = (Datos) getActivity();
     }
 
     @NonNull
@@ -49,7 +48,11 @@ public class QuantityIngredientDialog extends DialogFragment {
 
         window.setNegativeButton(R.string.back, (dialog, which) -> dialog.cancel());
         window.setPositiveButton(R.string.next, (dialog, which) -> {
-            callback.dialogOK(this.ingredient, Double.parseDouble(etQuantity.getText().toString()), null);
+            if (etQuantity.getText().toString().isEmpty()) {
+                etQuantity.setError(getString(R.string.mustFill));
+            }else{
+                callback.dialogOK(this.ingredient, Double.parseDouble(etQuantity.getText().toString()), null);
+            }
         });
 
         return window.create();

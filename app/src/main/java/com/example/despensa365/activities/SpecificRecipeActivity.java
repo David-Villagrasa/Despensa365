@@ -2,6 +2,7 @@ package com.example.despensa365.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,7 +34,9 @@ public class SpecificRecipeActivity extends AppCompatActivity {
     private Recipe currentRecipe;
     private ArrayList<RecipeLine> recipeLines = new ArrayList<>();
     private IngredientsRecipeAdapter ingredientAdapter;
+    private ArrayList<RecipeLine> linesToDelete = new ArrayList<>();
     int posItem;
+    Intent intent = null;
 
     private ActivityResultLauncher<Intent> customLauncher;
 
@@ -47,7 +50,7 @@ public class SpecificRecipeActivity extends AppCompatActivity {
             if (data != null) {
                 String idIngr = data.getStringExtra("ingredient");
                 double quantity = data.getDoubleExtra("quantity", -1);
-                RecipeLine newLine = new RecipeLine("0", currentRecipe.getId(), idIngr, quantity);
+                RecipeLine newLine = new RecipeLine("", currentRecipe.getId(), idIngr, quantity);
                 recipeLines.add(newLine);
                 ingredientAdapter.notifyDataSetChanged();
             }
@@ -73,24 +76,16 @@ public class SpecificRecipeActivity extends AppCompatActivity {
     }
 
     private void handleIntent() {
-        Intent intent = getIntent();
+        intent = getIntent();
         if (intent != null && intent.hasExtra("RECIPE_DATA")) {
             currentRecipe = (Recipe) intent.getSerializableExtra("RECIPE_DATA");
             populateViews();
 
-            // Load the recipe lines from the database
-            DB.getAllRecipeLines(DB.getCurrentUser(), currentRecipe.getId(), new DB.RecipeLinesCallback() {
-                @Override
-                public void onCallback(ArrayList<RecipeLine> recipeLinesFromDb) {
-                    recipeLines = recipeLinesFromDb;
-                    setupRecyclerView();
-                }
-            });
+            loadRecipeLines();
         } else {
-            currentRecipe = new Recipe();  // Create a new empty recipe if no data is passed
+            currentRecipe = new Recipe();
         }
     }
-
 
     private void populateViews() {
         if (currentRecipe != null) {
@@ -121,14 +116,15 @@ public class SpecificRecipeActivity extends AppCompatActivity {
     private void saveRecipe() {
         currentRecipe.setName(etNameRecipe.getText().toString());
         currentRecipe.setDescription(etDirectionsRecipe.getText().toString());
-        currentRecipe.setLines(recipeLines);
 
         if (currentRecipe.getId() == null || currentRecipe.getId().isEmpty()) {
             // Add new recipe
             DB.addRecipe(DB.getCurrentUser(), currentRecipe, success -> {
                 if (success) {
+                    // Add recipe lines after the recipe is successfully added
                     for (RecipeLine line : recipeLines) {
-                        DB.addRecipeLine(DB.getCurrentUser(), line, lineSuccess -> {
+                        line.setIdRecipe(currentRecipe.getId()); // Ensure the line has the correct recipe ID
+                        DB.addRecipeLine(DB.getCurrentUser(), currentRecipe.getId(), line, lineSuccess -> {
                             // Handle line success if needed
                         });
                     }
@@ -142,6 +138,27 @@ public class SpecificRecipeActivity extends AppCompatActivity {
             // Update existing recipe
             DB.updateRecipe(DB.getCurrentUser(), currentRecipe, success -> {
                 if (success) {
+                    // Update recipe lines
+                    for (RecipeLine line : recipeLines) {
+                        if (line.getId() == null || line.getId().isEmpty()) {
+                            line.setIdRecipe(currentRecipe.getId()); // Ensure the line has the correct recipe ID
+                            DB.addRecipeLine(DB.getCurrentUser(), currentRecipe.getId(), line, lineSuccess -> {
+                                // Handle line success if needed
+                            });
+                        } else {
+                            DB.updateRecipeLine(DB.getCurrentUser(), line, lineSuccess -> {
+                                // Handle line success if needed
+                            });
+                        }
+                    }
+                    // Delete recipe lines that were marked for deletion
+                    for (RecipeLine line : linesToDelete) {
+                        DB.deleteRecipeLine(DB.getCurrentUser(), line, lineSuccess -> {
+                            // Handle line success if needed
+                        });
+                    }
+                    linesToDelete.clear(); // Clear the list of pending deletions
+
                     Intent newIntent = new Intent();
                     newIntent.putExtra("RECIPE_DATA", currentRecipe);
                     setResult(RESULT_OK, newIntent);
@@ -163,13 +180,10 @@ public class SpecificRecipeActivity extends AppCompatActivity {
         switch (id) {
             case ELIMINAR:
                 RecipeLine lineToRemove = recipeLines.get(posItem);
-                DB.deleteRecipeLine(DB.getCurrentUser(), lineToRemove, success -> {
-                    if (success) {
-                        recipeLines.remove(posItem);
-                        currentRecipe.setLines(recipeLines);
-                        ingredientAdapter.notifyDataSetChanged();
-                    }
-                });
+                linesToDelete.add(lineToRemove); // Añadir a la lista de eliminaciones pendientes
+                recipeLines.remove(posItem);
+                currentRecipe.setLines(recipeLines);
+                ingredientAdapter.notifyDataSetChanged();
                 break;
         }
         return super.onContextItemSelected(item);

@@ -82,7 +82,12 @@ public class RecipeViewActivity extends AppCompatActivity {
     private void setupValues() {
         etNameRecipe.setText(currentRecipe.getName());
         etDirectionsRecipe.setText(currentRecipe.getDescription());
+        DB.getAllRecipeLines(DB.getCurrentUser(), currentRecipe.getId(), recipeLines -> {
+            currentRecipe.setLines(recipeLines);
+            setupRecycler();
+        });
     }
+
 
     private void setupRecycler() {
         ingredientAdapter = new IngredientsRecipeAdapter(this, recipeLines);

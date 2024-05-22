@@ -222,34 +222,37 @@ public class DB {
         ArrayList<Task<Void>> tasks = new ArrayList<>();
 
         tasks.add(deleteReferencesInCollection(currentUser, ingredient, "pantries", "pantryLines", batch));
-        tasks.add(deleteReferencesInCollection(currentUser, ingredient, "weekPlan", "planLines", batch));
-        tasks.add(deleteReferencesInCollection(currentUser, ingredient, "recipes", "recipeLines", batch));
+        tasks.add(deleteRecipeLineReferences(currentUser, ingredient, batch));
 
         Tasks.whenAllComplete(tasks)
                 .addOnCompleteListener(task -> {
-                    batch.commit()
-                            .addOnSuccessListener(aVoid -> {
-                                ingredientRef.delete()
-                                        .addOnSuccessListener(aVoid2 -> {
-                                            Log.d(TAG, "Ingredient deleted successfully: " + ingredient.getId());
+                    if (task.isSuccessful()) {
+                        batch.commit()
+                                .addOnSuccessListener(aVoid -> {
+                                    ingredientRef.delete()
+                                            .addOnSuccessListener(aVoid2 -> {
+                                                Log.d(TAG, "Ingredient deleted successfully: " + ingredient.getId());
 
-                                            ingredientArrayList.removeIf(ing -> ing.getId().equals(ingredient.getId()));
-                                            reloadIngredients(currentUser);
-                                            reloadPantryLines(currentUser, "");
-                                            reloadRecipeLines(currentUser, "");
-                                            callback.onCallback(true);
-                                        })
-                                        .addOnFailureListener(e -> {
-                                            Log.w(TAG, "Error deleting ingredient", e);
-                                            callback.onCallback(false);
-                                        });
-                            })
-                            .addOnFailureListener(e -> {
-                                Log.w(TAG, "Error committing batch deletion", e);
-                                callback.onCallback(false);
-                            });
+                                                ingredientArrayList.removeIf(ing -> ing.getId().equals(ingredient.getId()));
+                                                reloadIngredients(currentUser);
+                                                callback.onCallback(true);
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                Log.w(TAG, "Error deleting ingredient", e);
+                                                callback.onCallback(false);
+                                            });
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.w(TAG, "Error committing batch deletion", e);
+                                    callback.onCallback(false);
+                                });
+                    } else {
+                        Log.w(TAG, "Error deleting references", task.getException());
+                        callback.onCallback(false);
+                    }
                 });
     }
+
 
     private static Task<Void> deleteReferencesInCollection(@NonNull FirebaseUser currentUser, @NonNull Ingredient ingredient, String parentCollection, String childCollection, WriteBatch batch) {
         CollectionReference parentCollectionRef = db.collection("users")
@@ -284,12 +287,67 @@ public class DB {
                 }
             } else {
                 Log.w(TAG, "Error getting documents: ", task.getException());
-                taskCompletionSource.setException(task.getException()); // Mark this task as failed
+                taskCompletionSource.setException(task.getException());
             }
         });
 
         return taskCompletionSource.getTask();
     }
+
+    private static Task<Void> deleteRecipeLineReferences(@NonNull FirebaseUser currentUser, @NonNull Ingredient ingredient, WriteBatch batch) {
+        CollectionReference recipesCollectionRef = db.collection("users")
+                .document(currentUser.getUid())
+                .collection("recipes");
+
+        TaskCompletionSource<Void> taskCompletionSource = new TaskCompletionSource<>();
+
+        recipesCollectionRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                int[] pendingTasksCount = {0};
+                int[] completedTasksCount = {0};
+
+                for (QueryDocumentSnapshot recipeDoc : task.getResult()) {
+                    CollectionReference recipeLinesCollectionRef = recipesCollectionRef
+                            .document(recipeDoc.getId())
+                            .collection("recipeLines");
+
+                    pendingTasksCount[0]++;
+                    recipeLinesCollectionRef.whereEqualTo("ingredient", db.collection("users")
+                                    .document(currentUser.getUid())
+                                    .collection("ingredients")
+                                    .document(ingredient.getId()))
+                            .get()
+                            .addOnCompleteListener(lineTask -> {
+                                if (lineTask.isSuccessful()) {
+                                    for (QueryDocumentSnapshot lineDoc : lineTask.getResult()) {
+                                        batch.delete(lineDoc.getReference());
+                                    }
+                                } else {
+                                    Log.w(TAG, "Error getting recipe lines: ", lineTask.getException());
+                                }
+
+                                synchronized (completedTasksCount) {
+                                    completedTasksCount[0]++;
+                                    if (completedTasksCount[0] == pendingTasksCount[0]) {
+                                        taskCompletionSource.setResult(null);
+                                    }
+                                }
+                            });
+                }
+
+                // Si no hay tareas pendientes, completar la tarea inmediatamente
+                if (pendingTasksCount[0] == 0) {
+                    taskCompletionSource.setResult(null);
+                }
+            } else {
+                Log.w(TAG, "Error getting recipes: ", task.getException());
+                taskCompletionSource.setException(task.getException());
+            }
+        });
+
+        return taskCompletionSource.getTask();
+    }
+
 
 
     public static void addPantryLine(@NonNull FirebaseUser currentUser, @NonNull PantryLine pantryLine, BooleanCallback callback) {
@@ -457,6 +515,7 @@ public class DB {
     }
 
     public static void getAllRecipes(@NonNull FirebaseUser user, RecipeCallback callback) {
+
         CollectionReference recipesCollection = db.collection("users").document(user.getUid()).collection("recipes");
 
         recipesCollection.get().addOnCompleteListener(task -> {
@@ -481,10 +540,14 @@ public class DB {
                 .collection("recipes");
 
         DocumentReference newRecipeRef = recipesCollection.document();
+        recipe.setId(newRecipeRef.getId()); // Set the ID for the recipe object
 
-        newRecipeRef.set(recipe)
+        Map<String, Object> recipeData = new HashMap<>();
+        recipeData.put("name", recipe.getName());
+        recipeData.put("description", recipe.getDescription());
+
+        newRecipeRef.set(recipeData)
                 .addOnSuccessListener(aVoid -> {
-                    recipe.setId(newRecipeRef.getId());
                     recipesArrayList.add(recipe);
                     reloadRecipes(currentUser);
                     callback.onCallback(true);
@@ -495,6 +558,7 @@ public class DB {
                 });
     }
 
+
     public static void deleteRecipe(@NonNull FirebaseUser currentUser, @NonNull Recipe recipe, BooleanCallback callback) {
         DocumentReference recipeRef = db.collection("users")
                 .document(currentUser.getUid())
@@ -504,9 +568,7 @@ public class DB {
         WriteBatch batch = db.batch();
         ArrayList<Task<Void>> tasks = new ArrayList<>();
 
-        // Añadir tareas para eliminar referencias a la receta en otras colecciones
-        tasks.add(deleteReferencesToRecipe(currentUser, recipe.getId(), "weekPlan", "planLines", batch));
-        tasks.add(deleteReferencesToRecipe(currentUser, recipe.getId(), "anotherCollection", "anotherChildCollection", batch)); // Añade más si es necesario
+        //tasks.add(deleteReferencesToRecipe(currentUser, recipe.getId(), "weekPlan", batch));
 
         Tasks.whenAllComplete(tasks)
                 .addOnCompleteListener(task -> {
@@ -536,50 +598,41 @@ public class DB {
                     }
                 });
     }
-    private static Task<Void> deleteReferencesToRecipe(@NonNull FirebaseUser currentUser, @NonNull String recipeId, String parentCollection, String childCollection, WriteBatch batch) {
-        CollectionReference parentCollectionRef = db.collection("users")
-                .document(currentUser.getUid())
-                .collection(parentCollection);
 
-        TaskCompletionSource<Void> taskCompletionSource = new TaskCompletionSource<>();
-
-        parentCollectionRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                for (QueryDocumentSnapshot parentDoc : task.getResult()) {
-                    CollectionReference childCollectionRef = parentCollectionRef
-                            .document(parentDoc.getId())
-                            .collection(childCollection);
-
-                    childCollectionRef.whereEqualTo("recipeId", recipeId)
-                            .get()
-                            .addOnCompleteListener(childTask -> {
-                                if (childTask.isSuccessful()) {
-                                    for (QueryDocumentSnapshot childDoc : childTask.getResult()) {
-                                        batch.delete(childDoc.getReference());
-                                    }
-                                    taskCompletionSource.setResult(null);
-                                } else {
-                                    Log.w(TAG, "Error getting documents: ", childTask.getException());
-                                    taskCompletionSource.setException(childTask.getException());
-                                }
-                            });
-                }
-            } else {
-                Log.w(TAG, "Error getting documents: ", task.getException());
-                taskCompletionSource.setException(task.getException());
-            }
-        });
-
-        return taskCompletionSource.getTask();
-    }
-
+//    private static Task<Void> deleteReferencesToRecipe(@NonNull FirebaseUser currentUser, @NonNull String recipeId, String childCollection, WriteBatch batch) {
+//        CollectionReference recipeLinesCollection = db.collection("users")
+//                .document(currentUser.getUid())
+//                .collection("recipes")
+//                .document(recipeId)
+//                .collection(childCollection);
+//
+//        TaskCompletionSource<Void> taskCompletionSource = new TaskCompletionSource<>();
+//
+//        recipeLinesCollection.get().addOnCompleteListener(task -> {
+//            if (task.isSuccessful()) {
+//                for (QueryDocumentSnapshot document : task.getResult()) {
+//                    batch.delete(document.getReference());
+//                }
+//                taskCompletionSource.setResult(null);
+//            } else {
+//                Log.w(TAG, "Error getting documents: ", task.getException());
+//                taskCompletionSource.setException(task.getException());
+//            }
+//        });
+//
+//        return taskCompletionSource.getTask();
+//    }
     public static void updateRecipe(@NonNull FirebaseUser currentUser, @NonNull Recipe recipe, BooleanCallback callback) {
         DocumentReference recipeRef = db.collection("users")
                 .document(currentUser.getUid())
                 .collection("recipes")
                 .document(recipe.getId());
 
-        recipeRef.set(recipe, SetOptions.merge())
+        Map<String, Object> recipeData = new HashMap<>();
+        recipeData.put("name", recipe.getName());
+        recipeData.put("description", recipe.getDescription());
+
+        recipeRef.set(recipeData, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> {
                     reloadRecipes(currentUser);
                     callback.onCallback(true);
@@ -589,6 +642,7 @@ public class DB {
                     callback.onCallback(false);
                 });
     }
+
 
     public static void getAllRecipeLines(@NonNull FirebaseUser user, @NonNull String recipeId, RecipeLinesCallback callback) {
         CollectionReference recipeLinesCollection = db.collection("users")
@@ -622,24 +676,27 @@ public class DB {
     }
 
 
-    public static void addRecipeLine(@NonNull FirebaseUser currentUser, @NonNull RecipeLine recipeLine, BooleanCallback callback) {
+    public static void addRecipeLine(@NonNull FirebaseUser currentUser, @NonNull String recipeId, @NonNull RecipeLine recipeLine, BooleanCallback callback) {
         CollectionReference recipeLinesCollection = db.collection("users")
                 .document(currentUser.getUid())
                 .collection("recipes")
-                .document(recipeLine.getIdRecipe())
+                .document(recipeId)
                 .collection("recipeLines");
 
         DocumentReference newRecipeLineRef = recipeLinesCollection.document();
+        recipeLine.setId(newRecipeLineRef.getId()); // Set the ID for the recipe line object
 
         Map<String, Object> recipeLineData = new HashMap<>();
-        recipeLineData.put("ingredientId", recipeLine.getIdIngredient());
+        recipeLineData.put("ingredient", db.collection("users")
+                .document(currentUser.getUid())
+                .collection("ingredients")
+                .document(recipeLine.getIdIngredient()));
         recipeLineData.put("quantity", recipeLine.getQuantity());
 
         newRecipeLineRef.set(recipeLineData, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> {
-                    recipeLine.setId(newRecipeLineRef.getId());
                     recipeLineArrayList.add(recipeLine);
-                    reloadRecipeLines(currentUser, recipeLine.getIdRecipe());
+                    reloadRecipeLines(currentUser, recipeId);
                     callback.onCallback(true);
                 })
                 .addOnFailureListener(e -> {
@@ -669,15 +726,27 @@ public class DB {
     }
 
     public static void updateRecipeLine(@NonNull FirebaseUser currentUser, @NonNull RecipeLine recipeLine, BooleanCallback callback) {
-        DocumentReference recipeLineRef = db.collection("users")
-                .document(currentUser.getUid())
-                .collection("recipes")
-                .document(recipeLine.getIdRecipe())
-                .collection("recipeLines")
-                .document(recipeLine.getId());
-
+        DocumentReference recipeLineRef;
+        if(recipeLine.getId().isEmpty()){
+            recipeLineRef = db.collection("users")
+                    .document(currentUser.getUid())
+                    .collection("recipes")
+                    .document(recipeLine.getIdRecipe())
+                    .collection("recipeLines")
+                    .document();
+        }else{
+            recipeLineRef = db.collection("users")
+                    .document(currentUser.getUid())
+                    .collection("recipes")
+                    .document(recipeLine.getIdRecipe())
+                    .collection("recipeLines")
+                    .document(recipeLine.getId());
+        }
         Map<String, Object> recipeLineData = new HashMap<>();
-        recipeLineData.put("ingredientId", recipeLine.getIdIngredient());
+        recipeLineData.put("ingredient", db.collection("users")
+                .document(currentUser.getUid())
+                .collection("ingredients")
+                .document(recipeLine.getIdIngredient()));
         recipeLineData.put("quantity", recipeLine.getQuantity());
 
         recipeLineRef.set(recipeLineData, SetOptions.merge())

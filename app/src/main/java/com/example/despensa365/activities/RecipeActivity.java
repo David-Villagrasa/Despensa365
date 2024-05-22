@@ -104,7 +104,7 @@ public class RecipeActivity extends AppCompatActivity {
     }
 
     private void getListOfRecipes() {
-        DB.getAllRecipes(DB.getCurrentUser(), recipes -> {
+        DB.getAllRecipes(DB.currentUser, recipes -> {
             DB.recipesArrayList = recipes;
             setupRecyclerView();
         });

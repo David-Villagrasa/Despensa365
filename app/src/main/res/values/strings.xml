@@ -110,4 +110,5 @@
     <string name="streetNumberHint">Introduce el número de la calle</string>
 
     <string name="invalidDate">Fecha incorrecta. El formato debe ser dd-MM-yyyy.</string>
+    <string name="mustFill">Campo obligatorio.</string>
 </resources>
