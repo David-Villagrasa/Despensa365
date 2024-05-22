@@ -2,6 +2,7 @@ package com.example.despensa365.db;
 
 import static com.example.despensa365.methods.DateUtils.getNextMonday;
 import static com.example.despensa365.methods.DateUtils.getNextSunday;
+import static com.example.despensa365.methods.Helper.getNormalizedDate;
 
 import com.example.despensa365.enums.Day;
 import com.example.despensa365.enums.IngredientType;
@@ -10,9 +11,11 @@ import com.example.despensa365.objects.PantryLine;
 import com.example.despensa365.objects.PlanLine;
 import com.example.despensa365.objects.Recipe;
 import com.example.despensa365.objects.RecipeLine;
+import com.example.despensa365.objects.WeeklyPlan;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -39,6 +42,7 @@ public class DB {
     public static ArrayList<PantryLine> pantryLinesArrayList = new ArrayList<>();
     public static ArrayList<RecipeLine> recipeLineArrayList = new ArrayList<>();
     public static ArrayList<Recipe> recipesArrayList = new ArrayList<>();
+    public static ArrayList<PlanLine> planLinesArrayList = new ArrayList<>();
     public static FirebaseUser currentUser;
     private static final String TAG = "DB";
     private static FirebaseFirestore db;
@@ -514,7 +518,7 @@ public class DB {
         });
     }
 
-    public static void getAllRecipes(@NonNull FirebaseUser user, RecipeCallback callback) {
+    public static void getAllRecipes(@NonNull FirebaseUser user, RecipesCallback callback) {
 
         CollectionReference recipesCollection = db.collection("users").document(user.getUid()).collection("recipes");
 
@@ -760,23 +764,49 @@ public class DB {
                 });
     }
 
+    public static void getWeeklyPlan(@NonNull FirebaseUser currentUser, WeeklyPlanCallback callback) {
+        CollectionReference weeklyPlanCollection = db.collection("users")
+                .document(currentUser.getUid())
+                .collection("weekPlan");
+
+        weeklyPlanCollection.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                QuerySnapshot querySnapshot = task.getResult();
+                if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                    QueryDocumentSnapshot document = (QueryDocumentSnapshot) querySnapshot.getDocuments().get(0);
+                    String weeklyPlanId = document.getId();
+                    Timestamp startTimestamp = document.getTimestamp("startDate");
+                    Date startDate = getNormalizedDate(startTimestamp.toDate());
+                    Timestamp endTimestamp = document.getTimestamp("endDate");
+                    Date endDate = getNormalizedDate(endTimestamp.toDate());
+                    callback.onCallback(new WeeklyPlan(weeklyPlanId,startDate,endDate,DB.currentUser.getUid()));
+                } else {
+                    Log.d(TAG, "No weekly plan found for user: " + currentUser.getUid());
+                    callback.onCallback(null);
+                }
+            } else {
+                Log.w(TAG, "Error getting weekly plan document", task.getException());
+                callback.onCallback(null);
+            }
+        });
+    }
     public static void addPlanLine(@NonNull FirebaseUser currentUser, @NonNull PlanLine planLine, BooleanCallback callback) {
         CollectionReference planLinesCollection = db.collection("users")
                 .document(currentUser.getUid())
                 .collection("weekPlan")
                 .document(planLine.getPlanId())
-                .collection("planLines");
+                .collection("weekPlanLines");
 
         DocumentReference newPlanLineRef = planLinesCollection.document();
 
         Map<String, Object> planLineData = new HashMap<>();
         planLineData.put("recipeId", planLine.getRecipeId());
-        planLineData.put("day", planLine.getDay().getValue()); // Guardar el valor del enum como entero
+        planLineData.put("day", planLine.getDay().getValue());
 
         newPlanLineRef.set(planLineData, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "PlanLine added successfully with ID: " + newPlanLineRef.getId());
-                    planLine.setId(newPlanLineRef.getId()); // Set the ID of the plan line
+                    planLine.setId(newPlanLineRef.getId());
                     callback.onCallback(true);
                 })
                 .addOnFailureListener(e -> {
@@ -790,7 +820,7 @@ public class DB {
                 .document(currentUser.getUid())
                 .collection("weekPlan")
                 .document(planId)
-                .collection("planLines");
+                .collection("weekPlanLines");
 
         planLinesCollection.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -802,7 +832,10 @@ public class DB {
                         PlanLine planLine = new PlanLine();
                         planLine.setId(document.getId());
                         planLine.setPlanId(planId);
-                        planLine.setRecipeId(document.getString("recipeId"));
+                        DocumentReference recipeRef = document.getDocumentReference("recipe");
+                        if (recipeRef != null) {
+                            planLine.setRecipeId(recipeRef.getId());
+                        }
 
                         int dayValue = document.getLong("day").intValue();
                         planLine.setDay(convertIntToDay(dayValue));
@@ -824,12 +857,13 @@ public class DB {
                 .document(currentUser.getUid())
                 .collection("weekPlan")
                 .document(planLine.getPlanId())
-                .collection("planLines")
-                .document(planLine.getId()); // Use planLine ID for deletion
+                .collection("weekPlanLines")
+                .document(planLine.getId());
 
         planLineRef.delete()
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "PlanLine deleted successfully: " + planLine.getId());
+                    reloadWeekLines(DB.currentUser, planLine.getPlanId());
                     callback.onCallback(true);
                 })
                 .addOnFailureListener(e -> {
@@ -877,6 +911,32 @@ public class DB {
             }
         });
     }
+    public static void reloadWeekLines(@NonNull FirebaseUser user, @NonNull String weekPlanId) {
+        CollectionReference weekLinesCollection = db.collection("users").document(user.getUid()).collection("weekPlan").document(weekPlanId).collection("weekLines");
+
+        weekLinesCollection.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                planLinesArrayList.clear();
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    PlanLine planLine = new PlanLine();
+                    planLine.setId(document.getId());
+                    planLine.setPlanId(weekPlanId);
+                    DocumentReference recipeRef = document.getDocumentReference("recipe");
+                    if (recipeRef != null) {
+                        planLine.setRecipeId(recipeRef.getId());
+                    }
+
+                    int dayValue = document.getLong("day").intValue();
+                    planLine.setDay(convertIntToDay(dayValue));
+
+                    planLinesArrayList.add(planLine);
+                }
+                Log.d(TAG, "Recipes reloaded successfully.");
+            } else {
+                Log.w(TAG, "Error reloading recipes collection.", task.getException());
+            }
+        });
+    }
 
     public static void reloadRecipeLines(@NonNull FirebaseUser user, @NonNull String recipeId) {
         CollectionReference recipeLinesCollection = db.collection("users")
@@ -892,7 +952,7 @@ public class DB {
                     RecipeLine recipeLine = new RecipeLine();
                     recipeLine.setId(document.getId());
                     recipeLine.setIdRecipe(recipeId);
-                    recipeLine.setIdIngredient(document.getString("ingredientId"));
+                    recipeLine.setIdIngredient(document.getString("ingredient"));
                     recipeLine.setQuantity(document.getDouble("quantity"));
                     recipeLineArrayList.add(recipeLine);
                 }
@@ -980,13 +1040,16 @@ public class DB {
     public interface BooleanCallback {
         void onCallback(boolean success);
     }
+    public interface WeeklyPlanCallback {
+        void onCallback(WeeklyPlan weeklyPlan);
+    }
     public interface PantryLinesCallback {
         void onCallback(ArrayList<PantryLine> pantryLines);
     }
     public interface PlanLinesCallback {
         void onCallback(ArrayList<PlanLine> planLines);
     }
-    public interface RecipeCallback {
+    public interface RecipesCallback {
         void onCallback(ArrayList<Recipe> recipes);
     }
     public interface RecipeLinesCallback {

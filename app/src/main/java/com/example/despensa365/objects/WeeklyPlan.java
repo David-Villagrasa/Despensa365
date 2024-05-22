@@ -17,6 +17,13 @@ public class WeeklyPlan {
         this.userId = userId;
         this.lines = lines;
     }
+    public WeeklyPlan(String id, Date startDate, Date endDate, String userId) {
+        this.id = id;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.userId = userId;
+        this.lines = new ArrayList<>();
+    }
 
     public WeeklyPlan() {
     }

@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.despensa365.db.DB;
 import com.example.despensa365.enums.Day;
 import com.example.despensa365.R;
 import com.example.despensa365.adapters.RecipeAdapter;
@@ -38,8 +39,6 @@ public class WeekActivity extends AppCompatActivity {
     private RecyclerView rvRecipesWeek;
     private FloatingActionButton fabAdd;
     private Button btnBackMangWeek, btnDays[];
-    private ArrayList<PlanLine> planLines = new ArrayList<>();
-    private ArrayList<Recipe> allRecipeList = new ArrayList<>();
     private ArrayList<Recipe> currentDayRecipeList = new ArrayList<>();
     public Day day = Day.MONDAY;
     private WeeklyPlan weeklyPlan;
@@ -94,8 +93,8 @@ public class WeekActivity extends AppCompatActivity {
                 if (data != null) {
                     selectedRecipe = (Recipe) data.getSerializableExtra("selectedRecipe");
                     //TODO create a new line of PlanLine on db
-                    allRecipeList.add(selectedRecipe);
-                    planLines.add(new PlanLine("0","0", selectedRecipe.getId(), day));
+//                    allRecipeList.add(selectedRecipe);
+//                    planLines.add(new PlanLine("0","0", selectedRecipe.getId(), day));
                     loadRecipesForDay(day);
                 }
 
@@ -110,20 +109,11 @@ public class WeekActivity extends AppCompatActivity {
     }
 
     private void getPlanLines() {
-        //TODO get the plan from de database
-
+        DB.reloadWeekLines(DB.currentUser,weeklyPlan.getId());
     }
 
     private void loadWeeklyPlan() {
-        //TODO get the plan from de database
-        Calendar calendar = Calendar.getInstance();
-
-        // Suma 7 días a la fecha actual
-        calendar.add(Calendar.DAY_OF_YEAR, 7);
-
-        // Devuelve la nueva fecha
-        Date sevendays = getNormalizedDate(calendar.getTime());
-        weeklyPlan=new WeeklyPlan("", getNormalizedDate(new Date()), sevendays, "", new ArrayList<PlanLine>());
+        DB.getWeeklyPlan(DB.currentUser,(plan -> weeklyPlan = plan));
     }
 
     private void setupRecycler() {
@@ -136,13 +126,13 @@ public class WeekActivity extends AppCompatActivity {
         //TODO: change the color of the other days
         day = selectedDay;
         currentDayRecipeList.clear();
-        List<String> recipeIdsForDay = planLines.stream()
+        List<String> recipeIdsForDay = DB.planLinesArrayList.stream()
                 .filter(line -> line.getDay() == selectedDay)
                 .map(PlanLine::getRecipeId)
                 .collect(Collectors.toList());
 
         for (String recipeId : recipeIdsForDay) {
-            for (Recipe recipe : allRecipeList) {
+            for (Recipe recipe : DB.recipesArrayList) {
                 if (recipe.getId().equals(recipeId)) {
                     currentDayRecipeList.add(recipe);
                     break;
@@ -159,10 +149,10 @@ public class WeekActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case ELIMINAR:
-                Recipe recipe = currentDayRecipeList.get(posItem);
-                allRecipeList.removeIf(r -> r.getId() == recipe.getId());
-                planLines.removeIf(line -> line.getRecipeId() == recipe.getId() && line.getDay() == day);
-                loadRecipesForDay(day);
+//                Recipe recipe = currentDayRecipeList.get(posItem);
+//                allRecipeList.removeIf(r -> r.getId() == recipe.getId());
+//                planLines.removeIf(line -> line.getRecipeId() == recipe.getId() && line.getDay() == day);
+//                loadRecipesForDay(day);
 
                 recipeAdapter.notifyDataSetChanged();
                 break;
