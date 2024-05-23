@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 
 import com.example.despensa365.activities.LoginActivity;
 import com.example.despensa365.activities.PantryActivity;
@@ -19,10 +20,12 @@ import com.example.despensa365.activities.RegisterPantryActivity;
 import com.example.despensa365.activities.ToBuyActivity;
 import com.example.despensa365.activities.WeekActivity;
 import com.example.despensa365.db.DB;
+import com.example.despensa365.dialogs.ToBuyTitleDialogFragment;
+import com.example.despensa365.objects.ToBuy;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ToBuyTitleDialogFragment.ToBuyTitleDialogListener{
     public FirebaseAuth firebaseAuth;
     Button btnLogin, btnRegister, btnLogout, btnManWeek, btnManRec, btnManPantry, btnManToBuy;
     TextView tvWelcome;
@@ -33,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //TODO: Fix bcs the init and the week and those things doesn't need to happen everytime
         DB.init();
 
         btnLogin = findViewById(R.id.btnLogIn);
@@ -60,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         });
         pantryLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == RESULT_OK) {
-                Toast.makeText(this, "Pantry created successfully", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.createdSuccessfullyPantry, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(MainActivity.this, PantryActivity.class);
                 customLauncher.launch(intent);
             }
@@ -123,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void clickPantry(View v) {
         if (firebaseAuth.getCurrentUser() != null) {
-            DB.checkPantryExists(firebaseAuth.getCurrentUser(), exists -> {
+            DB.checkPantryExists(DB.currentUser, exists -> {
                 if (exists) {
                     Intent intent = new Intent(MainActivity.this, PantryActivity.class);
                     customLauncher.launch(intent);
@@ -139,10 +141,52 @@ public class MainActivity extends AppCompatActivity {
 
     public void clickToBuy(View v) {
         if (firebaseAuth.getCurrentUser() != null) {
-            Intent intent = new Intent(MainActivity.this, ToBuyActivity.class);
-            customLauncher.launch(intent);
+            DB.checkToBuyExists(DB.currentUser,exists ->{
+                if (!exists) {
+                    showToBuyTitleDialog();
+                } else {
+                    Intent intent = new Intent(MainActivity.this, ToBuyActivity.class);
+                    customLauncher.launch(intent);
+                }
+            });
         } else {
             Toast.makeText(this, R.string.hintMainActivity, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void showToBuyTitleDialog() {
+        ToBuyTitleDialogFragment dialog = new ToBuyTitleDialogFragment();
+        dialog.setListener(this);
+        dialog.show(getSupportFragmentManager(), "ToBuyTitleDialogFragment");
+    }
+
+    @Override
+    public void onDialogPositiveClick(String title) {
+        if (!title.isEmpty()) {
+            createNewToBuyList(title);
+        } else {
+            Toast.makeText(this, R.string.fillTitleToBuy, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    @Override
+    public void onDialogNegativeClick(ToBuyTitleDialogFragment dialog) {
+        dialog.dismiss();
+    }
+
+    private void createNewToBuyList(String title) {
+        ToBuy newToBuy = new ToBuy();
+        newToBuy.setTitle(title);
+        newToBuy.setUserId(DB.currentUser.getUid());
+
+        DB.addToBuy(DB.currentUser,newToBuy, success -> {
+            if (success) {
+                Intent intent = new Intent(MainActivity.this, ToBuyActivity.class);
+                customLauncher.launch(intent);
+            } else {
+                Toast.makeText(MainActivity.this, R.string.failToCreateToBuy, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

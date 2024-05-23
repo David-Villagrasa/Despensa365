@@ -14,6 +14,14 @@ public class ToBuy {
         this.title = title;
         this.lines = lines;
     }
+    public ToBuy(String id, String userId, String title) {
+        this.id = id;
+        this.userId = userId;
+        this.title = title;
+        this.lines = new ArrayList<>();
+    }
+    public ToBuy() {
+    }
 
     public String getId() {
         return id;

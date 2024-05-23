@@ -31,11 +31,10 @@ import java.util.stream.Collectors;
 
 public class WeekActivity extends AppCompatActivity {
     final int ELIMINAR = 300;
-
     private RecyclerView rvRecipesWeek;
     private FloatingActionButton fabAdd;
     private Button btnBackMangWeek, btnDays[];
-    private ArrayList<Recipe> currentDayRecipeList = new ArrayList<>();
+    private ArrayList<PlanLine> currentDayPlanLineList = new ArrayList<>();
     public Day day = Day.MONDAY;
     private WeeklyPlan weeklyPlan;
     private RecipeAdapter recipeAdapter;
@@ -85,16 +84,19 @@ public class WeekActivity extends AppCompatActivity {
             if (data != null) {
                 selectedRecipe = (Recipe) data.getSerializableExtra("selectedRecipe");
                 //TODO create a new line of PlanLine on db
-//                    allRecipeList.add(selectedRecipe);
-//                    planLines.add(new PlanLine("0","0", selectedRecipe.getId(), day));
-                loadRecipesForDay(day);
+                PlanLine planLine = new PlanLine("",weeklyPlan.getId(), selectedRecipe.getId(),day);
+                DB.addPlanLine(DB.currentUser,planLine,(v)->{
+                    if(v){
+                        loadRecipesForDay(day);
+                        recipeAdapter.notifyDataSetChanged();
+                    }
+                });
             }
 
         });
-        loadWeeklyPlan(()->{});
-        loadRecipesForDay(convertIntToDay(getDateOfWeekToday()));
+        loadWeeklyPlan(()->{onClick(convertIntToDay(getDateOfWeekToday()));});
         setupRecycler();
-
+        loadRecipesForDay(convertIntToDay(getDateOfWeekToday()));
     }
 
     private void onClick(Day day) {
@@ -114,28 +116,26 @@ public class WeekActivity extends AppCompatActivity {
     }
 
     private void setupRecycler() {
-        recipeAdapter = new RecipeAdapter(this, currentDayRecipeList, false, true);
+        recipeAdapter = new RecipeAdapter(this, new ArrayList<>(), false, true); // Cambiado a lista vacía
         rvRecipesWeek.setLayoutManager(new LinearLayoutManager(this));
         rvRecipesWeek.setAdapter(recipeAdapter);
     }
 
     private void loadRecipesForDay(Day selectedDay) {
-        //TODO: change the color of the other days
         day = selectedDay;
-        currentDayRecipeList.clear();
-        List<String> recipeIdsForDay = DB.planLinesArrayList.stream()
+        currentDayPlanLineList.clear();
+        List<PlanLine> planLinesForDay = DB.planLinesArrayList.stream()
                 .filter(line -> line.getDay() == selectedDay)
-                .map(PlanLine::getRecipeId)
+                .collect(Collectors.toList());
+        currentDayPlanLineList.addAll(planLinesForDay);
+
+        List<Recipe> recipesForDay = currentDayPlanLineList.stream()
+                .map(planLine -> DB.recipesArrayList.stream()
+                        .filter(recipe -> recipe.getId().equals(planLine.getRecipeId()))
+                        .findFirst().orElse(null))
                 .collect(Collectors.toList());
 
-        for (String recipeId : recipeIdsForDay) {
-            for (Recipe recipe : DB.recipesArrayList) {
-                if (recipe.getId().equals(recipeId)) {
-                    currentDayRecipeList.add(recipe);
-                    break;
-                }
-            }
-        }
+        recipeAdapter.updateList(new ArrayList<>(recipesForDay));
     }
 
     @Override
@@ -144,12 +144,12 @@ public class WeekActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case ELIMINAR:
-//                Recipe recipe = currentDayRecipeList.get(posItem);
-//                allRecipeList.removeIf(r -> r.getId() == recipe.getId());
-//                planLines.removeIf(line -> line.getRecipeId() == recipe.getId() && line.getDay() == day);
-//                loadRecipesForDay(day);
-
-                recipeAdapter.notifyDataSetChanged();
+                PlanLine planLineToRemove = currentDayPlanLineList.get(posItem);
+                DB.deletePlanLine(DB.currentUser, planLineToRemove, success -> {
+                    if (success) {
+                        onClick(day);
+                    }
+                });
                 break;
         }
         return super.onContextItemSelected(item);

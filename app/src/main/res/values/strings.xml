@@ -111,4 +111,10 @@
 
     <string name="invalidDate">Fecha incorrecta. El formato debe ser dd-MM-yyyy.</string>
     <string name="mustFill">Campo obligatorio.</string>
+    <string name="fillTitleToBuy">El Titulo no puede estar vacío</string>
+    <string name="createdSuccessfullyPantry">Despensa creada satisfactoriamente</string>
+    <string name="failToCreateToBuy">Fallo creando la lista de la compra</string>
+    <string name="toBuyDialogTitle">Introduce el título de la lista de la compra</string>
+    <string name="hintTitle">Título</string>
+    <string name="invalidData">Has introducido valores no válidos</string>
 </resources>

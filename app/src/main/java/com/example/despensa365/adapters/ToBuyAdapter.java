@@ -61,11 +61,8 @@ public class ToBuyAdapter extends RecyclerView.Adapter<ToBuyAdapter.ToBuyViewHol
 
         holder.ingredientName.setText(ingredient.getName());
         holder.ingredientWeight.setText(String.format("%s", toBuyLine.getQuantity()));
-        if (ingredient.getType().getUnit().equals("L")) {
-            holder.ingredientWeight.append("L");
-        } else {
-            holder.ingredientWeight.append("gr");
-        }
+        holder.ingredientWeight.append(ingredient.getType().getUnit());
+
     }
     public void updateList(ArrayList<ToBuyLine> newList) {
         toBuyLines = newList;

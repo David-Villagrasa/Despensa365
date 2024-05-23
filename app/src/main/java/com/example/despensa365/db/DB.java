@@ -10,6 +10,8 @@ import com.example.despensa365.objects.PantryLine;
 import com.example.despensa365.objects.PlanLine;
 import com.example.despensa365.objects.Recipe;
 import com.example.despensa365.objects.RecipeLine;
+import com.example.despensa365.objects.ToBuy;
+import com.example.despensa365.objects.ToBuyLine;
 import com.example.despensa365.objects.WeeklyPlan;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
@@ -42,6 +44,7 @@ public class DB {
     public static ArrayList<RecipeLine> recipeLineArrayList = new ArrayList<>();
     public static ArrayList<Recipe> recipesArrayList = new ArrayList<>();
     public static ArrayList<PlanLine> planLinesArrayList = new ArrayList<>();
+    public static ArrayList<ToBuyLine> toBuyLinesArrayList = new ArrayList<>();
     public static FirebaseUser currentUser;
     private static final String TAG = "DB";
     private static FirebaseFirestore db;
@@ -68,7 +71,6 @@ public class DB {
         CollectionReference ingredientsCollection = db.collection("users").document(user.getUid()).collection("ingredients");
         return ingredientsCollection.getId();
     }
-
 
     public static void setupDateWeekPlan(@NonNull FirebaseUser user) {
         CollectionReference weekPlanCollection = db.collection("users").document(user.getUid()).collection("weekPlan");
@@ -224,8 +226,8 @@ public class DB {
         WriteBatch batch = db.batch();
         ArrayList<Task<Void>> tasks = new ArrayList<>();
 
-        tasks.add(deleteReferencesInCollection(currentUser, ingredient, "pantries", "pantryLines", batch));
-        tasks.add(deleteRecipeLineReferences(currentUser, ingredient, batch));
+        tasks.add(deleteReferencesOfIngredientsInCollection(currentUser, ingredient, "pantries", "pantryLines", batch));
+        tasks.add(deleteIngredientFromRecipeLineReferences(currentUser, ingredient, batch));
 
         Tasks.whenAllComplete(tasks)
                 .addOnCompleteListener(task -> {
@@ -256,8 +258,7 @@ public class DB {
                 });
     }
 
-
-    private static Task<Void> deleteReferencesInCollection(@NonNull FirebaseUser currentUser, @NonNull Ingredient ingredient, String parentCollection, String childCollection, WriteBatch batch) {
+    private static Task<Void> deleteReferencesOfIngredientsInCollection(@NonNull FirebaseUser currentUser, @NonNull Ingredient ingredient, String parentCollection, String childCollection, WriteBatch batch) {
         CollectionReference parentCollectionRef = db.collection("users")
                 .document(currentUser.getUid())
                 .collection(parentCollection);
@@ -297,7 +298,7 @@ public class DB {
         return taskCompletionSource.getTask();
     }
 
-    private static Task<Void> deleteRecipeLineReferences(@NonNull FirebaseUser currentUser, @NonNull Ingredient ingredient, WriteBatch batch) {
+    private static Task<Void> deleteIngredientFromRecipeLineReferences(@NonNull FirebaseUser currentUser, @NonNull Ingredient ingredient, WriteBatch batch) {
         CollectionReference recipesCollectionRef = db.collection("users")
                 .document(currentUser.getUid())
                 .collection("recipes");
@@ -351,8 +352,6 @@ public class DB {
         return taskCompletionSource.getTask();
     }
 
-
-
     public static void addPantryLine(@NonNull FirebaseUser currentUser, @NonNull PantryLine pantryLine, BooleanCallback callback) {
         CollectionReference pantryLinesCollection = db.collection("users")
                 .document(currentUser.getUid())
@@ -383,6 +382,7 @@ public class DB {
                     callback.onCallback(false);
                 });
     }
+
     public static void getPantryId(@NonNull FirebaseUser currentUser, StringCallback callback) {
         CollectionReference pantryCollection = db.collection("users")
                 .document(currentUser.getUid())
@@ -455,7 +455,6 @@ public class DB {
         });
     }
 
-
     public static void deletePantryLine(@NonNull FirebaseUser currentUser, @NonNull PantryLine pantryLine, BooleanCallback callback) {
         if (currentUser != null) {
             DocumentReference pantryLineRef = db.collection("users")
@@ -481,6 +480,7 @@ public class DB {
             callback.onCallback(false);
         }
     }
+
     public static void deleteExpiredPantryLines(@NonNull FirebaseUser currentUser, @NonNull String pantryId, BooleanCallback callback) {
         CollectionReference pantryLinesCollection = db.collection("users")
                 .document(currentUser.getUid())
@@ -561,7 +561,6 @@ public class DB {
                 });
     }
 
-
     public static void deleteRecipe(@NonNull FirebaseUser currentUser, @NonNull Recipe recipe, BooleanCallback callback) {
         DocumentReference recipeRef = db.collection("users")
                 .document(currentUser.getUid())
@@ -571,7 +570,8 @@ public class DB {
         WriteBatch batch = db.batch();
         ArrayList<Task<Void>> tasks = new ArrayList<>();
 
-        //tasks.add(deleteReferencesToRecipe(currentUser, recipe.getId(), "weekPlan", batch));
+        tasks.add(deleteRecipeLineReferences(currentUser, recipe, batch));
+        tasks.add(deleteWeekPlanLineReferences(currentUser, recipe, batch));
 
         Tasks.whenAllComplete(tasks)
                 .addOnCompleteListener(task -> {
@@ -602,29 +602,81 @@ public class DB {
                 });
     }
 
-//    private static Task<Void> deleteReferencesToRecipe(@NonNull FirebaseUser currentUser, @NonNull String recipeId, String childCollection, WriteBatch batch) {
-//        CollectionReference recipeLinesCollection = db.collection("users")
-//                .document(currentUser.getUid())
-//                .collection("recipes")
-//                .document(recipeId)
-//                .collection(childCollection);
-//
-//        TaskCompletionSource<Void> taskCompletionSource = new TaskCompletionSource<>();
-//
-//        recipeLinesCollection.get().addOnCompleteListener(task -> {
-//            if (task.isSuccessful()) {
-//                for (QueryDocumentSnapshot document : task.getResult()) {
-//                    batch.delete(document.getReference());
-//                }
-//                taskCompletionSource.setResult(null);
-//            } else {
-//                Log.w(TAG, "Error getting documents: ", task.getException());
-//                taskCompletionSource.setException(task.getException());
-//            }
-//        });
-//
-//        return taskCompletionSource.getTask();
-//    }
+    private static Task<Void> deleteRecipeLineReferences(@NonNull FirebaseUser currentUser, @NonNull Recipe recipe, WriteBatch batch) {
+        CollectionReference recipeLinesCollectionRef = db.collection("users")
+                .document(currentUser.getUid())
+                .collection("recipes")
+                .document(recipe.getId())
+                .collection("recipeLines");
+
+        TaskCompletionSource<Void> taskCompletionSource = new TaskCompletionSource<>();
+
+        recipeLinesCollectionRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    batch.delete(document.getReference());
+                }
+                taskCompletionSource.setResult(null);
+            } else {
+                Log.w(TAG, "Error getting recipe lines: ", task.getException());
+                taskCompletionSource.setException(task.getException());
+            }
+        });
+
+        return taskCompletionSource.getTask();
+    }
+
+    private static Task<Void> deleteWeekPlanLineReferences(@NonNull FirebaseUser currentUser, @NonNull Recipe recipe, WriteBatch batch) {
+        CollectionReference weekPlansCollectionRef = db.collection("users")
+                .document(currentUser.getUid())
+                .collection("weekPlan");
+
+        TaskCompletionSource<Void> taskCompletionSource = new TaskCompletionSource<>();
+
+        weekPlansCollectionRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                int[] pendingTasksCount = {0};
+                int[] completedTasksCount = {0};
+
+                for (QueryDocumentSnapshot weekPlanDoc : task.getResult()) {
+                    CollectionReference weekPlanLinesCollectionRef = weekPlansCollectionRef
+                            .document(weekPlanDoc.getId())
+                            .collection("weekPlanLines");
+
+                    pendingTasksCount[0]++;
+                    weekPlanLinesCollectionRef.whereEqualTo("recipe", recipe.getId())
+                            .get()
+                            .addOnCompleteListener(lineTask -> {
+                                if (lineTask.isSuccessful()) {
+                                    for (QueryDocumentSnapshot lineDoc : lineTask.getResult()) {
+                                        batch.delete(lineDoc.getReference());
+                                    }
+                                } else {
+                                    Log.w(TAG, "Error getting week plan lines: ", lineTask.getException());
+                                }
+
+                                synchronized (completedTasksCount) {
+                                    completedTasksCount[0]++;
+                                    if (completedTasksCount[0] == pendingTasksCount[0]) {
+                                        taskCompletionSource.setResult(null);
+                                    }
+                                }
+                            });
+                }
+
+                if (pendingTasksCount[0] == 0) {
+                    taskCompletionSource.setResult(null);
+                }
+            } else {
+                Log.w(TAG, "Error getting week plans: ", task.getException());
+                taskCompletionSource.setException(task.getException());
+            }
+        });
+
+        return taskCompletionSource.getTask();
+    }
+
+
     public static void updateRecipe(@NonNull FirebaseUser currentUser, @NonNull Recipe recipe, BooleanCallback callback) {
         DocumentReference recipeRef = db.collection("users")
                 .document(currentUser.getUid())
@@ -645,7 +697,6 @@ public class DB {
                     callback.onCallback(false);
                 });
     }
-
 
     public static void getAllRecipeLines(@NonNull FirebaseUser user, @NonNull String recipeId, RecipeLinesCallback callback) {
         CollectionReference recipeLinesCollection = db.collection("users")
@@ -678,7 +729,6 @@ public class DB {
         });
     }
 
-
     public static void addRecipeLine(@NonNull FirebaseUser currentUser, @NonNull String recipeId, @NonNull RecipeLine recipeLine, BooleanCallback callback) {
         CollectionReference recipeLinesCollection = db.collection("users")
                 .document(currentUser.getUid())
@@ -698,6 +748,7 @@ public class DB {
 
         newRecipeLineRef.set(recipeLineData, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "RecipeLine added successfully with ID: " + newRecipeLineRef.getId());
                     recipeLineArrayList.add(recipeLine);
                     reloadRecipeLines(currentUser, recipeId);
                     callback.onCallback(true);
@@ -730,14 +781,14 @@ public class DB {
 
     public static void updateRecipeLine(@NonNull FirebaseUser currentUser, @NonNull RecipeLine recipeLine, BooleanCallback callback) {
         DocumentReference recipeLineRef;
-        if(recipeLine.getId().isEmpty()){
+        if (recipeLine.getId().isEmpty()) {
             recipeLineRef = db.collection("users")
                     .document(currentUser.getUid())
                     .collection("recipes")
                     .document(recipeLine.getIdRecipe())
                     .collection("recipeLines")
                     .document();
-        }else{
+        } else {
             recipeLineRef = db.collection("users")
                     .document(currentUser.getUid())
                     .collection("recipes")
@@ -778,7 +829,7 @@ public class DB {
                     Date startDate = normalizeDate(startTimestamp.toDate());
                     Timestamp endTimestamp = document.getTimestamp("endDate");
                     Date endDate = normalizeDate(endTimestamp.toDate());
-                    callback.onCallback(new WeeklyPlan(weeklyPlanId,startDate,endDate,DB.currentUser.getUid()));
+                    callback.onCallback(new WeeklyPlan(weeklyPlanId, startDate, endDate, DB.currentUser.getUid()));
                 } else {
                     Log.d(TAG, "No weekly plan found for user: " + currentUser.getUid());
                     callback.onCallback(null);
@@ -789,6 +840,7 @@ public class DB {
             }
         });
     }
+
     public static void addPlanLine(@NonNull FirebaseUser currentUser, @NonNull PlanLine planLine, BooleanCallback callback) {
         CollectionReference planLinesCollection = db.collection("users")
                 .document(currentUser.getUid())
@@ -799,13 +851,19 @@ public class DB {
         DocumentReference newPlanLineRef = planLinesCollection.document();
 
         Map<String, Object> planLineData = new HashMap<>();
-        planLineData.put("recipeId", planLine.getRecipeId());
+        planLineData.put("recipe", db.collection("users")
+                .document(currentUser.getUid())
+                .collection("recipes")
+                .document(planLine.getRecipeId()));
         planLineData.put("day", planLine.getDay().getValue());
 
         newPlanLineRef.set(planLineData, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "PlanLine added successfully with ID: " + newPlanLineRef.getId());
                     planLine.setId(newPlanLineRef.getId());
+                    planLinesArrayList.add(planLine);
+                    reloadWeekLines(DB.currentUser, planLine.getPlanId(), () -> {
+                    });
                     callback.onCallback(true);
                 })
                 .addOnFailureListener(e -> {
@@ -862,7 +920,8 @@ public class DB {
         planLineRef.delete()
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "PlanLine deleted successfully: " + planLine.getId());
-                    reloadWeekLines(DB.currentUser, planLine.getPlanId(),()->{});
+                    reloadWeekLines(DB.currentUser, planLine.getPlanId(), () -> {
+                    });
                     callback.onCallback(true);
                 })
                 .addOnFailureListener(e -> {
@@ -871,6 +930,117 @@ public class DB {
                 });
     }
 
+    public static void addToBuy(@NonNull FirebaseUser currentUser, @NonNull ToBuy toBuy, BooleanCallback callback) {
+        CollectionReference toBuyCollection = db.collection("users")
+                .document(currentUser.getUid())
+                .collection("toBuy");
+
+        DocumentReference toBuyRef = toBuyCollection.document();
+        Map<String, Object> toBuyData = new HashMap<>();
+        toBuyData.put("title", toBuy.getTitle());
+
+        toBuyRef.set(toBuyData, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "ToBuy added successfully with ID: " + toBuyRef.getId());
+                    callback.onCallback(true);
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error adding ToBuy", e);
+                    callback.onCallback(false);
+                });
+    }
+
+    public static void getToBuy(@NonNull FirebaseUser currentUser, ToBuyCallback callback) {
+        CollectionReference toBuyCollection = db.collection("users")
+                .document(currentUser.getUid())
+                .collection("toBuy");
+
+        toBuyCollection.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                QuerySnapshot querySnapshot = task.getResult();
+                if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                    QueryDocumentSnapshot document = (QueryDocumentSnapshot) querySnapshot.getDocuments().get(0);
+                    String toBuyId = document.getId();
+                    String title = document.getString("title");
+                    callback.onCallback(new ToBuy(toBuyId, currentUser.getUid(), title));
+                } else {
+                    Log.d(TAG, "No weekly plan found for user: " + currentUser.getUid());
+                    callback.onCallback(null);
+                }
+            } else {
+                Log.w(TAG, "Error getting weekly plan document", task.getException());
+                callback.onCallback(null);
+            }
+        });
+    }
+
+    public static void checkToBuyExists(@NonNull FirebaseUser currentUser, BooleanCallback callback) {
+        CollectionReference pantryCollection = db.collection("users")
+                .document(currentUser.getUid())
+                .collection("toBuy");
+
+        pantryCollection.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                QuerySnapshot querySnapshot = task.getResult();
+                if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                    callback.onCallback(true);
+                } else {
+
+                    callback.onCallback(false);
+                }
+            } else {
+                Log.w(TAG, "Error checking pantry existence", task.getException());
+                callback.onCallback(false);
+            }
+        });
+    }
+
+    public static void addToBuyLine(@NonNull FirebaseUser currentUser, @NonNull ToBuyLine toBuyLine, BooleanCallback callback) {
+        CollectionReference toBuyLinesCollection = db.collection("users")
+                .document(currentUser.getUid())
+                .collection("toBuy")
+                .document(toBuyLine.getToBuyId())
+                .collection("toBuyLines");
+
+        DocumentReference toBuyLineRef = toBuyLinesCollection.document();
+
+        Map<String, Object> toBuyLineData = new HashMap<>();
+        toBuyLineData.put("ingredient", db.collection("users")
+                .document(currentUser.getUid())
+                .collection("ingredients")
+                .document(toBuyLine.getIngredientId()));
+        toBuyLineData.put("quantity", toBuyLine.getQuantity());
+
+        toBuyLineRef.set(toBuyLineData, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "ToBuyLine added successfully with ID: " + toBuyLineRef.getId());
+                    callback.onCallback(true);
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error adding ToBuy", e);
+                    callback.onCallback(false);
+                });
+    }
+
+    public static void deleteToBuyLine(@NonNull FirebaseUser currentUser, @NonNull String toBuyId, @NonNull String toBuyLineId, BooleanCallback callback) {
+        DocumentReference toBuyLineRef = db.collection("users")
+                .document(currentUser.getUid())
+                .collection("toBuy")
+                .document(toBuyId)
+                .collection("toBuyLines")
+                .document(toBuyLineId);
+
+        toBuyLineRef.delete()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "ToBuyLine deleted successfully: " + toBuyLineId);
+                    toBuyLinesArrayList.removeIf(line -> line.getId().equals(toBuyLineId));
+                    reloadToBuyLines(currentUser, toBuyId, () -> callback.onCallback(true));
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error deleting ToBuyLine", e);
+                    callback.onCallback(false);
+                });
+    }
 
     public static void reloadRecipes(@NonNull FirebaseUser user) {
         CollectionReference recipesCollection = db.collection("users")
@@ -883,7 +1053,7 @@ public class DB {
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     String name = document.getString("name");
                     String description = document.getString("description");
-                    Recipe recipe = new Recipe(document.getId(),name, description,DB.currentUser.getUid());
+                    Recipe recipe = new Recipe(document.getId(), name, description, DB.currentUser.getUid());
                     recipesArrayList.add(recipe);
                     ;
                 }
@@ -893,6 +1063,7 @@ public class DB {
             }
         });
     }
+
     public static void reloadWeekLines(@NonNull FirebaseUser user, @NonNull String weekPlanId, Runnable callback) {
         CollectionReference weekLinesCollection = db.collection("users").document(user.getUid()).collection("weekPlan").document(weekPlanId).collection("weekPlanLines");
 
@@ -936,7 +1107,10 @@ public class DB {
                     RecipeLine recipeLine = new RecipeLine();
                     recipeLine.setId(document.getId());
                     recipeLine.setIdRecipe(recipeId);
-                    recipeLine.setIdIngredient(document.getString("ingredient"));
+                    DocumentReference ingredientRef = document.getDocumentReference("ingredient");
+                    if (ingredientRef != null) {
+                        recipeLine.setIdIngredient(ingredientRef.getId());
+                    }
                     recipeLine.setQuantity(document.getDouble("quantity"));
                     recipeLineArrayList.add(recipeLine);
                 }
@@ -1018,24 +1192,158 @@ public class DB {
         });
     }
 
+    public static void reloadToBuyLines(@NonNull FirebaseUser user, @NonNull String toBuyId, Runnable callback) {
+        CollectionReference toBuyLinesCollection = db.collection("users")
+                .document(user.getUid())
+                .collection("toBuy")
+                .document(toBuyId)
+                .collection("toBuyLines");
+
+        toBuyLinesCollection.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                toBuyLinesArrayList.clear();
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    ToBuyLine toBuyLine = new ToBuyLine();
+                    toBuyLine.setId(document.getId());
+                    toBuyLine.setToBuyId(toBuyId);
+
+                    DocumentReference ingredientRef = document.getDocumentReference("ingredient");
+                    if (ingredientRef != null) {
+                        toBuyLine.setIngredientId(ingredientRef.getId());
+                    }
+
+                    Double ingredientQuantity = document.getDouble("quantity");
+                    if (ingredientQuantity != null) {
+                        toBuyLine.setQuantity(ingredientQuantity);
+                    } else {
+                        toBuyLine.setQuantity(0);
+                    }
+                    toBuyLinesArrayList.add(toBuyLine);
+                }
+                Log.d(TAG, "ToBuy lines reloaded successfully.");
+                callback.run();
+            } else {
+                Log.w(TAG, "Error reloading toBuy lines collection.", task.getException());
+            }
+        });
+    }
+
+    public static void calculateAndCreateToBuyList(@NonNull FirebaseUser currentUser, String toBuyId, BooleanCallback callback) {
+        // Get the plan
+        getWeeklyPlan(currentUser, weeklyPlan -> {
+            if (weeklyPlan == null) {
+                callback.onCallback(false);
+                return;
+            }
+            // Get plan lines
+            getAllPlanLines(currentUser, weeklyPlan.getId(), planLines -> {
+                Map<String, Double> ingredientsNeeded = new HashMap<>();
+
+                // Get recipes & calculate ingredients needed
+                for (PlanLine planLine : planLines) {
+                    String recipeId = planLine.getRecipeId();
+                    getAllRecipeLines(currentUser, recipeId, recipeLines -> {
+                        for (RecipeLine recipeLine : recipeLines) {
+                            String ingredientId = recipeLine.getIdIngredient();
+                            double quantity = recipeLine.getQuantity();
+                            ingredientsNeeded.put(ingredientId, ingredientsNeeded.getOrDefault(ingredientId, 0.0) + quantity);
+                        }
+                    });
+                }
+
+                // Get PantryLines
+                getPantryId(currentUser, pantryId -> {
+                    getAllPantryLines(currentUser, pantryId, pantryLines -> {
+                        Map<String, Double> ingredientsInPantry = new HashMap<>();
+                        Date today = new Date();
+                        for (PantryLine pantryLine : pantryLines) {
+                            if (pantryLine.getExpirationDate().after(today)) {
+                                String ingredientId = pantryLine.getIngredientId();
+                                double quantity = pantryLine.getIngredientQuantity();
+                                ingredientsInPantry.put(ingredientId, ingredientsInPantry.getOrDefault(ingredientId, 0.0) + quantity);
+                            }
+                        }
+
+                        // Calculate and create ToBuyLines
+                        ArrayList<ToBuyLine> toBuyLines = new ArrayList<>();
+                        for (Map.Entry<String, Double> entry : ingredientsNeeded.entrySet()) {
+                            String ingredientId = entry.getKey();
+                            double quantityNeeded = entry.getValue();
+                            double quantityInPantry = ingredientsInPantry.getOrDefault(ingredientId, 0.0);
+                            double quantityToBuy = quantityNeeded - quantityInPantry;
+
+                            if (quantityToBuy > 0) {
+                                ToBuyLine toBuyLine = new ToBuyLine();
+                                toBuyLine.setIngredientId(ingredientId);
+                                toBuyLine.setQuantity(quantityToBuy);
+                                toBuyLine.setToBuyId(toBuyId);
+                                toBuyLines.add(toBuyLine);
+                            }
+                        }
+
+                        // Set ToBuyLines in db
+                        WriteBatch batch = db.batch();
+                        for (ToBuyLine toBuyLine : toBuyLines) {
+                            DocumentReference toBuyLineRef = db.collection("users")
+                                    .document(currentUser.getUid())
+                                    .collection("toBuy")
+                                    .document(toBuyId)
+                                    .collection("toBuyLines")
+                                    .document();
+                            toBuyLine.setId(toBuyLineRef.getId());
+
+                            Map<String, Object> toBuyLineData = new HashMap<>();
+                            toBuyLineData.put("ingredient", db.collection("users")
+                                    .document(currentUser.getUid())
+                                    .collection("ingredients")
+                                    .document(toBuyLine.getIngredientId()));
+                            toBuyLineData.put("quantity", toBuyLine.getQuantity());
+
+                            batch.set(toBuyLineRef, toBuyLineData, SetOptions.merge());
+                        }
+
+                        batch.commit().addOnSuccessListener(aVoid -> {
+                            Log.d(TAG, "ToBuy lines added successfully.");
+                            reloadToBuyLines(currentUser, toBuyId, () -> callback.onCallback(true));
+                        }).addOnFailureListener(e -> {
+                            Log.w(TAG, "Error adding ToBuy lines", e);
+                            callback.onCallback(false);
+                        });
+                    });
+                });
+            });
+        });
+    }
+
+
     public interface StringCallback {
         void onCallback(String str);
     }
+
     public interface BooleanCallback {
         void onCallback(boolean success);
     }
+
     public interface WeeklyPlanCallback {
         void onCallback(WeeklyPlan weeklyPlan);
     }
+
+    public interface ToBuyCallback {
+        void onCallback(ToBuy toBuy);
+    }
+
     public interface PantryLinesCallback {
         void onCallback(ArrayList<PantryLine> pantryLines);
     }
+
     public interface PlanLinesCallback {
         void onCallback(ArrayList<PlanLine> planLines);
     }
+
     public interface RecipesCallback {
         void onCallback(ArrayList<Recipe> recipes);
     }
+
     public interface RecipeLinesCallback {
         void onCallback(ArrayList<RecipeLine> recipeLines);
     }

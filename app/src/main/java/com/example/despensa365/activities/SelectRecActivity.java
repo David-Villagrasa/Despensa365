@@ -23,7 +23,6 @@ public class SelectRecActivity extends AppCompatActivity {
     private RecyclerView recycler;
     private EditText etSearch;
     private RecipeAdapter recipeAdapter;
-    private ArrayList<Recipe> listRecipes = new ArrayList<>();
     private Button btnBack, btnSearch;
 
     @Override
@@ -50,7 +49,7 @@ public class SelectRecActivity extends AppCompatActivity {
 
     public void recipeSelected() {
         int pos = recipeAdapter.selectedPosition;
-        Recipe recipe = listRecipes.get(pos);
+        Recipe recipe = DB.recipesArrayList.get(pos);
 
         Intent intent = new Intent();
         intent.putExtra("selectedRecipe", recipe);

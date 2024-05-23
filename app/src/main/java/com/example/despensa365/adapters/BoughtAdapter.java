@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.despensa365.MainActivity;
 import com.example.despensa365.R;
 import com.example.despensa365.db.DB;
+import com.example.despensa365.enums.IngredientType;
 import com.example.despensa365.objects.Ingredient;
 import com.example.despensa365.objects.ToBuyLine;
 
@@ -48,17 +49,27 @@ public class BoughtAdapter extends RecyclerView.Adapter<BoughtAdapter.BoughtView
     public void onBindViewHolder(@NonNull BoughtViewHolder holder, int position) {
         ToBuyLine toBuyLine = toBuyLines.get(position);
         Ingredient ingredient = DB.getIngredientById(toBuyLine.getIngredientId());
-        holder.tvNameIngredient.setText("");
-        holder.etNameIng.setText(ingredient.getName());
-        holder.etNameIng.setEnabled(false);
-        holder.etQuantityIngr.setText("0");
+        if (ingredient != null) {
+            holder.tvNameIngredient.setText("");
+            holder.etNameIng.setText(ingredient.getName());
+            holder.etNameIng.setEnabled(false);
+            holder.etQuantityIngr.setText("0");
 
-        String[] dayStrings = this.customContext.getResources().getStringArray(R.array.days_of_week_full);
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this.customContext, android.R.layout.simple_spinner_item, dayStrings);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        holder.spnTypeIng.setAdapter(adapter);
-        holder.spnTypeIng.setEnabled(false);
+            String unit = ingredient.getType().getUnit();
+            String[] ingredientTypes = {unit};
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this.customContext, android.R.layout.simple_spinner_item, ingredientTypes);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            holder.spnTypeIng.setAdapter(adapter);
+            holder.spnTypeIng.setSelection(0);
+            holder.spnTypeIng.setEnabled(false);
+        }
+    }
+    public ToBuyLine getToBuyLine(int position) {
+        return toBuyLines.get(position);
+    }
+    public void updateList(ArrayList<ToBuyLine> newToBuyLines) {
+        this.toBuyLines = newToBuyLines;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -66,9 +77,9 @@ public class BoughtAdapter extends RecyclerView.Adapter<BoughtAdapter.BoughtView
         return toBuyLines.size();
     }
 
-    public class BoughtViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener{
+    public class BoughtViewHolder extends RecyclerView.ViewHolder{
         TextView tvNameIngredient,tvTypeIng,tvTitleWeight,tvTitleExpDate;
-        EditText etNameIng, etQuantityIngr,etExpDateIngr;
+        public  EditText etNameIng, etQuantityIngr,etExpDateIngr;
         Spinner spnTypeIng;
 
         public BoughtViewHolder(@NonNull View itemView) {
@@ -81,13 +92,6 @@ public class BoughtAdapter extends RecyclerView.Adapter<BoughtAdapter.BoughtView
             etQuantityIngr = itemView.findViewById(R.id.etWeightIngr);
             etExpDateIngr = itemView.findViewById(R.id.etExpDateIngr);
             spnTypeIng = itemView.findViewById(R.id.spinnerTypeIng);
-
-            itemView.setOnCreateContextMenuListener(this);
-        }
-
-        @Override
-        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-
         }
     }
 }

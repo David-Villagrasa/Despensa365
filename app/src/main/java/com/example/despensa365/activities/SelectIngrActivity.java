@@ -86,6 +86,7 @@ public class SelectIngrActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK) {
+            DB.reloadIngredients(DB.currentUser);
             ingredientAdapter.notifyDataSetChanged();
         }
     }
