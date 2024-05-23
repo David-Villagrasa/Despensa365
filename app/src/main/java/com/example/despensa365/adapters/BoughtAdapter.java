@@ -64,13 +64,17 @@ public class BoughtAdapter extends RecyclerView.Adapter<BoughtAdapter.BoughtView
             holder.spnTypeIng.setEnabled(false);
         }
     }
+    public void updateList(ArrayList<ToBuyLine> newToBuyLines) {
+        this.toBuyLines.clear();
+        this.toBuyLines.addAll(newToBuyLines);
+        notifyDataSetChanged();
+    }
+
     public ToBuyLine getToBuyLine(int position) {
         return toBuyLines.get(position);
     }
-    public void updateList(ArrayList<ToBuyLine> newToBuyLines) {
-        this.toBuyLines = newToBuyLines;
-        notifyDataSetChanged();
-    }
+
+
 
     @Override
     public int getItemCount() {

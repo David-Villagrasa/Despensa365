@@ -116,20 +116,34 @@ public class ToBuyActivity extends AppCompatActivity {
                                 pantryLine.setIngredientId(toBuyLine.getIngredientId());
                                 pantryLine.setIngredientQuantity(quantity);
                                 pantryLine.setExpirationDate(expirationDate);
-                                DB.getPantryId(DB.currentUser, (pantryId)->{
+
+                                DB.getPantryId(DB.currentUser, pantryId -> {
                                     pantryLine.setPantryId(pantryId);
+
                                     // Add to pantry
                                     DB.addPantryLine(DB.getCurrentUser(), pantryLine, success -> {
                                         if (!success) {
                                             Log.w(TAG, "Failed to add PantryLine for ingredient: " + toBuyLine.getIngredientId());
+                                        } else {
+                                            // Add to remove list
+                                            linesToRemove.add(toBuyLine);
+
+                                            // Remove the validated ToBuyLine
+                                            DB.deleteToBuyLine(DB.currentUser, toBuyLine.getToBuyId(), toBuyLine.getId(), deleteSuccess -> {
+                                                if (deleteSuccess) {
+                                                    // Update the list after removal
+                                                    runOnUiThread(() -> {
+                                                        DB.toBuyLinesArrayList.remove(toBuyLine);
+                                                        boughtAdapter.updateList(DB.toBuyLinesArrayList);
+                                                    });
+                                                    btnBackToBuy.performClick();
+                                                } else {
+                                                    Log.w(TAG, "Failed to delete ToBuyLine with ID: " + toBuyLine.getId());
+                                                }
+                                            });
                                         }
                                     });
                                 });
-
-
-
-                                // Add to remove list
-                                linesToRemove.add(toBuyLine);
                             } catch (NumberFormatException | ParseException e) {
                                 Toast.makeText(this, R.string.invalidData, Toast.LENGTH_SHORT).show();
                             } catch (java.text.ParseException e) {
@@ -138,24 +152,12 @@ public class ToBuyActivity extends AppCompatActivity {
                         }
                     }
                 }
-
-                // Remove the validated ToBuyLines
-                for (ToBuyLine toBuyLine : linesToRemove) {
-                    DB.deleteToBuyLine(DB.currentUser, toBuyLine.getToBuyId(), toBuyLine.getId(), success -> {
-                        if (success) {
-                            DB.toBuyLinesArrayList.remove(toBuyLine);
-                        } else {
-                            Log.w(TAG, "Failed to delete ToBuyLine with ID: " + toBuyLine.getId());
-                        }
-                    });
-                }
-
-                boughtAdapter.updateList(DB.toBuyLinesArrayList);
-                boughtAdapter.notifyDataSetChanged();
             } else if (flag) {
                 setupAsBought();
             }
         });
+
+
 
         btnAddNeededIngr.setOnClickListener(v -> {
             //TODO: Check what ingredients user has in his pantry and which & how much user need with the lines of the recipes of the weeklyplan
