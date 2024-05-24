@@ -117,4 +117,6 @@
     <string name="toBuyDialogTitle">Introduce el título de la lista de la compra</string>
     <string name="hintTitle">Título</string>
     <string name="invalidData">Has introducido valores no válidos</string>
+    <string name="ingredientsUpdated">Ingredientes gastados correctamente</string>
+    <string name="notEnoughIngredients">Necesitas más ingredientes</string>
 </resources>

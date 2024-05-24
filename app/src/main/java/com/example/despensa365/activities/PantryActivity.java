@@ -40,6 +40,7 @@ public class PantryActivity extends AppCompatActivity {
     int posItem;
     private String pantryId = "";
     private boolean isSeeingExpired = false;
+    private String TAG = "PantryActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,6 +162,15 @@ public class PantryActivity extends AppCompatActivity {
         });
 
         btnAddToBuy.setOnClickListener(v -> {
+            DB.getToBuy(DB.getCurrentUser(),(toBuy -> {
+                if (toBuy != null) {
+                    DB.checkAndCreateToBuyLinesFromExpiredPantry(DB.getCurrentUser(),toBuy.getId(),(success -> {
+                        if (success) {
+                            Log.d(TAG,"ToBuyLines created");
+                        }
+                    }));
+                }
+            }));
         });
 
         btnCleanExpired.setOnClickListener(v -> {

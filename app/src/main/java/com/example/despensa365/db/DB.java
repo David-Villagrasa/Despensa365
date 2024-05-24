@@ -35,6 +35,7 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DB {
@@ -1314,6 +1315,155 @@ public class DB {
             });
         });
     }
+
+    public static void checkAndCreateToBuyLinesFromExpiredPantry(@NonNull FirebaseUser currentUser, @NonNull String toBuyId, BooleanCallback callback) {
+        getPantryId(currentUser, pantryId -> {
+            if (pantryId == null) {
+                callback.onCallback(false);
+                return;
+            }
+
+            getAllPantryLines(currentUser, pantryId, pantryLines -> {
+                Date today = new Date();
+                ArrayList<ToBuyLine> toBuyLines = new ArrayList<>();
+
+                for (PantryLine pantryLine : pantryLines) {
+                    if (pantryLine.getExpirationDate().before(today)) {
+                        ToBuyLine toBuyLine = new ToBuyLine();
+                        toBuyLine.setIngredientId(pantryLine.getIngredientId());
+                        toBuyLine.setToBuyId(toBuyId);
+
+                        toBuyLine.setQuantity(0.0);
+
+                        toBuyLines.add(toBuyLine);
+                    }
+                }
+
+                if (toBuyLines.isEmpty()) {
+                    callback.onCallback(true);
+                    return;
+                }
+
+                WriteBatch batch = db.batch();
+                for (ToBuyLine toBuyLine : toBuyLines) {
+                    DocumentReference toBuyLineRef = db.collection("users")
+                            .document(currentUser.getUid())
+                            .collection("toBuy")
+                            .document(toBuyId)
+                            .collection("toBuyLines")
+                            .document();
+
+                    toBuyLine.setId(toBuyLineRef.getId());
+
+                    Map<String, Object> toBuyLineData = new HashMap<>();
+                    toBuyLineData.put("ingredient", db.collection("users")
+                            .document(currentUser.getUid())
+                            .collection("ingredients")
+                            .document(toBuyLine.getIngredientId()));
+                    toBuyLineData.put("quantity", toBuyLine.getQuantity());
+
+                    batch.set(toBuyLineRef, toBuyLineData, SetOptions.merge());
+                }
+
+                batch.commit().addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Expired PantryLines converted to ToBuy lines successfully.");
+                    reloadToBuyLines(currentUser, toBuyId, () -> callback.onCallback(true));
+                }).addOnFailureListener(e -> {
+                    Log.w(TAG, "Error converting expired PantryLines to ToBuy lines", e);
+                    callback.onCallback(false);
+                });
+            });
+        });
+    }
+
+    public static void checkAndConsumeIngredients(FirebaseUser currentUser, List<RecipeLine> allRecipeLines, BooleanCallback callback) {
+        getPantryId(currentUser, pantryId -> {
+            getAllPantryLines(currentUser, pantryId, pantryLines -> {
+                Map<String, Double> ingredientsNeeded = new HashMap<>();
+                Map<String, Double> pantryInventory = new HashMap<>();
+
+                // Populate ingredients needed
+                for (RecipeLine recipeLine : allRecipeLines) {
+                    ingredientsNeeded.put(recipeLine.getIdIngredient(), ingredientsNeeded.getOrDefault(recipeLine.getIdIngredient(), 0.0) + recipeLine.getQuantity());
+                }
+
+                // Populate pantry inventory
+                for (PantryLine pantryLine : pantryLines) {
+                    pantryInventory.put(pantryLine.getIngredientId(), pantryInventory.getOrDefault(pantryLine.getIngredientId(), 0.0) + pantryLine.getIngredientQuantity());
+                }
+
+                // Check if all ingredients are available in the pantry
+                boolean canMakeAllRecipes = true;
+                for (Map.Entry<String, Double> entry : ingredientsNeeded.entrySet()) {
+                    String ingredientId = entry.getKey();
+                    double quantityNeeded = entry.getValue();
+                    double quantityInPantry = pantryInventory.getOrDefault(ingredientId, 0.0);
+
+                    if (quantityInPantry < quantityNeeded) {
+                        canMakeAllRecipes = false;
+                        break;
+                    }
+                }
+
+                // If can make all recipes, update pantry lines
+                if (canMakeAllRecipes) {
+                    WriteBatch batch = db.batch();
+                    for (Map.Entry<String, Double> entry : ingredientsNeeded.entrySet()) {
+                        String ingredientId = entry.getKey();
+                        double quantityNeeded = entry.getValue();
+                        double quantityInPantry = pantryInventory.get(ingredientId);
+
+                        // Calculate new quantity and update pantry lines
+                        double newQuantity = quantityInPantry - quantityNeeded;
+                        if (newQuantity == 0) {
+                            // Delete pantry line if quantity becomes 0
+                            for (PantryLine pantryLine : pantryLines) {
+                                if (pantryLine.getIngredientId().equals(ingredientId)) {
+                                    DocumentReference pantryLineRef = db.collection("users")
+                                            .document(currentUser.getUid())
+                                            .collection("pantries")
+                                            .document(pantryLine.getPantryId())
+                                            .collection("pantryLines")
+                                            .document(pantryLine.getId());
+                                    batch.delete(pantryLineRef);
+                                }
+                            }
+                        } else {
+                            // Update pantry line with new quantity
+                            for (PantryLine pantryLine : pantryLines) {
+                                if (pantryLine.getIngredientId().equals(ingredientId)) {
+                                    DocumentReference pantryLineRef = db.collection("users")
+                                            .document(currentUser.getUid())
+                                            .collection("pantries")
+                                            .document(pantryLine.getPantryId())
+                                            .collection("pantryLines")
+                                            .document(pantryLine.getId());
+                                    pantryLine.setIngredientQuantity(newQuantity);
+                                    Map<String, Object> updateData = new HashMap<>();
+                                    updateData.put("ingredientQuantity", newQuantity);
+                                    batch.update(pantryLineRef, updateData);
+                                }
+                            }
+                        }
+                    }
+
+                    // Commit batch update
+                    batch.commit().addOnSuccessListener(aVoid -> {
+                        Log.d(TAG, "Ingredients updated successfully.");
+                        reloadPantryLines(currentUser, pantryId);
+                        callback.onCallback(true);
+                    }).addOnFailureListener(e -> {
+                        Log.w(TAG, "Error updating ingredients.", e);
+                        callback.onCallback(false);
+                    });
+                } else {
+                    callback.onCallback(false);
+                }
+            });
+        });
+    }
+
+
 
 
     public interface StringCallback {
