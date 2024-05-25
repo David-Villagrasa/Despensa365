@@ -10,27 +10,29 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.despensa365.MainActivity;
 import com.example.despensa365.R;
 import com.example.despensa365.db.DB;
 import com.example.despensa365.objects.Ingredient;
 import com.example.despensa365.objects.PantryLine;
-import com.example.despensa365.objects.RecipeLine;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class IngredientsPantryAdapter extends RecyclerView.Adapter<IngredientsPantryAdapter.IngredientsPantryViewHolder> {
 
     public ArrayList<PantryLine> pantryLinesList;
     Context customContext;
+    private SimpleDateFormat dateFormat;
 
     public IngredientsPantryAdapter(Context context, ArrayList<PantryLine> pantryLinesList) {
         this.customContext = context;
         if (pantryLinesList == null) {
-            this.pantryLinesList = new ArrayList<PantryLine>();
+            this.pantryLinesList = new ArrayList<>();
         } else {
             this.pantryLinesList = pantryLinesList;
         }
+        this.dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
     }
 
     @NonNull
@@ -48,7 +50,7 @@ public class IngredientsPantryAdapter extends RecyclerView.Adapter<IngredientsPa
         holder.ingredientName.setText(ingredient.getName());
         holder.ingredientQuantity.setText(String.format("%s", pantryLine.getIngredientQuantity()));
         holder.ingredientQuantity.append(ingredient.getType().getUnit());
-        holder.ingredientDate.setText(String.format("%s", pantryLine.getExpirationDate()));
+        holder.ingredientDate.setText(dateFormat.format(pantryLine.getExpirationDate()));
     }
 
     @Override
