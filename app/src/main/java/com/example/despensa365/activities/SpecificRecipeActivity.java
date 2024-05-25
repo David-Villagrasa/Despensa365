@@ -72,6 +72,7 @@ public class SpecificRecipeActivity extends AppCompatActivity {
         tvIngredients = findViewById(R.id.tvIngredients);
         rvIngreListRecipe = findViewById(R.id.rvIngreListRecipe);
 
+
         setupListeners();
     }
 
@@ -91,6 +92,7 @@ public class SpecificRecipeActivity extends AppCompatActivity {
         if (currentRecipe != null) {
             etNameRecipe.setText(currentRecipe.getName());
             etDirectionsRecipe.setText(currentRecipe.getDescription());
+            btnCreateRecipe.setText(R.string.recipeUpdate);
         }
     }
 

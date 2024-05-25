@@ -67,14 +67,6 @@ public class WeekActivity extends AppCompatActivity {
 
         String[] days = getResources().getStringArray(R.array.days_of_week_short);
 
-        for (int i = 0; i < btnDays.length; i++) {
-            btnDays[i].setText(days[i]);
-            final Day day = Day.values()[i];
-            btnDays[i].setOnClickListener(v -> {
-                onClick(day);
-            });
-        }
-
         fabAdd = findViewById(R.id.fabAdd);
 
         btnBackMangWeek.setOnClickListener(v -> finish());
@@ -89,7 +81,6 @@ public class WeekActivity extends AppCompatActivity {
             Intent data = resultado.getData();
             if (data != null) {
                 selectedRecipe = (Recipe) data.getSerializableExtra("selectedRecipe");
-                //TODO create a new line of PlanLine on db
                 PlanLine planLine = new PlanLine("",weeklyPlan.getId(), selectedRecipe.getId(),day);
                 DB.addPlanLine(DB.currentUser,planLine,(v)->{
                     if(v){
@@ -103,13 +94,28 @@ public class WeekActivity extends AppCompatActivity {
         loadWeeklyPlan(()->{onClick(convertIntToDay(getDateOfWeekToday()));});
         setupRecycler();
         loadRecipesForDay(convertIntToDay(getDateOfWeekToday()));
+        for (int i = 0; i < btnDays.length; i++) {
+            btnDays[i].setText(days[i]);
+            final Day day = Day.values()[i];
+            btnDays[i].setOnClickListener(v -> {
+                onClick(day);
+            });
+        }
     }
 
     private void onClick(Day day) {
+        resetColors();
+        btnDays[day.getValue()-1].setBackgroundColor(getResources().getColor(R.color.dark_green));
         DB.reloadWeekLines(DB.currentUser, weeklyPlan.getId(), () -> {
             loadRecipesForDay(day);
             recipeAdapter.notifyDataSetChanged();
         });
+    }
+
+    private void resetColors(){
+        for (int i = 0; i < btnDays.length; i++) {
+            btnDays[i].setBackgroundColor(getResources().getColor(R.color.dark_red));
+        }
     }
 
     private void loadWeeklyPlan(Runnable onLoadedCallback) {
@@ -198,7 +204,6 @@ public class WeekActivity extends AppCompatActivity {
                     if (success) {
                         runOnUiThread(() -> {
                             Toast.makeText(WeekActivity.this, R.string.ingredientsUpdated, Toast.LENGTH_SHORT).show();
-                            // Recarga las líneas de despensa aquí si es necesario
                         });
                     } else {
                         runOnUiThread(() -> Toast.makeText(WeekActivity.this, R.string.notEnoughIngredients, Toast.LENGTH_SHORT).show());

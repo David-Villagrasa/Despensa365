@@ -160,7 +160,6 @@ public class ToBuyActivity extends AppCompatActivity {
 
 
         btnAddNeededIngr.setOnClickListener(v -> {
-            //TODO: Check what ingredients user has in his pantry and which & how much user need with the lines of the recipes of the weeklyplan
             flag = false;
             DB.calculateAndCreateToBuyList(DB.getCurrentUser(),currentToBuy.getId(),(success)->{
                 if(success){

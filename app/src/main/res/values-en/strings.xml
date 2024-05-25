@@ -80,7 +80,7 @@
     <string name="searchBy">Search</string>
     <string name="hintToUseIngDialog">Tap on the ingredient you want to add, if you want to add an ingredient to the database open the menu at the top right</string>
     <string name="titleDialogChooseIngr">Ingredient List</string>
-    <string name="howMuch">Quantity of</string>
+    <string name="howMuch">Quantity</string>
     <string name="hintWhenBought">If you haven\'t bought something, don\'t fill it in</string>
     <string name="tvNameOfIngredient">Ingredient Name:</string>
     <string name="createIngredient">Create Ingredient</string>
@@ -118,4 +118,6 @@
     <string name="ingredientsUpdated">Ingredients successfully used</string>
     <string name="notEnoughIngredients">You need more ingredients</string>
     <string name="changeLanguage">Change languaje</string>
+    <string name="actionDoneRecipes">Mark as done</string>
+    <string name="recipeUpdate">Update</string>
 </resources>
