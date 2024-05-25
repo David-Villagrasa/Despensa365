@@ -1381,15 +1381,18 @@ public class DB {
             getAllPantryLines(currentUser, pantryId, pantryLines -> {
                 Map<String, Double> ingredientsNeeded = new HashMap<>();
                 Map<String, Double> pantryInventory = new HashMap<>();
+                Date today = new Date();
 
-                // Populate ingredients needed
+                // Get ingredients needed
                 for (RecipeLine recipeLine : allRecipeLines) {
                     ingredientsNeeded.put(recipeLine.getIdIngredient(), ingredientsNeeded.getOrDefault(recipeLine.getIdIngredient(), 0.0) + recipeLine.getQuantity());
                 }
 
-                // Populate pantry inventory
+                // Get pantry inventory, excluding expired ingredients
                 for (PantryLine pantryLine : pantryLines) {
-                    pantryInventory.put(pantryLine.getIngredientId(), pantryInventory.getOrDefault(pantryLine.getIngredientId(), 0.0) + pantryLine.getIngredientQuantity());
+                    if (pantryLine.getExpirationDate().after(today)) {
+                        pantryInventory.put(pantryLine.getIngredientId(), pantryInventory.getOrDefault(pantryLine.getIngredientId(), 0.0) + pantryLine.getIngredientQuantity());
+                    }
                 }
 
                 // Check if all ingredients are available in the pantry
@@ -1418,7 +1421,7 @@ public class DB {
                         if (newQuantity == 0) {
                             // Delete pantry line if quantity becomes 0
                             for (PantryLine pantryLine : pantryLines) {
-                                if (pantryLine.getIngredientId().equals(ingredientId)) {
+                                if (pantryLine.getIngredientId().equals(ingredientId) && pantryLine.getExpirationDate().after(today)) {
                                     DocumentReference pantryLineRef = db.collection("users")
                                             .document(currentUser.getUid())
                                             .collection("pantries")
@@ -1431,7 +1434,7 @@ public class DB {
                         } else {
                             // Update pantry line with new quantity
                             for (PantryLine pantryLine : pantryLines) {
-                                if (pantryLine.getIngredientId().equals(ingredientId)) {
+                                if (pantryLine.getIngredientId().equals(ingredientId) && pantryLine.getExpirationDate().after(today)) {
                                     DocumentReference pantryLineRef = db.collection("users")
                                             .document(currentUser.getUid())
                                             .collection("pantries")
@@ -1447,7 +1450,7 @@ public class DB {
                         }
                     }
 
-                    // Commit batch update
+                    // Update
                     batch.commit().addOnSuccessListener(aVoid -> {
                         Log.d(TAG, "Ingredients updated successfully.");
                         reloadPantryLines(currentUser, pantryId);
@@ -1462,8 +1465,6 @@ public class DB {
             });
         });
     }
-
-
 
 
     public interface StringCallback {
