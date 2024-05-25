@@ -1,0 +1,120 @@
+<resources>
+    <!-- App General -->
+    <string name="welcome">Welcome,</string>
+    <string name="next">Continue</string>
+    <string name="back">Back</string>
+
+    <!-- Login Screen -->
+    <string name="login">Log In</string>
+    <string name="logout">Log Out</string>
+    <string name="loginTitle">Login</string>
+    <string name="mailTitle">Email:</string>
+    <string name="pwdTitle">Password:</string>
+    <string name="mailHint">Email</string>
+
+    <!-- Register Screen -->
+    <string name="register">Register</string>
+    <string name="registerTitle">Register Page</string>
+    <string name="nicknameTitle">Username:</string>
+    <string name="nicknameHint">Username</string>
+    <string name="pwdAgainTitle">Repeat Password:</string>
+
+    <!-- Management -->
+    <string name="manWeek">Manage Week</string>
+    <string name="manRecipes">Manage Recipes</string>
+    <string name="manPantry">Manage Pantry</string>
+    <string name="manList">Manage Shopping List</string>
+
+    <!-- Misc -->
+    <string name="imageDescription">imageLogo</string>
+    <string name="recipeTitle">Recipe</string>
+    <string name="recipeDirectionsTitle">Instructions</string>
+    <string name="recipeIngredientsTitle">Ingredients</string>
+    <string name="recipeCreate">Create</string>
+    <string name="weekManagementTitle">Week Management</string>
+
+    <!-- Array de nombres de días de la semana completos -->
+    <string-array name="days_of_week_full">
+        <item>Monday</item>
+        <item>Tuesday</item>
+        <item>Wednesday</item>
+        <item>Thursday</item>
+        <item>Friday</item>
+        <item>Saturday</item>
+        <item>Sunday</item>
+    </string-array>
+
+    <!-- Array de nombres de días de la semana abreviados -->
+    <string-array name="days_of_week_short">
+        <item>M</item>
+        <item>T</item>
+        <item>W</item>
+        <item>Th</item>
+        <item>F</item>
+        <item>S</item>
+        <item>Su</item>
+    </string-array>
+
+    <string-array name="spinner_ingredients">
+        <item>Liters</item>
+        <item>Grams</item>
+    </string-array>
+
+    <string name="weekAddRecipe">Click on the recipe you want to add</string>
+    <string name="hintRecipe">Recipe Name</string>
+    <string name="recipeListTitle">Recipe List</string>
+    <string name="pantryTitle">Pantry</string>
+    <string name="pantryIngr">Active Ingredients</string>
+    <string name="pantryIngrExp">Expired Ingredients</string>
+    <string name="toExpired">View Expired</string>
+    <string name="addToBuy">Add to Shopping List</string>
+    <string name="cleanExpired">Clean Expired</string>
+    <string name="searchIngredient">Ingredient Name</string>
+    <string name="listBuyTitle">Shopping List</string>
+    <string name="addNeededIngr">Add Needed Ingredients</string>
+    <string name="doneToBuy">Purchased</string>
+    <string name="expDateTitleIngr">Expiration Date:</string>
+    <string name="titleWeightIngr">Quantity:</string>
+    <string name="titleNumIngr">Quantity:</string>
+    <string name="typeOfIngredient">Ingredient Type:</string>
+    <string name="searchBy">Search</string>
+    <string name="hintToUseIngDialog">Tap on the ingredient you want to add, if you want to add an ingredient to the database open the menu at the top right</string>
+    <string name="titleDialogChooseIngr">Ingredient List</string>
+    <string name="howMuch">Quantity of</string>
+    <string name="hintWhenBought">If you haven\'t bought something, don\'t fill it in</string>
+    <string name="tvNameOfIngredient">Ingredient Name:</string>
+    <string name="createIngredient">Create Ingredient</string>
+    <string name="hintMainActivity">You must log in to access</string>
+    <string name="save">Save</string>
+    <string name="newIngredient">Create New Ingredient</string>
+    <string name="notAllowEmpty">No empty fields are allowed</string>
+    <string name="pwdRules">Password must be 8-16 characters with uppercase, lowercase, and symbol.</string>
+    <string name="notSamePasswords">Passwords do not match</string>
+    <string name="invalidEmail">Invalid email address</string>
+    <string name="emailAlrExists">Email already exists</string>
+
+    <string name="auth_invalid_credentials">Invalid email or password</string>
+    <string name="auth_invalid_user">No account found with this email</string>
+    <string name="auth_general_error">Authentication failed. Please try again.</string>
+
+    <string name="registerPantryTitle">Register Pantry</string>
+    <string name="postalCodeTitle">Postal Code</string>
+    <string name="postalCodeHint">Enter postal code</string>
+    <string name="cityTitle">City</string>
+    <string name="cityHint">Enter city</string>
+    <string name="streetTitle">Street</string>
+    <string name="streetHint">Enter street</string>
+    <string name="streetNumberTitle">Street Number</string>
+    <string name="streetNumberHint">Enter street number</string>
+
+    <string name="invalidDate">Invalid date. Format should be dd-MM-yyyy.</string>
+    <string name="mustFill">Required field.</string>
+    <string name="fillTitleToBuy">Title cannot be empty</string>
+    <string name="createdSuccessfullyPantry">Pantry created successfully</string>
+    <string name="failToCreateToBuy">Failed to create shopping list</string>
+    <string name="toBuyDialogTitle">Enter the title of the shopping list</string>
+    <string name="hintTitle">Title</string>
+    <string name="invalidData">Invalid values entered</string>
+    <string name="ingredientsUpdated">Ingredients successfully used</string>
+    <string name="notEnoughIngredients">You need more ingredients</string>
+</resources>

@@ -1,6 +1,6 @@
 <resources>
     <!-- App General -->
-    <string name="app_name">Despensa365</string>
+    <string name="app_name" translatable="false">Despensa365</string>
     <string name="welcome">Bienvenido,</string>
     <string name="next">Continuar</string>
     <string name="back">Atrás</string>
