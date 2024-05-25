@@ -60,15 +60,16 @@ public class RecipeViewActivity extends AppCompatActivity {
         btnCreateRecipe.setVisibility(View.INVISIBLE);
         btnAddIngr.setVisibility(View.INVISIBLE);
         // To let the user select the text
-        etNameRecipe.setInputType(InputType.TYPE_NULL);
         etNameRecipe.setFocusable(false);
         etNameRecipe.setTextIsSelectable(true);
         etNameRecipe.setLongClickable(true);
+        etNameRecipe.setKeyListener(null);
         // To let the user select the text
-        etDirectionsRecipe.setInputType(InputType.TYPE_NULL);
         etDirectionsRecipe.setFocusable(false);
         etDirectionsRecipe.setTextIsSelectable(true);
         etDirectionsRecipe.setLongClickable(true);
+        etDirectionsRecipe.setKeyListener(null);
+
 
         setupListeners();
         setupValues();

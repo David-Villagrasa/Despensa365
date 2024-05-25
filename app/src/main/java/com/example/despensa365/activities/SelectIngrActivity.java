@@ -12,6 +12,8 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,6 +34,7 @@ import java.util.Date;
 import java.util.stream.Collectors;
 
 public class SelectIngrActivity extends AppCompatActivity {
+    ActivityResultLauncher<Intent> customLauncher;
     private RecyclerView recycler;
     private EditText etSearch;
     private IngredientAdapter ingredientAdapter;
@@ -50,7 +53,6 @@ public class SelectIngrActivity extends AppCompatActivity {
         etSearch = findViewById(R.id.etSearchByIng);
         btnBack = findViewById(R.id.btnBackSelectIngr);
         btnSearchSelectIngr = findViewById(R.id.btnSearchSelectIngr);
-        //TODO: reload like DB.reloadIngredients(DB.currentUser); but the adapter is not updated bcs has to wait to the reload
 
         ingredientAdapter = new IngredientAdapter(DB.ingredientArrayList, this::openQuantityDialog);
         recycler.setLayoutManager(new LinearLayoutManager(this));
@@ -61,6 +63,13 @@ public class SelectIngrActivity extends AppCompatActivity {
         btnSearchSelectIngr.setOnClickListener(v -> searchIngredients());
 
         needDate = this.getIntent().hasExtra("needDate");
+        customLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == RESULT_OK) {
+                DB.reloadIngredients(DB.currentUser);
+                ingredientAdapter.notifyDataSetChanged();
+            }
+        });
+
     }
 
 
@@ -75,20 +84,10 @@ public class SelectIngrActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.item_ingredient_1) {
             Intent intent = new Intent(this, IngredientActivity.class);
-            startActivity(intent);
+            customLauncher.launch(intent);
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK) {
-            DB.reloadIngredients(DB.currentUser);
-            ingredientAdapter.notifyDataSetChanged();
-        }
     }
 
     private void openQuantityDialog(Ingredient ingredient) {

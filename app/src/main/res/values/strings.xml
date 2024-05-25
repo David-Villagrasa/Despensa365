@@ -82,7 +82,7 @@
     <string name="searchBy">Buscar</string>
     <string name="hintToUseIngDialog">Toca el ingrediente que quieras añadir, si quieres añadir un ingrediente a la base de datos abre el menú de arriba a la derecha</string>
     <string name="titleDialogChooseIngr">Lista de ingredientes</string>
-    <string name="howMuch">Cantidad de</string>
+    <string name="howMuch">Cantidad</string>
     <string name="hintWhenBought">Si no has comprado algo, no lo rellenes</string>
     <string name="tvNameOfIngredient">Nombre del ingrediente:</string>
     <string name="createIngredient">Crear ingrediente</string>
@@ -120,4 +120,6 @@
     <string name="ingredientsUpdated">Ingredientes gastados correctamente</string>
     <string name="notEnoughIngredients">Necesitas más ingredientes</string>
     <string name="changeLanguage">Cambiar idioma</string>
+    <string name="actionDoneRecipes">Marcar como completadas</string>
+    <string name="recipeUpdate">Actualizar</string>
 </resources>
