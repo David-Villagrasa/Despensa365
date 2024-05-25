@@ -117,4 +117,5 @@
     <string name="invalidData">Invalid values entered</string>
     <string name="ingredientsUpdated">Ingredients successfully used</string>
     <string name="notEnoughIngredients">You need more ingredients</string>
+    <string name="changeLanguage">Change languaje</string>
 </resources>

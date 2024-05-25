@@ -1,7 +1,14 @@
 package com.example.despensa365;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -10,7 +17,6 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
 
 import com.example.despensa365.activities.LoginActivity;
 import com.example.despensa365.activities.PantryActivity;
@@ -25,7 +31,9 @@ import com.example.despensa365.objects.ToBuy;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class MainActivity extends AppCompatActivity implements ToBuyTitleDialogFragment.ToBuyTitleDialogListener{
+import java.util.Locale;
+
+public class MainActivity extends AppCompatActivity implements ToBuyTitleDialogFragment.ToBuyTitleDialogListener {
     public FirebaseAuth firebaseAuth;
     Button btnLogin, btnRegister, btnLogout, btnManWeek, btnManRec, btnManPantry, btnManToBuy;
     TextView tvWelcome;
@@ -69,6 +77,56 @@ public class MainActivity extends AppCompatActivity implements ToBuyTitleDialogF
         });
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_change_language) {
+            showChangeLanguageDialog();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void showChangeLanguageDialog() {
+        final String[] languages = {"Español", "English"};
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.changeLanguage)
+                .setItems(languages, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                setLocale("es");
+                                break;
+                            case 1:
+                                setLocale("en");
+                                break;
+                        }
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .create()
+                .show();
+    }
+
+    private void setLocale(String lang) {
+        Locale locale = new Locale(lang);
+        Locale.setDefault(locale);
+        Resources resources = getResources();
+        Configuration config = resources.getConfiguration();
+        config.setLocale(locale);
+        resources.updateConfiguration(config, resources.getDisplayMetrics());
+        Intent refresh = new Intent(this, MainActivity.class);
+        startActivity(refresh);
+        finish();
+    }
+
     private void defaultLayout() {
         btnLogin.setVisibility(View.VISIBLE);
         btnRegister.setVisibility(View.VISIBLE);
@@ -81,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements ToBuyTitleDialogF
         btnRegister.setVisibility(View.INVISIBLE);
         btnLogout.setVisibility(View.VISIBLE);
         tvWelcome.setVisibility(View.VISIBLE);
-        DB.currentUser=firebaseAuth.getCurrentUser();
+        DB.currentUser = firebaseAuth.getCurrentUser();
         String username = DB.currentUser.getDisplayName();
         tvWelcome.setText(String.format("%s %s", getString(R.string.welcome), username));
         DB.setupDateWeekPlan(DB.currentUser);
@@ -141,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements ToBuyTitleDialogF
 
     public void clickToBuy(View v) {
         if (firebaseAuth.getCurrentUser() != null) {
-            DB.checkToBuyExists(DB.currentUser,exists ->{
+            DB.checkToBuyExists(DB.currentUser, exists -> {
                 if (!exists) {
                     showToBuyTitleDialog();
                 } else {
@@ -169,7 +227,6 @@ public class MainActivity extends AppCompatActivity implements ToBuyTitleDialogF
         }
     }
 
-
     @Override
     public void onDialogNegativeClick(ToBuyTitleDialogFragment dialog) {
         dialog.dismiss();
@@ -180,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements ToBuyTitleDialogF
         newToBuy.setTitle(title);
         newToBuy.setUserId(DB.currentUser.getUid());
 
-        DB.addToBuy(DB.currentUser,newToBuy, success -> {
+        DB.addToBuy(DB.currentUser, newToBuy, success -> {
             if (success) {
                 Intent intent = new Intent(MainActivity.this, ToBuyActivity.class);
                 customLauncher.launch(intent);
