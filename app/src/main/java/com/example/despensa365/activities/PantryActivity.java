@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -17,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.despensa365.MainActivity;
 import com.example.despensa365.R;
 import com.example.despensa365.adapters.IngredientsPantryAdapter;
 import com.example.despensa365.objects.PantryLine;
@@ -162,15 +164,23 @@ public class PantryActivity extends AppCompatActivity {
         });
 
         btnAddToBuy.setOnClickListener(v -> {
-            DB.getToBuy(DB.getCurrentUser(),(toBuy -> {
-                if (toBuy != null) {
-                    DB.checkAndCreateToBuyLinesFromExpiredPantry(DB.getCurrentUser(),toBuy.getId(),(success -> {
-                        if (success) {
-                            Log.d(TAG,"ToBuyLines created");
+            DB.checkToBuyExists(DB.currentUser, exists -> {
+                if (!exists) {
+                    Toast.makeText(this, R.string.toBuyNotExists, Toast.LENGTH_SHORT).show();
+                } else {
+                    DB.getToBuy(DB.getCurrentUser(),(toBuy -> {
+                        if (toBuy != null) {
+                            DB.checkAndCreateToBuyLinesFromExpiredPantry(DB.getCurrentUser(),toBuy.getId(),(success -> {
+                                if (success) {
+                                    Log.d(TAG,"ToBuyLines created");
+                                    Toast.makeText(this, R.string.toBuyLinesCreated, Toast.LENGTH_SHORT).show();
+                                }
+                            }));
                         }
                     }));
                 }
-            }));
+            });
+
         });
 
         btnCleanExpired.setOnClickListener(v -> {

@@ -81,6 +81,7 @@
     <string name="typeOfIngredient">Tipo de ingrediente:</string>
     <string name="searchBy">Buscar</string>
     <string name="hintToUseIngDialog">Toca el ingrediente que quieras añadir, si quieres añadir un ingrediente a la base de datos abre el menú de arriba a la derecha</string>
+    <string name="hintToUseRecDialog">Toca receta que quieras añadir</string>
     <string name="titleDialogChooseIngr">Lista de ingredientes</string>
     <string name="howMuch">Cantidad</string>
     <string name="hintWhenBought">Si no has comprado algo, no lo rellenes</string>
@@ -122,4 +123,8 @@
     <string name="changeLanguage">Cambiar idioma</string>
     <string name="actionDoneRecipes">Marcar como completadas</string>
     <string name="recipeUpdate">Actualizar</string>
+    <string name="emptyNameRecipe">El nombre de la receta no puede estar vacío</string>
+    <string name="fillAll">Todos los campos son obligatorios.</string>
+    <string name="toBuyNotExists">Debes crear una lista de la compra</string>
+    <string name="toBuyLinesCreated">Añadido satisfactoriamente</string>
 </resources>

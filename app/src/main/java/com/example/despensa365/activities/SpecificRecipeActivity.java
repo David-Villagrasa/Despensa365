@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -121,21 +122,26 @@ public class SpecificRecipeActivity extends AppCompatActivity {
 
         if (currentRecipe.getId() == null || currentRecipe.getId().isEmpty()) {
             // Add new recipe
-            DB.addRecipe(DB.getCurrentUser(), currentRecipe, success -> {
-                if (success) {
-                    // Add recipe lines after the recipe is successfully added
-                    for (RecipeLine line : recipeLines) {
-                        line.setIdRecipe(currentRecipe.getId()); // Ensure the line has the correct recipe ID
-                        DB.addRecipeLine(DB.getCurrentUser(), currentRecipe.getId(), line, lineSuccess -> {
-                            // Handle line success if needed
-                        });
+            if(!etNameRecipe.getText().toString().isEmpty()){
+                DB.addRecipe(DB.getCurrentUser(), currentRecipe, success -> {
+                    if (success) {
+                        // Add recipe lines after the recipe is successfully added
+                        for (RecipeLine line : recipeLines) {
+                            line.setIdRecipe(currentRecipe.getId()); // Ensure the line has the correct recipe ID
+                            DB.addRecipeLine(DB.getCurrentUser(), currentRecipe.getId(), line, lineSuccess -> {
+                                // Handle line success if needed
+                            });
+                        }
+                        Intent newIntent = new Intent();
+                        newIntent.putExtra("RECIPE_DATA", currentRecipe);
+                        setResult(RESULT_OK, newIntent);
+                        finish();
                     }
-                    Intent newIntent = new Intent();
-                    newIntent.putExtra("RECIPE_DATA", currentRecipe);
-                    setResult(RESULT_OK, newIntent);
-                    finish();
-                }
-            });
+                });
+            }else{
+                Toast.makeText(this, R.string.emptyNameRecipe, Toast.LENGTH_SHORT).show();
+            }
+
         } else {
             // Update existing recipe
             DB.updateRecipe(DB.getCurrentUser(), currentRecipe, success -> {

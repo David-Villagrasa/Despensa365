@@ -37,17 +37,15 @@ public class RegisterPantryActivity extends AppCompatActivity {
         String city = etCity.getText().toString();
         String street = etStreet.getText().toString();
         String streetNumber = etStreetNumber.getText().toString();
+        if(postalCode.isEmpty() || city.isEmpty() || street.isEmpty() || streetNumber.isEmpty()) {
+            Toast.makeText(this, R.string.fillAll, Toast.LENGTH_SHORT).show();
+        }else{
+            DB.savePantry(DB.currentUser,postalCode, city, street, streetNumber);
 
-        DB.savePantry(DB.currentUser,postalCode, city, street, streetNumber);
+            Intent resultIntent = new Intent();
+            setResult(RESULT_OK, resultIntent);
+            finish();
+        }
 
-        Intent resultIntent = new Intent();
-        resultIntent.putExtra("postalCode", postalCode);
-        resultIntent.putExtra("city", city);
-        resultIntent.putExtra("street", street);
-        resultIntent.putExtra("streetNumber", streetNumber);
-        setResult(RESULT_OK, resultIntent);
-
-        Toast.makeText(this, "Pantry created successfully", Toast.LENGTH_SHORT).show();
-        finish();
     }
 }

@@ -148,6 +148,7 @@ public class SelectIngrActivity extends AppCompatActivity {
                             ingredientAdapter.updateList(DB.ingredientArrayList);
                             ingredientAdapter.notifyDataSetChanged();
                         });
+                        Log.d("SelectIngrActivity", "Ingredient deleted successfully.");
                     } else {
                         Log.d("SelectIngrActivity", "Failed to delete ingredient.");
                     }

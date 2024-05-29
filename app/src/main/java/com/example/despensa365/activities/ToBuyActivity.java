@@ -35,7 +35,7 @@ public class ToBuyActivity extends AppCompatActivity {
     private ToBuyAdapter toBuyAdapter;
     private BoughtAdapter boughtAdapter;
     private RecyclerView rvToBuy;
-    private FloatingActionButton toBuyIngAdd;
+    private FloatingActionButton btnBuyIngAdd;
     private TextView tvTitleToBuy, tvHint;
     private Button btnBackToBuy, btnDone, btnAddNeededIngr;
     private ToBuy currentToBuy;
@@ -50,7 +50,7 @@ public class ToBuyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_to_buy_list);
 
         rvToBuy = findViewById(R.id.rvToBuy);
-        toBuyIngAdd = findViewById(R.id.toBuyIngAdd);
+        btnBuyIngAdd = findViewById(R.id.toBuyIngAdd);
         tvTitleToBuy = findViewById(R.id.tvTitleToBuy);
         btnBackToBuy = findViewById(R.id.btnBackToBuy);
         btnDone = findViewById(R.id.btnDone);
@@ -88,6 +88,7 @@ public class ToBuyActivity extends AppCompatActivity {
                 btnDone.setText(R.string.doneToBuy);
                 setupRecyclerView();
                 tvHint.setText("");
+                btnBuyIngAdd.setVisibility(View.VISIBLE);
             } else {
                 finish();
             }
@@ -172,7 +173,7 @@ public class ToBuyActivity extends AppCompatActivity {
             });
         });
 
-        toBuyIngAdd.setOnClickListener(v -> {
+        btnBuyIngAdd.setOnClickListener(v -> {
             Intent intent = new Intent(this, SelectIngrActivity.class);
             customLauncher.launch(intent);
         });
@@ -181,6 +182,7 @@ public class ToBuyActivity extends AppCompatActivity {
     private void setupAsBought() {
         isBought = true;
         btnAddNeededIngr.setVisibility(View.INVISIBLE);
+        btnBuyIngAdd.setVisibility(View.INVISIBLE);
         btnDone.setText(R.string.next);
         ArrayList<ToBuyLine> lines = new ArrayList<>();
         for (int i = 0; i < DB.toBuyLinesArrayList.size() && i<toBuyAdapter.selected.length; i++) {

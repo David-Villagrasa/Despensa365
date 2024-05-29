@@ -79,6 +79,7 @@
     <string name="typeOfIngredient">Ingredient Type:</string>
     <string name="searchBy">Search</string>
     <string name="hintToUseIngDialog">Tap on the ingredient you want to add, if you want to add an ingredient to the database open the menu at the top right</string>
+    <string name="hintToUseRecDialog">Tap on the recipe you want to add</string>
     <string name="titleDialogChooseIngr">Ingredient List</string>
     <string name="howMuch">Quantity</string>
     <string name="hintWhenBought">If you haven\'t bought something, don\'t fill it in</string>
@@ -120,4 +121,8 @@
     <string name="changeLanguage">Change languaje</string>
     <string name="actionDoneRecipes">Mark as done</string>
     <string name="recipeUpdate">Update</string>
+    <string name="emptyNameRecipe">The name of the recipe can\'t be empty</string>
+    <string name="fillAll">All fields must be filled</string>
+    <string name="toBuyNotExists">You should create a shopping list first</string>
+    <string name="toBuyLinesCreated">Created successfully</string>
 </resources>

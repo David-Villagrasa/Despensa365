@@ -268,11 +268,14 @@ public class DB {
 
         parentCollectionRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                int[] pendingTasksCount = {0};
+                int[] completedTasksCount = {0};
+
                 for (QueryDocumentSnapshot parentDoc : task.getResult()) {
                     CollectionReference childCollectionRef = parentCollectionRef
                             .document(parentDoc.getId())
                             .collection(childCollection);
-
+                    pendingTasksCount[0]++;
                     childCollectionRef.whereEqualTo("ingredient", db.collection("users")
                                     .document(currentUser.getUid())
                                     .collection("ingredients")
@@ -283,12 +286,22 @@ public class DB {
                                     for (QueryDocumentSnapshot childDoc : childTask.getResult()) {
                                         batch.delete(childDoc.getReference());
                                     }
-                                    taskCompletionSource.setResult(null);
                                 } else {
                                     Log.w(TAG, "Error getting documents: ", childTask.getException());
-                                    taskCompletionSource.setException(childTask.getException());
+                                }
+
+                                synchronized (completedTasksCount) {
+                                    completedTasksCount[0]++;
+                                    if (completedTasksCount[0] == pendingTasksCount[0]) {
+                                        taskCompletionSource.setResult(null);
+                                    }
                                 }
                             });
+                }
+
+                if (pendingTasksCount[0] == 0) {
+                    Log.d(TAG, "No references found in collection: " + parentCollection);
+                    taskCompletionSource.setResult(null);
                 }
             } else {
                 Log.w(TAG, "Error getting documents: ", task.getException());
@@ -315,7 +328,6 @@ public class DB {
                     CollectionReference recipeLinesCollectionRef = recipesCollectionRef
                             .document(recipeDoc.getId())
                             .collection("recipeLines");
-
                     pendingTasksCount[0]++;
                     recipeLinesCollectionRef.whereEqualTo("ingredient", db.collection("users")
                                     .document(currentUser.getUid())
@@ -340,8 +352,8 @@ public class DB {
                             });
                 }
 
-                // Si no hay tareas pendientes, completar la tarea inmediatamente
                 if (pendingTasksCount[0] == 0) {
+                    Log.d(TAG, "No references found in recipes");
                     taskCompletionSource.setResult(null);
                 }
             } else {
@@ -352,6 +364,7 @@ public class DB {
 
         return taskCompletionSource.getTask();
     }
+
 
     public static void addPantryLine(@NonNull FirebaseUser currentUser, @NonNull PantryLine pantryLine, BooleanCallback callback) {
         CollectionReference pantryLinesCollection = db.collection("users")

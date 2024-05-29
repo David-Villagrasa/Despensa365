@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 
 public class SelectRecActivity extends AppCompatActivity {
     private RecyclerView recycler;
+    private TextView tvHint;
     private EditText etSearch;
     private RecipeAdapter recipeAdapter;
     private Button btnBack, btnSearch;
@@ -34,7 +36,8 @@ public class SelectRecActivity extends AppCompatActivity {
         etSearch = findViewById(R.id.etSearchByIng);
         btnBack = findViewById(R.id.btnBackSelectIngr);
         btnSearch = findViewById(R.id.btnSearchSelectIngr);
-
+        tvHint = findViewById(R.id.tvHintIngr);
+        tvHint.setText(R.string.hintToUseRecDialog);
         btnBack.setOnClickListener(v -> finish());
         btnSearch.setOnClickListener(v -> searchRecipes());
 
