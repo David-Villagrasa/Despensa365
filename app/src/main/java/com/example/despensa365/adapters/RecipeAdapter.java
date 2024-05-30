@@ -11,11 +11,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.despensa365.MainActivity;
 import com.example.despensa365.R;
 import com.example.despensa365.activities.RecipeViewActivity;
 import com.example.despensa365.activities.SelectRecActivity;
-import com.example.despensa365.objects.Ingredient;
 import com.example.despensa365.objects.Recipe;
 
 import java.util.ArrayList;

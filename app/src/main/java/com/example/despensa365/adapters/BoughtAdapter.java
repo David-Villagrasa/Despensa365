@@ -1,7 +1,6 @@
 package com.example.despensa365.adapters;
 
 import android.content.Context;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,10 +12,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.despensa365.MainActivity;
 import com.example.despensa365.R;
 import com.example.despensa365.db.DB;
-import com.example.despensa365.enums.IngredientType;
 import com.example.despensa365.objects.Ingredient;
 import com.example.despensa365.objects.ToBuyLine;
 
@@ -31,7 +28,7 @@ public class BoughtAdapter extends RecyclerView.Adapter<BoughtAdapter.BoughtView
     public BoughtAdapter(Context context, ArrayList<ToBuyLine> toBuyLines) {
         this.customContext = context;
         if (toBuyLines == null) {
-            this.toBuyLines = new ArrayList<ToBuyLine>();
+            this.toBuyLines = new ArrayList<>();
         } else {
             this.toBuyLines = toBuyLines;
         }

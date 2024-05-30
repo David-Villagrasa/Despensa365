@@ -10,7 +10,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.despensa365.MainActivity;
 import com.example.despensa365.R;
 import com.example.despensa365.db.DB;
 import com.example.despensa365.objects.Ingredient;
@@ -26,7 +25,7 @@ public class IngredientsRecipeAdapter extends RecyclerView.Adapter<IngredientsRe
     public IngredientsRecipeAdapter(Context context, ArrayList<RecipeLine> recipeLineList) {
         this.customContext = context;
         if (recipeLineList == null) {
-            this.recipeLineList = new ArrayList<RecipeLine>();
+            this.recipeLineList = new ArrayList<>();
         } else {
             this.recipeLineList = recipeLineList;
         }

@@ -1,6 +1,5 @@
 package com.example.despensa365.adapters;
 
-import android.content.Context;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +13,6 @@ import com.example.despensa365.R;
 import com.example.despensa365.objects.Ingredient;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.IngredientViewHolder> {
 

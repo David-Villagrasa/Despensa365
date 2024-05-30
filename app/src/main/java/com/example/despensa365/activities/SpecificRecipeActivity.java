@@ -30,7 +30,6 @@ public class SpecificRecipeActivity extends AppCompatActivity {
     private FloatingActionButton btnAddIngr;
     private Button btnBack, btnCreateRecipe;
     private EditText etNameRecipe, etDirectionsRecipe;
-    private TextView tvRecipeTitle, tvRecipeDirections, tvIngredients;
     private RecyclerView rvIngreListRecipe;
     private Recipe currentRecipe;
     private ArrayList<RecipeLine> recipeLines = new ArrayList<>();
@@ -40,6 +39,7 @@ public class SpecificRecipeActivity extends AppCompatActivity {
     Intent intent = null;
 
     private ActivityResultLauncher<Intent> customLauncher;
+    private String TAG = "SpecificRecipeActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,9 +68,6 @@ public class SpecificRecipeActivity extends AppCompatActivity {
         btnCreateRecipe = findViewById(R.id.btnCreateRecipe);
         etNameRecipe = findViewById(R.id.etNameRecipe);
         etDirectionsRecipe = findViewById(R.id.etDirectionsRecipe);
-        tvRecipeTitle = findViewById(R.id.tvRecipeTitle);
-        tvRecipeDirections = findViewById(R.id.tvRecipeDirections);
-        tvIngredients = findViewById(R.id.tvIngredients);
         rvIngreListRecipe = findViewById(R.id.rvIngreListRecipe);
 
 
@@ -127,9 +124,11 @@ public class SpecificRecipeActivity extends AppCompatActivity {
                     if (success) {
                         // Add recipe lines after the recipe is successfully added
                         for (RecipeLine line : recipeLines) {
-                            line.setIdRecipe(currentRecipe.getId()); // Ensure the line has the correct recipe ID
+                            line.setIdRecipe(currentRecipe.getId());
                             DB.addRecipeLine(DB.getCurrentUser(), currentRecipe.getId(), line, lineSuccess -> {
-                                // Handle line success if needed
+                                if(lineSuccess){
+                                    Log.d(TAG, line+" saveRecipe: "+lineSuccess);
+                                }
                             });
                         }
                         Intent newIntent = new Intent();
@@ -149,23 +148,29 @@ public class SpecificRecipeActivity extends AppCompatActivity {
                     // Update recipe lines
                     for (RecipeLine line : recipeLines) {
                         if (line.getId() == null || line.getId().isEmpty()) {
-                            line.setIdRecipe(currentRecipe.getId()); // Ensure the line has the correct recipe ID
+                            line.setIdRecipe(currentRecipe.getId());
                             DB.addRecipeLine(DB.getCurrentUser(), currentRecipe.getId(), line, lineSuccess -> {
-                                // Handle line success if needed
+                                if(lineSuccess){
+                                    Log.d(TAG, line+" saveRecipe: "+lineSuccess);
+                                }
                             });
                         } else {
                             DB.updateRecipeLine(DB.getCurrentUser(), line, lineSuccess -> {
-                                // Handle line success if needed
+                                if(lineSuccess){
+                                    Log.d(TAG, line+" updateRecipeLine: "+lineSuccess);
+                                }
                             });
                         }
                     }
                     // Delete recipe lines that were marked for deletion
                     for (RecipeLine line : linesToDelete) {
                         DB.deleteRecipeLine(DB.getCurrentUser(), line, lineSuccess -> {
-                            // Handle line success if needed
+                            if(lineSuccess){
+                                Log.d(TAG, line+" deleteRecipeLine: "+lineSuccess);
+                            }
                         });
                     }
-                    linesToDelete.clear(); // Clear the list of pending deletions
+                    linesToDelete.clear();
 
                     Intent newIntent = new Intent();
                     newIntent.putExtra("RECIPE_DATA", currentRecipe);
@@ -188,7 +193,7 @@ public class SpecificRecipeActivity extends AppCompatActivity {
         switch (id) {
             case ELIMINAR:
                 RecipeLine lineToRemove = recipeLines.get(posItem);
-                linesToDelete.add(lineToRemove); // Añadir a la lista de eliminaciones pendientes
+                linesToDelete.add(lineToRemove);
                 recipeLines.remove(posItem);
                 currentRecipe.setLines(recipeLines);
                 ingredientAdapter.notifyDataSetChanged();

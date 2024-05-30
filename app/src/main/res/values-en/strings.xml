@@ -125,4 +125,6 @@
     <string name="fillAll">All fields must be filled</string>
     <string name="toBuyNotExists">You should create a shopping list first</string>
     <string name="toBuyLinesCreated">Created successfully</string>
+    <string name="failedAddIngredient">Failed to add the ingredient</string>
+    <string name="needToAddNameAndType">You need to enter a name and a type</string>
 </resources>

@@ -31,7 +31,6 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -128,7 +127,7 @@ public class WeekActivity extends AppCompatActivity {
     }
 
     private void setupRecycler() {
-        recipeAdapter = new RecipeAdapter(this, new ArrayList<>(), false, true); // Cambiado a lista vacía
+        recipeAdapter = new RecipeAdapter(this, new ArrayList<>(), false, true);
         rvRecipesWeek.setLayoutManager(new LinearLayoutManager(this));
         rvRecipesWeek.setAdapter(recipeAdapter);
     }

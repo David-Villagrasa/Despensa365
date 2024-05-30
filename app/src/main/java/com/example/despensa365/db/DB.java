@@ -68,11 +68,6 @@ public class DB {
         return null;
     }
 
-    public static String getNewIngredientId(FirebaseUser user) {
-        CollectionReference ingredientsCollection = db.collection("users").document(user.getUid()).collection("ingredients");
-        return ingredientsCollection.getId();
-    }
-
     public static void setupDateWeekPlan(@NonNull FirebaseUser user) {
         CollectionReference weekPlanCollection = db.collection("users").document(user.getUid()).collection("weekPlan");
 
@@ -751,7 +746,7 @@ public class DB {
                 .collection("recipeLines");
 
         DocumentReference newRecipeLineRef = recipeLinesCollection.document();
-        recipeLine.setId(newRecipeLineRef.getId()); // Set the ID for the recipe line object
+        recipeLine.setId(newRecipeLineRef.getId());
 
         Map<String, Object> recipeLineData = new HashMap<>();
         recipeLineData.put("ingredient", db.collection("users")
@@ -1243,13 +1238,11 @@ public class DB {
     }
 
     public static void calculateAndCreateToBuyList(@NonNull FirebaseUser currentUser, String toBuyId, BooleanCallback callback) {
-        // Get the plan
         getWeeklyPlan(currentUser, weeklyPlan -> {
             if (weeklyPlan == null) {
                 callback.onCallback(false);
                 return;
             }
-            // Get plan lines
             getAllPlanLines(currentUser, weeklyPlan.getId(), planLines -> {
                 Map<String, Double> ingredientsNeeded = new HashMap<>();
 

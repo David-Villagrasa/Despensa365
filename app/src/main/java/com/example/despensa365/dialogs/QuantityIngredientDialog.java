@@ -2,7 +2,6 @@ package com.example.despensa365.dialogs;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.despensa365.R;
 import com.example.despensa365.activities.SelectIngrActivity;
@@ -56,10 +54,6 @@ public class QuantityIngredientDialog extends DialogFragment {
         });
 
         return window.create();
-    }/*
-
-        public interface Datos {
-            public void pasarDatos(String nombre, int edad, int codigo);
-        }*/
+    }
 
 }

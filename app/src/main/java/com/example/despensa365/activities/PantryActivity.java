@@ -18,7 +18,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.despensa365.MainActivity;
 import com.example.despensa365.R;
 import com.example.despensa365.adapters.IngredientsPantryAdapter;
 import com.example.despensa365.objects.PantryLine;
@@ -33,7 +32,7 @@ import com.example.despensa365.db.DB;
 public class PantryActivity extends AppCompatActivity {
     ActivityResultLauncher<Intent> customLauncher;
     private FloatingActionButton pantryAdd;
-    private TextView tvPantryTitle, tvIngre;
+    private TextView tvIngre;
     private RecyclerView recyclerView;
     private Button btnBackPantry, btnExpired, btnAddToBuy, btnCleanExpired;
     private IngredientsPantryAdapter ingredientsPantryAdapter;
@@ -49,7 +48,6 @@ public class PantryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pantry);
 
-        tvPantryTitle = findViewById(R.id.tvPantryTitle);
         tvIngre = findViewById(R.id.tvIngre);
         recyclerView = findViewById(R.id.recyclerView);
         pantryAdd = findViewById(R.id.pantryAdd);

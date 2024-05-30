@@ -26,13 +26,10 @@ public class RecipeViewActivity extends AppCompatActivity {
     private FloatingActionButton btnAddIngr;
     private Button btnBack, btnCreateRecipe;
     private EditText etNameRecipe, etDirectionsRecipe;
-    private TextView tvRecipeTitle, tvRecipeDirections, tvIngredients;
     private RecyclerView rvIngreListRecipe;
     private Recipe currentRecipe;
     private ArrayList<RecipeLine> recipeLines = new ArrayList<>();
     private IngredientsRecipeAdapter ingredientAdapter;
-    int posItem;
-    private ActivityResultLauncher<Intent> customLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,13 +49,11 @@ public class RecipeViewActivity extends AppCompatActivity {
         btnCreateRecipe = findViewById(R.id.btnCreateRecipe);
         etNameRecipe = findViewById(R.id.etNameRecipe);
         etDirectionsRecipe = findViewById(R.id.etDirectionsRecipe);
-        tvRecipeTitle = findViewById(R.id.tvRecipeTitle);
-        tvRecipeDirections = findViewById(R.id.tvRecipeDirections);
-        tvIngredients = findViewById(R.id.tvIngredients);
         rvIngreListRecipe = findViewById(R.id.rvIngreListRecipe);
 
         btnCreateRecipe.setVisibility(View.INVISIBLE);
         btnAddIngr.setVisibility(View.INVISIBLE);
+
         // To let the user select the text
         etNameRecipe.setFocusable(false);
         etNameRecipe.setTextIsSelectable(true);
@@ -97,12 +92,9 @@ public class RecipeViewActivity extends AppCompatActivity {
     }
 
     private void loadRecipeLines() {
-        DB.getAllRecipeLines(DB.getCurrentUser(), currentRecipe.getId(), new DB.RecipeLinesCallback() {
-            @Override
-            public void onCallback(ArrayList<RecipeLine> lines) {
-                recipeLines = lines;
-                setupRecycler(); // Refresh RecyclerView with the loaded lines
-            }
+        DB.getAllRecipeLines(DB.getCurrentUser(), currentRecipe.getId(), lines -> {
+            recipeLines = lines;
+            setupRecycler();
         });
     }
 }

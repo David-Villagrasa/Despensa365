@@ -29,7 +29,6 @@ import com.example.despensa365.db.DB;
 import com.example.despensa365.dialogs.ToBuyTitleDialogFragment;
 import com.example.despensa365.objects.ToBuy;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Locale;
 
@@ -97,17 +96,14 @@ public class MainActivity extends AppCompatActivity implements ToBuyTitleDialogF
         final String[] languages = {"Español", "English"};
         new AlertDialog.Builder(this)
                 .setTitle(R.string.changeLanguage)
-                .setItems(languages, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case 0:
-                                setLocale("es");
-                                break;
-                            case 1:
-                                setLocale("en");
-                                break;
-                        }
+                .setItems(languages, (dialog, which) -> {
+                    switch (which) {
+                        case 0:
+                            setLocale("es");
+                            break;
+                        case 1:
+                            setLocale("en");
+                            break;
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, null)

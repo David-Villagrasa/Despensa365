@@ -40,7 +40,6 @@ public class SelectIngrActivity extends AppCompatActivity {
     private IngredientAdapter ingredientAdapter;
     private boolean needDate = false;
     private Button btnBack, btnSearchSelectIngr;
-    private int selectedPosition;
     private int posItem;
     private final int ELIMINAR = 300;
 
@@ -71,7 +70,6 @@ public class SelectIngrActivity extends AppCompatActivity {
         });
 
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

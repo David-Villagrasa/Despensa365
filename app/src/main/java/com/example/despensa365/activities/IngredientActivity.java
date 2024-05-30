@@ -53,14 +53,14 @@ public class IngredientActivity extends AppCompatActivity {
                             setResult(RESULT_OK, resultIntent);
                             finish();
                         } else {
-                            Toast.makeText(this, "Failed to add ingredient.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, R.string.failedAddIngredient, Toast.LENGTH_SHORT).show();
                         }
                     });
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else {
-                Toast.makeText(this, "Please enter a name and a type", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.needToAddNameAndType, Toast.LENGTH_SHORT).show();
             }
         });
 

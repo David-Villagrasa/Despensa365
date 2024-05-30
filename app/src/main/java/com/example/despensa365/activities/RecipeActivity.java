@@ -51,14 +51,14 @@ public class RecipeActivity extends AppCompatActivity {
                             // New Recipe
                             DB.addRecipe(DB.currentUser, returnedRecipe, success -> {
                                 if (success) {
-                                    setupRecyclerView(); // Refresh RecyclerView
+                                    setupRecyclerView();
                                 }
                             });
                         } else {
                             // Existing Recipe
                             DB.updateRecipe(DB.currentUser, returnedRecipe, success -> {
                                 if (success) {
-                                    setupRecyclerView(); // Refresh RecyclerView
+                                    setupRecyclerView();
                                 }
                             });
                         }

@@ -43,6 +43,7 @@ public class ToBuyActivity extends AppCompatActivity {
     private int posItem;
     private final String TAG = "ToBuyActivity";
     private boolean flag = true;
+    private final int ELIMINAR = 300;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,10 +127,8 @@ public class ToBuyActivity extends AppCompatActivity {
                                         if (!success) {
                                             Log.w(TAG, "Failed to add PantryLine for ingredient: " + toBuyLine.getIngredientId());
                                         } else {
-                                            // Add to remove list
                                             linesToRemove.add(toBuyLine);
 
-                                            // Remove the validated ToBuyLine
                                             DB.deleteToBuyLine(DB.currentUser, toBuyLine.getToBuyId(), toBuyLine.getId(), deleteSuccess -> {
                                                 if (deleteSuccess) {
                                                     // Update the list after removal
@@ -157,8 +156,6 @@ public class ToBuyActivity extends AppCompatActivity {
                 setupAsBought();
             }
         });
-
-
 
         btnAddNeededIngr.setOnClickListener(v -> {
             flag = false;
@@ -205,8 +202,6 @@ public class ToBuyActivity extends AppCompatActivity {
         rvToBuy.setLayoutManager(new LinearLayoutManager(this));
         rvToBuy.setAdapter(boughtAdapter);
     }
-
-    private final int ELIMINAR = 300;
 
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {

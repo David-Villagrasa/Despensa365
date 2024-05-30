@@ -127,4 +127,6 @@
     <string name="fillAll">Todos los campos son obligatorios.</string>
     <string name="toBuyNotExists">Debes crear una lista de la compra</string>
     <string name="toBuyLinesCreated">Añadido satisfactoriamente</string>
+    <string name="failedAddIngredient">Error al añadir el ingrediente</string>
+    <string name="needToAddNameAndType">Debes introducir un nombre y un tipo</string>
 </resources>
